@@ -176,7 +176,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-    <None Include="UPP.config" />
     <None Include="UPP.SECRETS.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
