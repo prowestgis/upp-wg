@@ -46,10 +46,16 @@ namespace Manager.Security
             var token = Jose.JWT.Encode(tokenPayload, _authSettings.SecretKey, JwsAlgorithm.HS256);
             var cookie = new NancyCookie(_authSettings.CookieName, token);
 
+            return nancyModule.Response
+                .AsRedirect("/")
+                .WithCookie(cookie);
+
+            /*
             return nancyModule.Negotiate
                 .WithView("AuthCallback")
                 .WithModel(model)
                 .WithCookie(cookie);
+            */
         }
 
         public dynamic OnRedirectToAuthenticationProviderError(NancyModule nancyModule, string errorMessage)

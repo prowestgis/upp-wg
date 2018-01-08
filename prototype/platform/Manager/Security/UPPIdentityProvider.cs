@@ -66,7 +66,7 @@ namespace Manager.Security
     /// <summary>
     /// Mediate access to secret keys
     /// </summary>
-    internal class AuthSettings
+    public class AuthSettings
     {
         private static string secretKey = ConfigurationManager.AppSettings[AppKeys.JWT_SIGNING_KEY];
 

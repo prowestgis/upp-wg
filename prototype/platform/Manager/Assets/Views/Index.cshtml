@@ -85,9 +85,15 @@
                                     <li><a href="@login.Url">@login.Name</a></li>
                                     }
                                     <li class="dropdown-header">Fake (testing)</li>
-                                    <li><a href="/authentication/redirect/fakegoogle">Google</a></li>
+                                    <li><a href="/authentication/redirect/fakegoogle">Google</a></li>                                    
                                 </ul>
                             </li>
+                            @if (Model.User != null && Model.User.IsAuthenticated)
+                            {
+                            <li>
+                                <a href="/authentication/logout">Log out</a>
+                            </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -97,9 +103,10 @@
                 <div class="container-fluid">
                     <div class="row">
                         <!-- A card for user information -->
+                        @if (Model.User != null)
+                        {
                         <div class="col-md-4">
                             <div class="card">
-
                                 <div class="header">
                                     <h4 class="title">User information</h4>
                                     <p class="category">Security</p>
@@ -139,6 +146,7 @@
                                 </div>
                             </div>
                         </div>
+                        }
                     </div>
                 </div>
             </div>

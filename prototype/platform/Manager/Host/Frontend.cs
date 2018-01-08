@@ -8,14 +8,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Manager.Security;
+using Nancy.Cookies;
 
 namespace Manager.Host
 {
     public sealed class Frontend : NancyModule
     {
-        public Frontend(Services services)
+        private readonly AuthSettings _authSettings;
+
+        public Frontend(Services services, AuthSettings authSettings)
         {
+            _authSettings = authSettings;
+
             Get["/"] = _ => View["Index", new DashboardView(services, Context)];
+            Get["/authentication/logout"] = _ => Logout();
+        }
+
+        public Response Logout()
+        {
+            // Reset the token to an empty string and set an very old expiration date
+            var cookie = new NancyCookie(_authSettings.CookieName, String.Empty, DateTime.MinValue);
+            return Response.AsRedirect("/").WithCookie(cookie);
         }
     }
 
