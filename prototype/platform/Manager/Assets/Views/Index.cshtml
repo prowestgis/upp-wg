@@ -1,5 +1,5 @@
 ﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Manager.Host.DashboardView>
-@model Manager.Host.DashboardView
+@using Manager.Store
 @{
     Layout = null;
 }
@@ -11,7 +11,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
         <meta name="viewport" content="width=device-width" />
-        <title>UPP Prorotype</title>
+        <title>UPP Prototype</title>
 
         <!-- Styling content -->
         <link href="/css/bootstrap/bootstrap.min.css" rel="stylesheet" />
@@ -103,24 +103,20 @@
                 <div class="container-fluid">
                     <div class="row">
                         <!-- A card for user information -->
-                        @if (Model.User != null)
-                        {
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="card">
                                 <div class="header">
                                     <h4 class="title">User information</h4>
                                     <p class="category">Security</p>
                                 </div>
                                 <div class="content">
+                                    @if (Model.User != null)
+                                    {
                                     <table class="table">
                                         <tbody>
                                             <tr>
                                                 <td>Auth Type</td>
-                                                <td>@Model.User.AuthenticationType</td>
-                                            </tr>
-                                            <tr>
-                                                <td>ID</td>
-                                                <td>@Model.User.Id</td>
+                                                <td>@Model.User.AuthenticationProvider</td>
                                             </tr>
                                             <tr>
                                                 <td>Is Authenticated</td>
@@ -135,22 +131,86 @@
                                                 <td>@Model.User.UserName</td>
                                             </tr>
                                         </tbody>
-                                    </table>                                    
-
-                                    <div class="footer">
-                                        <hr />
+                                    </table>
+                                    }
+                                    else
+                                    {
+                                    <p>No user is currently logged in</p>
+                                    }
+                                </div>
+                                <div class="footer">
+                                    <hr />
+                                    @if (Model.User != null)
+                                    {
                                         <div class="stats">
-                                            <i class="fa fa-clock-o"></i> Token expires in ...
+                                            <i class="fa fa-clock-o"></i> Token expires in ...                                                    
                                         </div>
-                                    </div>
+                                    }
                                 </div>
                             </div>
                         </div>
-                        }
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="header">
+                                    <h4 class="title">OAuth2 Providers</h4>
+                                    <p class="category">Security</p>
+                                </div>
+                                <div class="content">
+                                    <table class="table">
+                                        <tbody>
+                                            @foreach (Services.OAuthProviderConfig oauth in Model.Auths)
+                                            {
+                                                <tr>
+                                                    <td>@oauth.Name</td>
+                                                    <td>@oauth.DisplayName</td>
+                                                    <td>@oauth.Key</td>
+                                                    <td>@oauth.Scopes</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="footer">
+                                    <hr />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="header">
+                                    <h4 class="title">Micro-service Providers</h4>
+                                    <p class="category">Capabilities</p>
+                                </div>
+                                <div class="content">
+                                    <table class="table">
+                                        <tbody>
+                                            @foreach (Services.MicroServiceProviderConfig service in Model.MicroServices)
+                                            {
+                                                <tr>
+                                                    <td>@service.Name</td>
+                                                    <td>@service.DisplayName</td>
+                                                    <td>@service.OAuthId</td>
+                                                    <td>@service.Uri</td>
+                                                    <td>@service.Type</td>
+                                                    <td>@service.Priority</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="footer">
+                                    <hr />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
+                                
             <footer class="footer">
                 <div class="container-fluid">
                     <p class="copyright pull-right">

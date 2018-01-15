@@ -1,0 +1,17 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Manager.Host.PermitView.CompanyInfo>
+@using Manager.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Company Information</legend>
+    @Html.GroupItem(Model.Name, "Name")
+    @Html.GroupItem(Model.Address, "Address")
+    @Html.GroupItem(Model.Email, "Email")
+    @Html.GroupItem(Model.Contact, "Contact")
+    @Html.GroupItem(Model.Phone, "Phone")
+    @Html.GroupItem(Model.Fax, "Fax")
+    @Html.GroupItem(Model.Cell, "Cell")
+    @Html.GroupItem(Model.BillTo, "Bill To")
+    @Html.GroupItem(Model.BillingAddress, "Billing Address")
+</fieldset>

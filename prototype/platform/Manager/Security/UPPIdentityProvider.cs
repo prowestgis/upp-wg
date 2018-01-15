@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Manager.Security
 {
@@ -20,6 +21,8 @@ namespace Manager.Security
 
     internal sealed class UPPIdentityProvider : IIdentityProvider
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private readonly AuthSettings _authSettings;
         private const string _bearerDeclaration = "Bearer ";
 
@@ -43,21 +46,35 @@ namespace Manager.Security
                 if (!String.IsNullOrEmpty(authorizationCookie))
                 {
                     jwt = authorizationCookie;
+                    logger.Debug("Getting JWT from cookie: {0}", jwt);
                 }
 
                 if (!String.IsNullOrEmpty(authorizationHeader))
                 {
                     jwt = authorizationHeader.Substring(_bearerDeclaration.Length);
+                    logger.Debug("Getting JWT from header: {0}", jwt);
                 }
 
                 var authToken = Jose.JWT.Decode<AuthToken>(jwt, _authSettings.SecretKey, JwsAlgorithm.HS256);
                 if (authToken.Exp < DateTime.UtcNow)
+                {
+                    logger.Debug("Token is expired: {0}", authToken.Exp);
                     return null;
+                }
 
-                return new AuthUser(authToken.Name, authToken.Sub, authToken.UserId);
+                // Take the claims in the token a hydrate an AuthUser object with all the relevant user
+                // information
+                logger.Debug("Hydrating user information from token");
+                var user = new AuthUser(authToken);
+
+                // For development, all users are treated as haulers
+                user.AddClaim("hauler", "*");                
+
+                return user;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                logger.Warn(e);
                 return null;
             }
         }
@@ -89,20 +106,50 @@ namespace Manager.Security
 
     public class AuthUser : IUserIdentity
     {
-        public string AuthenticationType => "Test";
+        // Metainformation
+        public string AuthenticationProvider { get; }
         public bool IsAuthenticated { get; }
-        public string Name { get; }
-        public Guid Id { get; }
-        public string UserName { get; }
-        public IEnumerable<string> Claims { get; }
 
-        public AuthUser(string name, string login, Guid id)
+        // Core claims
+        public string Name { get; }
+        public string Email { get; }
+        public string Phone { get; }
+
+        // Required by IUserIdentity
+        public string UserName { get; }
+        public IEnumerable<string> Claims { get { return ExtendedClaims.Keys; } }
+
+        // Better way to check claims
+        public IDictionary<string, object> ExtendedClaims { get; }
+
+        public AuthUser()
         {
-            Name = name;
-            UserName = login;
-            Id = id;
-            IsAuthenticated = true;            
-            Claims = new string[] { };
+            IsAuthenticated = false;
+            ExtendedClaims = new Dictionary<string, object>();
+        }
+
+        public AuthUser(AuthToken token) : this()
+        {
+            AuthenticationProvider = token.Iss;
+            IsAuthenticated = true;
+
+            Name = token.Sub;
+            UserName = token.Sub;
+            Email = token.Email;
+            Phone = token.Phone;
+
+            // Copy the claims
+            ExtendedClaims.Add("iss", token.Iss);
+            ExtendedClaims.Add("sub", token.Sub);
+            ExtendedClaims.Add("exp", token.Exp);
+            ExtendedClaims.Add("upp", token.Upp);
+            ExtendedClaims.Add("email", token.Email);
+            ExtendedClaims.Add("phone", token.Phone);
+        }
+
+        public void AddClaim(string claim, string value)
+        {
+            ExtendedClaims.Add(claim, value);
         }
     }
 }

@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Manager.API;
+using Newtonsoft.Json;
+using Manager.Security;
 
 namespace Manager.Host
 {
@@ -22,5 +25,46 @@ namespace Manager.Host
 
             Get["/"] = _ => Response.AsJson(new { Message = "Hello", User = Context.CurrentUser });
         }
+    }
+
+    /// <summary>
+    /// Implement functionality associated with the Hauler Info scope.  
+    /// </summary>
+    public sealed class HaulerApiInfo : NancyModule
+    {
+        public HaulerApiInfo() : base("/api/hauler")
+        {
+            this.RequiresAuthentication();
+            this.RequiresClaims(new[] { Claims.HAULER });
+
+            Get["/"] = _ => Response.AsJson(new HaulerInfoView(Context));
+        }
+    }
+
+    public sealed class HaulerInfoView
+    {
+        public HaulerInfoView(NancyContext context)
+        {
+            // Need some of our specific methods
+            var user = context.CurrentUser as AuthUser;
+
+            if (user == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            ApplicantName = user.Name;
+            ApplicationDate = DateTime.Now;
+            ApplicantEmail = user.Email;
+            ApplicantPhone = user.Phone;
+            ApplicantFax = null;
+        }
+
+        // Fields defined in UPP committee specificiation
+        public string ApplicantName { get; private set; }
+        public DateTime ApplicationDate { get; private set; }
+        public string ApplicantEmail { get; private set; }
+        public string ApplicantPhone { get; private set; }
+        public string ApplicantFax { get; private set; }
     }
 }

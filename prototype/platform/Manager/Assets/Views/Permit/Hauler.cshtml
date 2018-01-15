@@ -1,0 +1,13 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Manager.Host.PermitView.HaulerInfo>
+@using Manager.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Hauler Information</legend>
+    @Html.GroupItem(Model.Name, "Name")
+    @Html.GroupItem(Model.Date, "Application Date")
+    @Html.GroupItem(Model.Email, "Email")
+    @Html.GroupItem(Model.Phone, "Phone")
+    @Html.GroupItem(Model.Fax, "Fax")
+</fieldset>
