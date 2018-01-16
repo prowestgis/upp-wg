@@ -37,6 +37,12 @@ create table ExternalLogins
 );
 
 -- Fake data for stubbing remote services
+create table UserCompanies
+(
+	user_id                            blob not null,          -- FK to the Users table
+	company_id                         integer primary key     -- FK to CompanyInformation table
+);
+
 create table CompanyInformation
 (
 	company_id                         integer primary key,
