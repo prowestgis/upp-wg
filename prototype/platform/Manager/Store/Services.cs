@@ -189,6 +189,52 @@ namespace Manager.Store
             }
         }
 
+        /// <summary>
+        /// Used to populate test data: https://www.mockaroo.com/
+        /// </summary>
+        /// <param name="csvFile"></param>
+        /// <param name="tableName"></param>
+        private static void ImportTableFromCSV(string csvFile, string tableName)
+        {
+            if (!File.Exists(csvFile))
+            {
+                logger.Warn("CSV file '{0}' does not exist", csvFile);
+                return;
+            }
+
+            using (var reader = new StreamReader(csvFile))
+            using (var csv = new CsvHelper.CsvReader(reader))
+            using (var conn = SimpleDbConnection())
+            {
+                var records = new List<dynamic>();
+
+                // Assume the CSV header matches the database fields
+                csv.Read();
+                csv.ReadHeader();
+                while (csv.Read())
+                {
+                    records.Add(csv.GetRecord<dynamic>());
+                }
+
+                // Extract the header names
+                var tableFields = new List<string>();
+                var objectFields = new List<string>();
+                foreach (var header in csv.Context.HeaderRecord)
+                {
+                    tableFields.Add(header);
+                    objectFields.Add("@" + header);
+                }
+
+                // Insert the records
+                var sql = String.Format(@"
+                    INSERT INTO {0}({1})
+                    VALUES ({2})
+                ", tableName, String.Join(", ", tableFields), String.Join(", ", objectFields));
+
+                conn.Execute(sql, records);
+            }
+        }
+
         private static IEnumerable<OAuthProviderConfig> GetAuthenticationProviders()
         {
             using (var conn = SimpleDbConnection())
@@ -242,7 +288,7 @@ namespace Manager.Store
         }
 
         public static void Bootstrap(TinyIoCContainer container)
-        {
+        {            
             if (!File.Exists(DbFile))
             {
                 logger.Info("Database file does not exist. Creating database at {0}", DbFile);
@@ -251,6 +297,9 @@ namespace Manager.Store
             else
             {
                 logger.Info("Database exists at {0}", DbFile);
+                logger.Info("Deleting database at {0}", DbFile);
+                File.Delete(DbFile);
+                CreateDatabase();
             }
 
             // Initialize the database tables
@@ -259,6 +308,9 @@ namespace Manager.Store
 
             // Register the OAuth providers with the Nancy middleware
             RegisterOAuthProviders();
+
+            // Copy in test data to populate the database for mocked services
+            ImportTableFromCSV(Path.Combine(Environment.CurrentDirectory, @"MockData\COMPANY_DATA.csv"), "CompanyInformation");
         }
 
         public void Startup()
@@ -287,10 +339,14 @@ namespace Manager.Store
             {
                 // Create a new User
                 var guid = Guid.NewGuid().ToString();
-                conn.Execute(@"INSERT INTO Users (user_id) values (@User)", new { User = guid });
+                conn.Execute(@"INSERT INTO Users (user_id) VALUES (@User)", new { User = guid });
 
                 // Create a new External Login tied to this user
-                conn.Execute(@"INSERT INTO ExternalLogins (user_id, provider_id, provider_user_id) values (@User, @Provider, @ExternalId)", new { User = guid, Provider = provider, ExternalId = externalId });
+                conn.Execute(@"
+                    INSERT INTO ExternalLogins (user_id, provider_id, provider_user_id)
+                    VALUES (@User, @Provider, @ExternalId)
+                    ", new { User = guid, Provider = provider, ExternalId = externalId }
+                    );
 
                 return guid;
             }

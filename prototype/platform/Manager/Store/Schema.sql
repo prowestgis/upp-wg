@@ -24,7 +24,7 @@ create table MicroServiceProviders
 -- to map UPP authorized users to existing resources.
 create table Users
 (
-	user_id                            blob not null, -- GUID under control of UPP
+	user_id                            blob not null           -- GUID under control of UPP
 );
 
 -- Table of external id tokens used to track multiple identities associated with 
@@ -47,5 +47,5 @@ create table CompanyInformation
 	fax                                varchar(100) not null,
 	cell                               varchar(100) not null,
 	bill_to                            varchar(100) not null,
-	billing_address                    varchar(100) not null,
+	billing_address                    varchar(100) not null
 );
