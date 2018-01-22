@@ -1,6 +1,7 @@
 ﻿using Nancy;
 using Dapper;
 using Manager.Store;
+using Nancy.Security;
 using Nancy.Responses.Negotiation;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using Manager.Security;
 using Nancy.Cookies;
 using NLog;
+using Manager.API;
 
 namespace Manager.Host
 {
@@ -22,8 +24,7 @@ namespace Manager.Host
             _authSettings = authSettings;
 
             Get["/"] = _ => View["Index", new DashboardView(services, Context)];
-            Get["/dashboard.html"] = _ => View["Index", new DashboardView(services, Context)];
-            Get["/permit.html"] = _ => View["Permit", new PermitView(services, Context)];
+            Get["/dashboard.html"] = _ => View["Index", new DashboardView(services, Context)];            
             Get["/authentication/logout"] = _ => Logout();
         }
 
@@ -32,6 +33,17 @@ namespace Manager.Host
             // Reset the token to an empty string and set an very old expiration date
             var cookie = new NancyCookie(_authSettings.CookieName, String.Empty, DateTime.MinValue);
             return Response.AsRedirect("/").WithCookie(cookie);
+        }
+    }
+
+    public sealed class PermitApplication : NancyModule
+    {
+        public PermitApplication(Services services)
+        {
+            this.RequiresAuthentication();
+            this.RequiresClaims(new[] { Claims.HAULER });
+
+            Get["/permit.html"] = _ => View["Permit", new PermitView(services, Context)];
         }
     }
 
@@ -78,7 +90,7 @@ namespace Manager.Host
         {
             User = context.CurrentUser as AuthUser;
 
-            Hauler = new HaulerInfo();
+            Hauler = new HaulerInfo(User);
             Company = new CompanyInfo();
             Insurance = new InsuranceInfo();
             Vehicle = new VehicleInfo();
@@ -103,6 +115,19 @@ namespace Manager.Host
         // All of the fields from the UPP working group
         public sealed class HaulerInfo
         {
+            public HaulerInfo()
+            {
+                Date = DateTime.Now;
+            }
+
+            public HaulerInfo(AuthUser user)
+                : this()
+            {
+                Name = user.Name;
+                Email = user.Email;
+                Phone = user.Phone;
+            }
+
             public string Name { get; set; }
             public DateTime Date { get; set; }
             public string Email { get; set; }

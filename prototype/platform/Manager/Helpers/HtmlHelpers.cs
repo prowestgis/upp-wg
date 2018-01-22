@@ -13,14 +13,16 @@ namespace Manager.Helpers
     {
         public static IHtmlString GroupItem<TModel, TValue>(this Nancy.ViewEngines.Razor.HtmlHelpers<TModel> htmlHelper, TValue value, string label = "")
         {
+            var prefix = typeof(TModel).Name.ToLower();
+
             return htmlHelper.Raw(String.Format(@"
                 <div class=""form-group row"">
                     <label class=""col-sm-2 control-label"">{0}</label>
                     <div class=""col-sm-8"">
-                        <input type=""text"" class=""form-control"" value=""{1}"" />
+                        <input id=""{2}-{3}"" type=""text"" class=""form-control"" value=""{1}"" />
                     </div>
                 </div>
-            ", label, value));
+            ", label, value, prefix, label.ToLower().Replace(' ', '-')));
         }
     }
 }

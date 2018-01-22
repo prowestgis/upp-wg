@@ -5,6 +5,13 @@
 }
 <fieldset>
     <legend>Company Information</legend>
+    <div class="form-group row">
+        <div class="col-sm-offset-2 col-sm-8">
+            <select class="form-control" id="company-selector">
+                <option></option>
+            </select>
+        </div>
+    </div>
     @Html.GroupItem(Model.Name, "Name")
     @Html.GroupItem(Model.Address, "Address")
     @Html.GroupItem(Model.Email, "Email")

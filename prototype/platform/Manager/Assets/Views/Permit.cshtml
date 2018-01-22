@@ -162,5 +162,37 @@
           })
       });
     </script>
+
+    <!-- Populate the company information -->
+    <script type="text/javascript">
+        // Call an API to get the company information for a logged in user
+        //  -- Same Domain for development...
+        var url = "/api/ext/company";
+        var select = $("#company-selector");
+        $.get(url, function (data) {        
+            $.each(data, function (index, company) {
+                var opt = $('<option>' + company.companyName + '</option>');
+                opt.data("company", company);
+
+                select.append(opt);
+            });
+        });
+
+        // Set an event handler to populate the company form on select change
+        select.change(function (evt) {
+            var opt = select.find(":selected");
+            var data = opt.data("company");
+            if (data) {
+                $('#companyinfo-name').val(data.companyName);
+                $('#companyinfo-email').val(data.email);
+                $('#companyinfo-contact').val(data.contact);
+                $('#companyinfo-phone').val(data.phone);
+                $('#companyinfo-fax').val(data.fax);
+                $('#companyinfo-cell').val(data.cell);
+                $('#companyinfo-bill-to').val(data.billTo);
+                $('#companyinfo-billing-address').val(data.billingAddress);
+            }
+        });
+    </script>
 </body>
 </html>

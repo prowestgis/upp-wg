@@ -119,16 +119,20 @@
                                                 <td>@Model.User.AuthenticationProvider</td>
                                             </tr>
                                             <tr>
-                                                <td>Is Authenticated</td>
-                                                <td>@Model.User.IsAuthenticated</td>
-                                            </tr>
-                                            <tr>
                                                 <td>Name</td>
                                                 <td>@Model.User.Name</td>
                                             </tr>
                                             <tr>
-                                                <td>Username</td>
-                                                <td>@Model.User.UserName</td>
+                                                <td>Email</td>
+                                                <td>@Model.User.Email</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Phone</td>
+                                                <td>@Model.User.Phone</td>
+                                            </tr>
+                                            <tr>
+                                                <td>UPP Token</td>
+                                                <td>@Model.User.ExtendedClaims["upp"]</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -142,8 +146,8 @@
                                     <hr />
                                     @if (Model.User != null)
                                     {
-                                        <div class="stats">
-                                            <i class="fa fa-clock-o"></i> Token expires in ...                                                    
+                                        <div class="stats" style="padding-left: 15px">
+                                            <i class="fa fa-clock-o"></i> Token expires @Model.User.ExtendedClaims["exp"]
                                         </div>
                                     }
                                 </div>
@@ -187,13 +191,21 @@
                                 </div>
                                 <div class="content">
                                     <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>OAuth</th>
+                                                <th></th>
+                                                <th>Type</th>
+                                                <th>Priority</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
                                             @foreach (Services.MicroServiceProviderConfig service in Model.MicroServices)
                                             {
                                                 <tr>
-                                                    <td>@service.Name</td>
                                                     <td>@service.DisplayName</td>
-                                                    <td>@service.OAuthId</td>
+                                                    <td>@(service.OAuthId ?? "None")</td>
                                                     <td>@service.Uri</td>
                                                     <td>@service.Type</td>
                                                     <td>@service.Priority</td>

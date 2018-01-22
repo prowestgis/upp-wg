@@ -55,6 +55,11 @@ namespace Manager.Security
                     logger.Debug("Getting JWT from header: {0}", jwt);
                 }
 
+                if (String.IsNullOrWhiteSpace(jwt))
+                {
+                    return null;
+                }
+
                 var authToken = Jose.JWT.Decode<AuthToken>(jwt, _authSettings.SecretKey, JwsAlgorithm.HS256);
                 if (authToken.Exp < DateTime.UtcNow)
                 {

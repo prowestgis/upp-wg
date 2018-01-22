@@ -59,6 +59,11 @@ namespace Manager.Store
                 OAuthProviders.Add(new OAuthProvider("mndot", settings[AppKeys.MNDOT_OAUTH_KEY], settings[AppKeys.MNDOT_OAUTH_SECRET]));
             }
 
+            if (keys.Contains(AppKeys.ARCGISONLINE_OAUTH_KEY) && keys.Contains(AppKeys.ARCGISONLINE_OAUTH_SECRET))
+            {
+                OAuthProviders.Add(new OAuthProvider("agol", settings[AppKeys.ARCGISONLINE_OAUTH_KEY], settings[AppKeys.ARCGISONLINE_OAUTH_SECRET]));
+            }
+
             // Extract the microservice providers
             var section = ConfigurationManager.GetSection("upp") as HostConfigurationSection;
             foreach (var record in section.MicroServices)
@@ -117,12 +122,13 @@ namespace Manager.Store
                     var insert = cnn.CreateCommand();
 
                     insert.CommandText = @"
-                        INSERT INTO MicroServiceProviders (provider_id, display_name, uri, service_type, service_priority, active)
-                        VALUES (@Name, @DisplayName, @Uri, @Type, @Priority, @Active)
+                        INSERT INTO MicroServiceProviders (provider_id, display_name, oauth_provider_id, uri, service_type, service_priority, active)
+                        VALUES (@Name, @DisplayName, @OAuthId, @Uri, @Type, @Priority, @Active)
                         ";
                     insert.CommandType = System.Data.CommandType.Text;
                     insert.Parameters.Add(new SQLiteParameter("@Name", provider.Name));
                     insert.Parameters.Add(new SQLiteParameter("@DisplayName", provider.DisplayName));
+                    insert.Parameters.Add(new SQLiteParameter("@OAuthId", provider.OAuthId));
                     insert.Parameters.Add(new SQLiteParameter("@Uri", provider.Uri));
                     insert.Parameters.Add(new SQLiteParameter("@Type", provider.Type));
                     insert.Parameters.Add(new SQLiteParameter("@Priority", provider.Priority));
@@ -176,6 +182,7 @@ namespace Manager.Store
                     SELECT
                         provider_id AS Name,
                         display_name AS DisplayName,
+                        oauth_provider_id as OAuthId,
                         uri AS Uri,
                         service_type AS Type,
                         service_priority AS Priority,
@@ -280,6 +287,10 @@ namespace Manager.Store
                         authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
                         break;
 
+                    case "agol":
+                        authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
+                        break;
+
                     default:
                         logger.Warn("Unknown OAuth provider: '{0}'. Skipping.", provider.Name);
                         break;
@@ -352,6 +363,19 @@ namespace Manager.Store
             }
         }
 
+        public void AssignUserToCompanies(string uppId, int[] companyIDs)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                var insertList = companyIDs.Select(id => new { User = uppId, Company = id });
+                conn.Execute(@"
+                    INSERT INTO UserCompanies (user_id, company_id)
+                    VALUES (@User, @Company)
+                ", insertList
+                );
+            }
+        }
+
         public IEnumerable<dynamic> FindCompanyInfoForUser(string uppId)
         {
             using (var conn = SimpleDbConnection())
@@ -375,6 +399,7 @@ namespace Manager.Store
                     );
             }
         }
+
         public string FindExternalUser(string provider, string externalId)
         {
             using (var conn = SimpleDbConnection())

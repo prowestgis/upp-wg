@@ -60,6 +60,9 @@ namespace Manager.Security
                 {
                     // Create a new Identity in the database
                     existingUser = _services.CreateNewIdentityFromExternalAuth(model.ProviderName, model.AuthenticatedClient.UserInformation.Id);
+
+                    // Add to a couple of random companies
+                    _services.AssignUserToCompanies(existingUser, new[] { 5, 15, 103 });
                 }
             }
 

@@ -19,6 +19,9 @@ namespace Manager.Configuration
         public const string MNDOT_OAUTH_KEY = "UPP:Security:OAuth:MNDoT:Key";
         public const string MNDOT_OAUTH_SECRET = "UPP:Security:OAuth:MNDoT:Secret";
 
+        public const string ARCGISONLINE_OAUTH_KEY = "UPP:Security:OAuth:AGOL:Key";
+        public const string ARCGISONLINE_OAUTH_SECRET = "UPP:Security:OAuth:AGOL:Secret";
+
         public const string JWT_SIGNING_KEY = "UPP:Security:JWT:Key";
     }
 
