@@ -147,7 +147,7 @@
                                     @if (Model.User != null)
                                     {
                                         <div class="stats" style="padding-left: 15px">
-                                            <i class="fa fa-clock-o"></i> Token expires @Model.User.ExtendedClaims["exp"]
+                                            <i class="fa fa-clock-o"></i> Token expires at @Model.User.UtcExpiration.ToLocalTime() local time
                                         </div>
                                     }
                                 </div>

@@ -8,19 +8,25 @@
     <div class="form-group row">
         <label class="col-sm-2 control-label">Route Origin</label>
         <div class="col-sm-8 input-group">
-            <input type="text" class="form-control" />
+            <input type="text" id="movementinfo-origin" class="form-control" />
             <div class="input-group-btn">
-                <button class="btn btn-default" type="button" data-toggle="modal" data-target="#locationModal"><span class="glyphicon glyphicon-map-marker"></span></button>
+                <button class="btn btn-default" type="button" data-toggle="modal" data-target="#startLocationModal"><span class="glyphicon glyphicon-map-marker"></span></button>
             </div>
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-2 control-label">Route Destination</label>
         <div class="col-sm-8 input-group">
-            <input type="text" class="form-control" />
+            <input type="text" id="movementinfo-destination" class="form-control" />
             <div class="input-group-btn">
-                <button class="btn btn-default" type="button" data-toggle="modal" data-target="#locationModal"><span class="glyphicon glyphicon-map-marker"></span></button>
+                <button class="btn btn-default" type="button" data-toggle="modal" data-target="#endLocationModal"><span class="glyphicon glyphicon-map-marker"></span></button>
             </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 control-label">Proposed Route</label>
+        <div class="col-sm-8">
+            <div id="route-map"></div>
         </div>
     </div>
 </fieldset>

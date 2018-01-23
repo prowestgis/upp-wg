@@ -114,6 +114,7 @@ namespace Manager.Security
         // Metainformation
         public string AuthenticationProvider { get; }
         public bool IsAuthenticated { get; }
+        public DateTime UtcExpiration { get; }
 
         // Core claims
         public string Name { get; }
@@ -150,6 +151,8 @@ namespace Manager.Security
             ExtendedClaims.Add("upp", token.Upp);
             ExtendedClaims.Add("email", token.Email);
             ExtendedClaims.Add("phone", token.Phone);
+
+            UtcExpiration = token.Exp;
         }
 
         public void AddClaim(string claim, string value)
