@@ -205,18 +205,30 @@
               var destination_pt = $('#movementinfo-destination').data('location');
 
               if (origin_pt && destination_pt) {
-                  var routeTask = new RouteTask("https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World");
-                  var routeParams = new RouteParameters();
-                  routeParams.stops = new FeatureSet();
-                  routeParams.stops.features.push(new Graphic(origin_pt, null, {}));
-                  routeParams.stops.features.push(new Graphic(destination_pt, null, {}));
-                  routeTask.solve(routeParams).then(function (result) {
-                      // Show the route on the route map
-                      var routeSymbol = new SimpleLineSymbol().setColor(new dojo.Color([0, 0, 255, 0.5])).setWidth(5);
-                      array.forEach(result.routeResults, function (result) {
-                          route_map.graphics.add(result.route.setSymbol(routeSymbol));
-                          route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
+
+                  // Ask UPP what service we should use for routing.  The UPP services API is responsible for acquiring any
+                  // OAuth tokens that are needed for the service
+                  var url = "/api/hauler";
+                  $.get(url, function (data) {
+                      if (!data.routeUrl && data.routeToken) {
+                          alert('No route service access is configured');
+                          return;
+                      }
+
+                      var routeTask = new RouteTask(data.routeUrl + "?token=" + data.routeToken);
+                      var routeParams = new RouteParameters();
+                      routeParams.stops = new FeatureSet();
+                      routeParams.stops.features.push(new Graphic(origin_pt, null, {}));
+                      routeParams.stops.features.push(new Graphic(destination_pt, null, {}));
+                      routeTask.solve(routeParams).then(function (result) {
+                          // Show the route on the route map
+                          var routeSymbol = new SimpleLineSymbol().setColor(new dojo.Color([0, 0, 255, 0.5])).setWidth(5);
+                          array.forEach(result.routeResults, function (result) {
+                              route_map.graphics.add(result.route.setSymbol(routeSymbol));
+                              route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
+                          });
                       });
+
                   });
               }
           };

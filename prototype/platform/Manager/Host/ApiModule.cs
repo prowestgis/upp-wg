@@ -11,6 +11,8 @@ using Manager.API;
 using Newtonsoft.Json;
 using Manager.Security;
 using Manager.Store;
+using RestSharp;
+using NLog;
 
 namespace Manager.Host
 {
@@ -20,10 +22,9 @@ namespace Manager.Host
     /// </summary>
     public sealed class ApiModule : NancyModule
     {
-        public ApiModule() : base("/api")
+        public ApiModule(Services services) : base("/api")
         {
             //this.RequiresAuthentication();
-
             Get["/"] = _ => Response.AsJson(new { Message = "Hello", User = Context.CurrentUser });
         }
     }
@@ -53,18 +54,20 @@ namespace Manager.Host
     /// </summary>
     public sealed class HaulerApiInfo : NancyModule
     {
-        public HaulerApiInfo() : base("/api/hauler")
+        public HaulerApiInfo(Services services) : base("/api/hauler")
         {
             this.RequiresAuthentication();
             this.RequiresClaims(new[] { Claims.HAULER });
 
-            Get["/"] = _ => Response.AsJson(new HaulerInfoView(Context));
+            Get["/"] = _ => Response.AsJson(new HaulerInfoView(Context, services));
         }
     }
 
     public sealed class HaulerInfoView
     {
-        public HaulerInfoView(NancyContext context)
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        public HaulerInfoView(NancyContext context, Services services)
         {
             // Need some of our specific methods
             var user = context.CurrentUser as AuthUser;
@@ -79,6 +82,53 @@ namespace Manager.Host
             ApplicantEmail = user.Email;
             ApplicantPhone = user.Phone;
             ApplicantFax = null;
+
+            // A Hauler need access to a routing service in order to plan their route -- look at the microservices
+            // table to find the current route service endpoint
+            var routeService = services.MicroServices.Where(x => x.Type == "route").FirstOrDefault();
+
+            // If there is an OAuth ID, look up the OAuth provider
+            if (routeService != null)
+            {
+                RouteUrl = routeService.Uri;
+                if (!String.IsNullOrWhiteSpace(routeService.OAuthId))
+                {
+                    var oauth = services.AuthenticationProviders.Where(x => x.Name == routeService.OAuthId).FirstOrDefault();
+                    if (oauth != null)
+                    {
+                        // Get a token from ArcGIS Online
+                        if (oauth.Name == "agol")
+                        {
+                            var client = new RestClient("https://www.arcgis.com");
+                            var request = new RestRequest("sharing/rest/oauth2/token/", Method.POST);
+                            request.AddParameter("client_id", oauth.Key);
+                            request.AddParameter("client_secret", oauth.Secret);
+                            request.AddParameter("grant_type", "client_credentials");
+
+                            var response = client.Execute(request);
+                            var payload = JsonConvert.DeserializeObject<AgolOAuthResponse>(response.Content);
+
+                            RouteToken = payload.access_token;
+                        }
+                        else
+                        {
+                            logger.Debug("UPP is not configured to acquire tokens from '{0}'", oauth.Name);
+                        }
+                    }
+                    else
+                    {
+                        logger.Debug("No matching OAuth provider found for '{0}'", routeService.OAuthId);
+                    }
+                }
+                else
+                {
+                    logger.Debug("route service is unsecured");
+                }
+            }
+            else
+            {
+                logger.Debug("No route microservice provider found");
+            }
         }
 
         // Fields defined in UPP committee specificiation
@@ -87,5 +137,14 @@ namespace Manager.Host
         public string ApplicantEmail { get; private set; }
         public string ApplicantPhone { get; private set; }
         public string ApplicantFax { get; private set; }
+
+        public string RouteUrl { get; private set; }
+        public string RouteToken { get; private set; }
+
+        public class AgolOAuthResponse
+        {
+            public string access_token { get; set; }
+            public int expires_in { get; set; }
+        }
     }
 }
