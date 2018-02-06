@@ -26,6 +26,23 @@ namespace Manager.Security
         private readonly AuthSettings _authSettings;
         private const string _bearerDeclaration = "Bearer ";
 
+        public static JwtSettings JwtSettings = new JwtSettings
+        {
+            JsonMapper = new NewtonsoftMapper()
+        };
+
+        private class NewtonsoftMapper : IJsonMapper
+        {
+            public T Parse<T>(string json)
+            {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            }
+
+            public string Serialize(object obj)
+            {
+                return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            }
+        }
         public UPPIdentityProvider(AuthSettings authSettings)
         {
             _authSettings = authSettings;
@@ -60,7 +77,7 @@ namespace Manager.Security
                     return null;
                 }
 
-                var authToken = Jose.JWT.Decode<AuthToken>(jwt, _authSettings.SecretKey, JwsAlgorithm.HS256);
+                var authToken = Jose.JWT.Decode<AuthToken>(jwt, _authSettings.SecretKey, JwsAlgorithm.HS256, UPPIdentityProvider.JwtSettings);
                 if (authToken.Exp < DateTime.UtcNow)
                 {
                     logger.Debug("Token is expired: {0}", authToken.Exp);
@@ -146,6 +163,7 @@ namespace Manager.Security
 
             // Copy the claims
             ExtendedClaims.Add("iss", token.Iss);
+            ExtendedClaims.Add("idp", token.Idp);
             ExtendedClaims.Add("sub", token.Sub);
             ExtendedClaims.Add("exp", token.Exp);
             ExtendedClaims.Add("upp", token.Upp);

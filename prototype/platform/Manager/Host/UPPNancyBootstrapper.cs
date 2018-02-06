@@ -1,5 +1,4 @@
 ﻿using Manager.Security;
-using Manager.Serialization;
 using Nancy;
 using Nancy.Authentication.Stateless;
 using Nancy.Conventions;
@@ -15,6 +14,7 @@ namespace Manager.Host
     public sealed class UPPNancyBootstrapper : DefaultNancyBootstrapper
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
+        private Store.Services services;
 
         protected override void ConfigureConventions(NancyConventions conventions)
         {
@@ -38,10 +38,10 @@ namespace Manager.Host
             base.ConfigureApplicationContainer(container);
 
             // Use Json.Net serializer instead of the built-in one
-            container.Register<JsonSerializer, UPPJsonSerializer>();
+            container.Register<JsonSerializer, UPP.Configuration.JsonSerializer>();
 
             // Bootstrap our application services
-            Manager.Store.Services.Bootstrap(container);            
+            services = new Store.Services();           
 
             // Bind the callback handler to our own implementation
             container.Register<IAuthenticationCallbackProvider, UPPAuthenticationCallbackProvider>();
@@ -50,6 +50,8 @@ namespace Manager.Host
         protected override void ApplicationStartup(TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
             base.ApplicationStartup(container, pipelines);
+
+            services.Initialize();
 
             var identityProvider = container.Resolve<IIdentityProvider>();
             var statelessAuthConfig = new StatelessAuthenticationConfiguration(identityProvider.GetUserIdentity);

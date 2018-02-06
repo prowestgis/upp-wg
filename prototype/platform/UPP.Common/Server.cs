@@ -1,18 +1,12 @@
-﻿using Manager.Configuration;
-using Nancy;
-using Nancy.Hosting.Self;
+﻿using Nancy.Hosting.Self;
 using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UPP.Configuration;
 
-namespace Manager.Host
-{    
+namespace UPP.Common
+{
     /// <summary>
-    /// Main Nancy Server
+    /// Basic Nancy Server that knows about UPP configuration options
     /// </summary>
     public class Server
     {
@@ -27,7 +21,6 @@ namespace Manager.Host
         };
 
         private readonly NancyHost host;
-        private readonly Manager.Store.Services database;
 
         public Server(HostConfigurationSection config)
         {
@@ -36,20 +29,11 @@ namespace Manager.Host
 
             logger.Debug("Creating NancyHost");
             host = new NancyHost(hostConfig, new Uri(hostUri));
-
-            logger.Debug("Creating data store instance");
-            database = new Manager.Store.Services();
         }
 
         public void Start()
         {
             logger.Debug("Starting services");
-
-            // Backend initialization
-            logger.Debug("Initializing database");
-            database.Startup();
-
-            // Start up the Web Server
             host.Start();
         }
 

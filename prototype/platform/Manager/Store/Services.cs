@@ -14,6 +14,7 @@ using Nancy.TinyIoc;
 using SimpleAuthentication.Core;
 using SimpleAuthentication.Core.Providers;
 using UPP.SimpleAuthentication.Providers;
+using UPP.Configuration;
 
 namespace Manager.Store
 {
@@ -33,9 +34,8 @@ namespace Manager.Store
     /// <summary>
     /// Persistent store of service configuration information
     /// </summary>
-    public sealed class Services
+    public sealed class Services : DataStore
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
         private static List<OAuthProvider> OAuthProviders = new List<OAuthProvider>();
         private static List<MicroServiceProvider> MicroServiceProviders = new List<MicroServiceProvider>();
 
@@ -65,7 +65,7 @@ namespace Manager.Store
             }
 
             // Extract the microservice providers
-            var section = ConfigurationManager.GetSection("upp") as HostConfigurationSection;
+            var section = ConfigurationManager.GetSection("upp") as ManagerConfigurationSection;
             foreach (var record in section.MicroServices)
             {
                 MicroServiceProviders.Add(new MicroServiceProvider(record));
@@ -73,28 +73,8 @@ namespace Manager.Store
         }
 
         public Services()
+            : base("SimpleDb.sqlite", @"Store\Schema.sql")
         {            
-        }
-
-        public static string DbFile
-        {
-            get { return Environment.CurrentDirectory + "\\SimpleDb.sqlite"; }
-        }
-
-        public static DbConnection SimpleDbConnection()
-        {
-            return new SQLiteConnection("Data Source=" + DbFile);
-        }
-
-        public static void CreateDatabase()
-        {
-            using (var cnn = SimpleDbConnection())
-            {
-                cnn.Open();
-                var command = cnn.CreateCommand();
-                command.CommandText = File.ReadAllText(@"Store\Schema.sql");
-                command.ExecuteNonQuery();
-            }
         }
 
         /// <summary>
@@ -104,7 +84,7 @@ namespace Manager.Store
         /// will try service in priority order.  If multiple services have the same priority, any of the services
         /// *may* be used.
         /// </summary>
-        private static void InitializeServiceProviders()
+        private void InitializeServiceProviders()
         {
             using (var cnn = SimpleDbConnection())
             {
@@ -140,7 +120,7 @@ namespace Manager.Store
             }
         }
 
-        private static void InitializeOAuthProviders()
+        private void InitializeOAuthProviders()
         {
             using (var cnn = SimpleDbConnection())
             {
@@ -174,7 +154,7 @@ namespace Manager.Store
             }
         }
 
-        private static IEnumerable<MicroServiceProviderConfig> GetMicroServiceProviders()
+        private IEnumerable<MicroServiceProviderConfig> GetMicroServiceProviders()
         {
             using (var conn = SimpleDbConnection())
             {
@@ -195,54 +175,8 @@ namespace Manager.Store
                     .ToList();
             }
         }
-
-        /// <summary>
-        /// Used to populate test data: https://www.mockaroo.com/
-        /// </summary>
-        /// <param name="csvFile"></param>
-        /// <param name="tableName"></param>
-        private static void ImportTableFromCSV(string csvFile, string tableName)
-        {
-            if (!File.Exists(csvFile))
-            {
-                logger.Warn("CSV file '{0}' does not exist", csvFile);
-                return;
-            }
-
-            using (var reader = new StreamReader(csvFile))
-            using (var csv = new CsvHelper.CsvReader(reader))
-            using (var conn = SimpleDbConnection())
-            {
-                var records = new List<dynamic>();
-
-                // Assume the CSV header matches the database fields
-                csv.Read();
-                csv.ReadHeader();
-                while (csv.Read())
-                {
-                    records.Add(csv.GetRecord<dynamic>());
-                }
-
-                // Extract the header names
-                var tableFields = new List<string>();
-                var objectFields = new List<string>();
-                foreach (var header in csv.Context.HeaderRecord)
-                {
-                    tableFields.Add(header);
-                    objectFields.Add("@" + header);
-                }
-
-                // Insert the records
-                var sql = String.Format(@"
-                    INSERT INTO {0}({1})
-                    VALUES ({2})
-                ", tableName, String.Join(", ", tableFields), String.Join(", ", objectFields));
-
-                conn.Execute(sql, records);
-            }
-        }
-
-        private static IEnumerable<OAuthProviderConfig> GetAuthenticationProviders()
+       
+        private IEnumerable<OAuthProviderConfig> GetAuthenticationProviders()
         {
             using (var conn = SimpleDbConnection())
             {
@@ -260,7 +194,7 @@ namespace Manager.Store
             }
         }
 
-        public static void RegisterOAuthProviders()
+        public void RegisterOAuthProviders()
         {
             // Add in all of our registered authorization providers (Google, RT Vision, etc.)
             var authenticationProviderFactory = new AuthenticationProviderFactory();
@@ -298,20 +232,9 @@ namespace Manager.Store
             }
         }
 
-        public static void Bootstrap(TinyIoCContainer container)
-        {            
-            if (!File.Exists(DbFile))
-            {
-                logger.Info("Database file does not exist. Creating database at {0}", DbFile);
-                CreateDatabase();
-            }
-            else
-            {
-                logger.Info("Database exists at {0}", DbFile);
-                logger.Info("Deleting database at {0}", DbFile);
-                File.Delete(DbFile);
-                CreateDatabase();
-            }
+        public override void Initialize()
+        {
+            base.Initialize();
 
             // Initialize the database tables
             InitializeOAuthProviders();

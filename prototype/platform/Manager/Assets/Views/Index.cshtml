@@ -115,8 +115,12 @@
                                     <table class="table">
                                         <tbody>
                                             <tr>
-                                                <td>Auth Type</td>
-                                                <td>@Model.User.AuthenticationProvider</td>
+                                                <td>Issuer</td>
+                                                <td>@Model.User.ExtendedClaims["iss"]</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Identity Provider</td>
+                                                <td>@Model.User.ExtendedClaims["idp"]</td>
                                             </tr>
                                             <tr>
                                                 <td>Name</td>

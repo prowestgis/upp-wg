@@ -36,67 +36,67 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CsvHelper, Version=6.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
-      <HintPath>packages\CsvHelper.6.1.0\lib\net45\CsvHelper.dll</HintPath>
+      <HintPath>..\packages\CsvHelper.6.1.0\lib\net45\CsvHelper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Dapper, Version=1.50.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Dapper.1.50.4\lib\net451\Dapper.dll</HintPath>
+      <HintPath>..\packages\Dapper.1.50.4\lib\net451\Dapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="jose-jwt, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\jose-jwt.2.4.0\lib\net40\jose-jwt.dll</HintPath>
+      <HintPath>..\packages\jose-jwt.2.4.0\lib\net40\jose-jwt.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Nancy, Version=1.4.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Nancy.1.4.4\lib\net40\Nancy.dll</HintPath>
+      <HintPath>..\packages\Nancy.1.4.4\lib\net40\Nancy.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Nancy.Authentication.Stateless, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Nancy.Authentication.Stateless.1.4.1\lib\net40\Nancy.Authentication.Stateless.dll</HintPath>
+      <HintPath>..\packages\Nancy.Authentication.Stateless.1.4.1\lib\net40\Nancy.Authentication.Stateless.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Nancy.Hosting.Self, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Nancy.Hosting.Self.1.4.1\lib\net40\Nancy.Hosting.Self.dll</HintPath>
+      <HintPath>..\packages\Nancy.Hosting.Self.1.4.1\lib\net40\Nancy.Hosting.Self.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Nancy.Serialization.JsonNet, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Nancy.Serialization.JsonNet.1.4.1\lib\net40\Nancy.Serialization.JsonNet.dll</HintPath>
+      <HintPath>..\packages\Nancy.Serialization.JsonNet.1.4.1\lib\net40\Nancy.Serialization.JsonNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Nancy.SimpleAuthentication, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Nancy.SimpleAuthentication.0.8.0\lib\net40\Nancy.SimpleAuthentication.dll</HintPath>
+      <HintPath>..\packages\Nancy.SimpleAuthentication.0.8.0\lib\net40\Nancy.SimpleAuthentication.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Nancy.ViewEngines.Razor, Version=1.4.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Nancy.Viewengines.Razor.1.4.3\lib\net40\Nancy.ViewEngines.Razor.dll</HintPath>
+      <HintPath>..\packages\Nancy.Viewengines.Razor.1.4.3\lib\net40\Nancy.ViewEngines.Razor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\RestSharp.105.2.3\lib\net452\RestSharp.dll</HintPath>
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net452\RestSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SimpleAuthentication.Core, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\SimpleAuthentication.Core.0.8.0\lib\net40\SimpleAuthentication.Core.dll</HintPath>
+      <HintPath>..\packages\SimpleAuthentication.Core.0.8.0\lib\net40\SimpleAuthentication.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite, Version=1.0.106.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <HintPath>packages\System.Data.SQLite.Core.1.0.106.0\lib\net451\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.106.0\lib\net451\System.Data.SQLite.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.AspNet.Razor.2.0.30506.0\lib\net40\System.Web.Razor.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.30506.0\lib\net40\System.Web.Razor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml.Linq" />
@@ -122,7 +122,6 @@
     <Compile Include="Security\AuthToken.cs" />
     <Compile Include="Security\UPPAuthenticationCallbackProvider.cs" />
     <Compile Include="Security\UPPIdentityProvider.cs" />
-    <Compile Include="Serialization\UPPJsonSerializer.cs" />
     <Compile Include="Store\Services.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -156,7 +155,9 @@
     <Content Include="Store\Schema.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="Assets\Images\google-login-button.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -218,17 +219,21 @@
       <Project>{39f88b93-3b66-43b5-86f7-a9fc304c631e}</Project>
       <Name>UPP.SimpleAuthentication.Providers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UPP.Configuration\UPP.Configuration.csproj">
+      <Project>{f633c5f6-ef54-4990-9e00-85806eb0a08b}</Project>
+      <Name>UPP.Configuration</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets')" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets'))" />
-    <Error Condition="!Exists('packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets'))" />
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets'))" />
   </Target>
-  <Import Project="packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets" Condition="Exists('packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets')" />
+  <Import Project="..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets" Condition="Exists('..\packages\Nancy.Viewengines.Razor.1.4.3\build\Nancy.ViewEngines.Razor.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

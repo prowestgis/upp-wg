@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Manager.Serialization
+namespace UPP.Configuration
 {
-    public class UPPJsonSerializer : JsonSerializer
+    public class JsonSerializer : Newtonsoft.Json.JsonSerializer
     {
-        public UPPJsonSerializer()
+        public JsonSerializer()
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver();
             Formatting = Formatting.Indented;
