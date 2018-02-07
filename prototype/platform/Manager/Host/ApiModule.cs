@@ -1,18 +1,14 @@
 ﻿using Nancy;
-using Nancy.Responses;
 using Nancy.Security;
 using Nancy.Authentication.Stateless;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Manager.API;
 using Newtonsoft.Json;
-using Manager.Security;
 using Manager.Store;
 using RestSharp;
 using NLog;
+using UPP.Security;
 
 namespace Manager.Host
 {

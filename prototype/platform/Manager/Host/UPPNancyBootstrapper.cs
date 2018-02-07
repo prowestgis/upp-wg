@@ -8,12 +8,12 @@ using Newtonsoft.Json;
 using NLog;
 using SimpleAuthentication.Core;
 using SimpleAuthentication.Core.Providers;
+using UPP.Common;
 
 namespace Manager.Host
 {
-    public sealed class UPPNancyBootstrapper : DefaultNancyBootstrapper
+    public sealed class UPPNancyBootstrapper : UPP.Common.NancyBootstrapper
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
         private Store.Services services;
 
         protected override void ConfigureConventions(NancyConventions conventions)
@@ -37,9 +37,6 @@ namespace Manager.Host
         {
             base.ConfigureApplicationContainer(container);
 
-            // Use Json.Net serializer instead of the built-in one
-            container.Register<JsonSerializer, UPP.Configuration.JsonSerializer>();
-
             // Bootstrap our application services
             services = new Store.Services();           
 
@@ -52,11 +49,6 @@ namespace Manager.Host
             base.ApplicationStartup(container, pipelines);
 
             services.Initialize();
-
-            var identityProvider = container.Resolve<IIdentityProvider>();
-            var statelessAuthConfig = new StatelessAuthenticationConfiguration(identityProvider.GetUserIdentity);
-
-            StatelessAuthentication.Enable(pipelines, statelessAuthConfig);
         }
     }
 }

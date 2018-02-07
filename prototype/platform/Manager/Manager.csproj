@@ -116,12 +116,9 @@
     <Compile Include="Host\Frontend.cs" />
     <Compile Include="Host\Server.cs" />
     <Compile Include="Host\UPPNancyBootstrapper.cs" />
-    <Compile Include="MicroTypes\MicroString.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Security\AuthToken.cs" />
     <Compile Include="Security\UPPAuthenticationCallbackProvider.cs" />
-    <Compile Include="Security\UPPIdentityProvider.cs" />
     <Compile Include="Store\Services.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -203,9 +200,6 @@
     <None Include="Assets\Views\Permit\Hauler.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="MockData\COMPANY_DATA.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -215,6 +209,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\UPP.Common\UPP.Common.csproj">
+      <Project>{d19c7fa2-a7af-4645-a0e0-be1152ca4701}</Project>
+      <Name>UPP.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UPP.Security\UPP.Security.csproj">
+      <Project>{c1cd4690-5abc-40e6-bf0d-fec1f6238a1e}</Project>
+      <Name>UPP.Security</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UPP.SimpleAuthentication.Providers\UPP.SimpleAuthentication.Providers.csproj">
       <Project>{39f88b93-3b66-43b5-86f7-a9fc304c631e}</Project>
       <Name>UPP.SimpleAuthentication.Providers</Name>

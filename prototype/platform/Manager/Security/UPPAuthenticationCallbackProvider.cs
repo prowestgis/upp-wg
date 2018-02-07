@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UPP.Configuration;
+using UPP.Security;
 
 namespace Manager.Security
 {
@@ -88,7 +90,7 @@ namespace Manager.Security
                     Phone = "1-800-867-5309"
                 };
 
-                var token = Jose.JWT.Encode(tokenPayload, _authSettings.SecretKey, JwsAlgorithm.HS256, null, UPPIdentityProvider.JwtSettings);
+                var token = Jose.JWT.Encode(tokenPayload, _authSettings.SecretKey, JwsAlgorithm.HS256, null, IdentityProvider.JwtSettings);
                 var cookie = new NancyCookie(_authSettings.CookieName, token);
 
                 logger.Debug("Setting JWT cookie: {0} = {1}", _authSettings.CookieName, token);

@@ -12,6 +12,8 @@ using Manager.Security;
 using Nancy.Cookies;
 using NLog;
 using Manager.API;
+using UPP.Security;
+using UPP.Configuration;
 
 namespace Manager.Host
 {

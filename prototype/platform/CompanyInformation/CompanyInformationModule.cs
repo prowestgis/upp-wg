@@ -1,4 +1,5 @@
 ﻿using Nancy;
+using Nancy.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,8 @@ namespace CompanyInformation
     {
         public CompanyInformationModule(Database database) : base("/api/v1/companies")
         {
-            //this.RequiresAuthentication();
+            // Need a valid JWT to access
+            this.RequiresAuthentication();
 
             // Registers service metadata from a trusted source
             Get["/"] = _ => Response.AsJson(new { });

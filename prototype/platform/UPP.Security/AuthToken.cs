@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Manager.Security
+namespace UPP.Security
 {
     /// <summary>
     /// This class described the ID Token format that is sent to UPP clients. Not to be confused with Access Tokens

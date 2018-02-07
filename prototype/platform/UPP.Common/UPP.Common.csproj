@@ -40,6 +40,10 @@
       <HintPath>..\packages\Nancy.1.4.1\lib\net40\Nancy.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Nancy.Authentication.Stateless, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.Authentication.Stateless.1.4.1\lib\net40\Nancy.Authentication.Stateless.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Nancy.Hosting.Self, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nancy.Hosting.Self.1.4.1\lib\net40\Nancy.Hosting.Self.dll</HintPath>
       <Private>True</Private>
@@ -71,6 +75,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NancyBootstrapper.cs" />
+    <Compile Include="NancyIdentityProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
   </ItemGroup>
@@ -82,6 +88,10 @@
     <ProjectReference Include="..\UPP.Configuration\UPP.Configuration.csproj">
       <Project>{f633c5f6-ef54-4990-9e00-85806eb0a08b}</Project>
       <Name>UPP.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UPP.Security\UPP.Security.csproj">
+      <Project>{c1cd4690-5abc-40e6-bf0d-fec1f6238a1e}</Project>
+      <Name>UPP.Security</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

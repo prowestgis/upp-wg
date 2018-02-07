@@ -63,6 +63,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppKeys.cs" />
+    <Compile Include="AuthSettings.cs" />
     <Compile Include="DataStore.cs" />
     <Compile Include="EnumerableConfigurationElementCollection.cs" />
     <Compile Include="HostConfigurationSection.cs" />
