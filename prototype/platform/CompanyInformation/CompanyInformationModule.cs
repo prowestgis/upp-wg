@@ -19,7 +19,7 @@ namespace CompanyInformation
             this.RequiresAuthentication();
 
             // Registers service metadata from a trusted source
-            Get["/"] = _ => Response.AsJson(new { });
+            Get["/"] = _ => Response.AsJson(database.FindCompanyInfoForUser(Context.CurrentUser));
         }
     }
 }

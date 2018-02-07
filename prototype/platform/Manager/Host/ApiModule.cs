@@ -26,26 +26,6 @@ namespace Manager.Host
     }
 
     /// <summary>
-    /// Stub for asking about the company information for a UPP Identity  
-    /// </summary>
-    public sealed class CompanyApi : NancyModule
-    {
-        public CompanyApi(Services services) : base("/api/ext/company")
-        {
-            this.RequiresAuthentication();
-            this.RequiresClaims(new[] { Claims.HAULER });
-
-            Get["/"] = _ =>
-            {
-                // The user should have an extended claim with their UPP identity.  Use this and then
-                // look up the company information associated with this user
-                var upp_id = (Context.CurrentUser as AuthUser).ExtendedClaims["upp"].ToString();
-                return Response.AsJson(services.FindCompanyInfoForUser(upp_id));
-            };
-        }
-    }
-
-    /// <summary>
     /// Implement functionality associated with the Hauler Info scope.  
     /// </summary>
     public sealed class HaulerApiInfo : NancyModule

@@ -10,6 +10,22 @@ using UPP.Security;
 
 namespace UPP.Common
 {
+    // IUserIdentity helpers wrt Claims
+    public static class UserIdentityHelpers
+    {
+        public static IEnumerable<string> EmailAddresses(this IUserIdentity identity)
+        {
+            var user = identity as NancyAuthUser;
+            if (user == null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            // Assume no commas in the email address
+            return user.Email.Split(',').Select(x => x.Trim());
+        }
+    }
+
     public interface IIdentityProvider
     {
         IUserIdentity GetUserIdentity(NancyContext context);

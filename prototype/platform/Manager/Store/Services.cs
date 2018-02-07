@@ -242,9 +242,6 @@ namespace Manager.Store
 
             // Register the OAuth providers with the Nancy middleware
             RegisterOAuthProviders();
-
-            // Copy in test data to populate the database for mocked services
-            ImportTableFromCSV(Path.Combine(Environment.CurrentDirectory, @"MockData\COMPANY_DATA.csv"), "CompanyInformation");
         }
 
         public void Startup()
@@ -299,29 +296,7 @@ namespace Manager.Store
             }
         }
 
-        public IEnumerable<dynamic> FindCompanyInfoForUser(string uppId)
-        {
-            using (var conn = SimpleDbConnection())
-            {
-                return conn.Query<dynamic>(@"
-                    SELECT
-                        company_name AS CompanyName,
-                        email AS Email,
-                        contact AS Contact,
-                        phone AS Phone,
-                        fax AS Fax,
-                        cell AS Cell,
-                        bill_to AS BillTo,
-                        billing_address AS BillingAddress
-                    FROM CompanyInformation
-                    INNER JOIN UserCompanies
-                    ON CompanyInformation.company_id = UserCompanies.company_id
-                    WHERE user_id = @UppId
-                    ",
-                    new { UppId = uppId }
-                    );
-            }
-        }
+        
 
         public string FindExternalUser(string provider, string externalId)
         {
