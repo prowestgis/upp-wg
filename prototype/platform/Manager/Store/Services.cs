@@ -78,7 +78,7 @@ namespace Manager.Store
         }
 
         /// <summary>
-        /// Collection of the microservices that profice core functionality
+        /// Collection of the microservices that provide core functionality
         /// 
         /// Each service has an endpoint, an optional OAuth reference (client_id / secret) and priority. The system
         /// will try service in priority order.  If multiple services have the same priority, any of the services
@@ -282,21 +282,6 @@ namespace Manager.Store
                 return guid;
             }
         }
-
-        public void AssignUserToCompanies(string uppId, int[] companyIDs)
-        {
-            using (var conn = SimpleDbConnection())
-            {
-                var insertList = companyIDs.Select(id => new { User = uppId, Company = id });
-                conn.Execute(@"
-                    INSERT INTO UserCompanies (user_id, company_id)
-                    VALUES (@User, @Company)
-                ", insertList
-                );
-            }
-        }
-
-        
 
         public string FindExternalUser(string provider, string externalId)
         {

@@ -3,13 +3,12 @@ using Nancy.Conventions;
 using Nancy.TinyIoc;
 using NLog;
 using Newtonsoft.Json;
+using UPP.Common;
 
 namespace ServiceDirectory
 {
-    public class Bootstrapper : DefaultNancyBootstrapper
-    {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
+    public class Bootstrapper : NancyBootstrapper
+    {       
         protected override void ConfigureConventions(NancyConventions conventions)
         {
             base.ConfigureConventions(conventions);

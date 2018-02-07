@@ -3,6 +3,8 @@ using Nancy.Conventions;
 using Nancy.TinyIoc;
 using NLog;
 using Newtonsoft.Json;
+using UPP.Configuration;
+using UPP.Common;
 
 namespace CompanyInformation
 {
@@ -29,6 +31,12 @@ namespace CompanyInformation
             // Initialize the database
             logger.Debug("ApplicationStartup: Initializing the database");
             container.Resolve<Database>().Initialize();
+
+            // Register a callback so we can periodically try to register ourselves with the Service Directory.  This is
+            // am improper hijack of the request pipeline, but *much* easier than setting up a real background monitor task
+            // for prototype development.
+            var config = container.Resolve<HostConfigurationSection>();
+            pipelines.BeforeRequest.AddItemToStartOfPipeline(RegisterWithServiceDirectory.GetPipelineHook(config));
         }
     }
 }

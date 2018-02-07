@@ -3,6 +3,8 @@ using Nancy.Authentication.Stateless;
 using Nancy.Conventions;
 using Nancy.TinyIoc;
 using NLog;
+using System.Configuration;
+using UPP.Configuration;
 
 namespace UPP.Common
 {
@@ -16,6 +18,9 @@ namespace UPP.Common
 
             // Use Json.Net serializer instead of the built-in one
             container.Register<Newtonsoft.Json.JsonSerializer, UPP.Configuration.JsonSerializer>();
+
+            // Make the generic configuration block easily available
+            container.Register(ConfigurationManager.GetSection("upp") as HostConfigurationSection);
         }
 
         protected override void ApplicationStartup(TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
