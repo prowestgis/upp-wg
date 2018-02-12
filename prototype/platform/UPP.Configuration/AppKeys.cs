@@ -16,6 +16,7 @@
 
         public const string JWT_SIGNING_KEY = "UPP:Security:JWT:Key";
 
+        public const string UPP_IDENTITY = "UPP:Identity";
         public const string UPP_COOKIE_NAME = "uppToken";
     }
 }

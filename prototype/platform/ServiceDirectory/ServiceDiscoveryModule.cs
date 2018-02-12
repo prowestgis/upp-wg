@@ -31,7 +31,7 @@ namespace ServiceDirectory
             logger.Debug("Registering a new service");
 
             // Bind the request to the ServiceRegistrationRecord
-            var record = this.Bind<ServiceRegistrationRecord>(DeafultBindingConfig);
+            var record = this.Bind<ServiceRegistrationRecord>();
 
             // Attempt to register with the services table
             logger.Debug("  Uri    = {0}", record.Uri);
@@ -39,10 +39,18 @@ namespace ServiceDirectory
             logger.Debug("  Whoami = {0}", record.Whoami);
             logger.Debug("  Scopes = {0}", record.Scopes);
 
-            var response = database.RegisterService(record);
+            try
+            {
+                var response = database.RegisterService(record);
 
-            // Return the response as a payload
-            return Response.AsJson(response);
+                // Return the response as a payload
+                return Response.AsJson(response);
+            }
+            catch (Exception e)
+            {
+                logger.Error(e);
+                return Response.AsJson(new { Success = false });
+            }
         }
     }
 

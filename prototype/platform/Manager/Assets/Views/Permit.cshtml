@@ -259,10 +259,33 @@
 
     <!-- Populate the company information -->
     <script type="text/javascript">
+        // Ask the service locator to give us a UPP host that can provide company information.
+        var serviceLocator = "/api/v1/hosts?type=upp&scope=information.company";
+        var select = $("#company-selector");
+
+        $.get(url, function (data) {
+            // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+            if (data.length === 0) {
+                alert('The service locator did not return any UPP services for company information');
+                return;
+            }
+
+            // Got at least one provider, so use them to populate the company information drop-down
+            var service = data[0];
+            $.get(service.url, function (companies) {
+                $.each(companies, function (index, company) {
+                    var opt = $('<option>' + company.companyName + '</option>');
+                    opt.data("company", company);
+
+                    select.append(opt);
+                });
+            });
+        });
+
+        /*
         // Call an API to get the company information for a logged in user
         //  -- Same Domain for development...
         var url = "/api/ext/company";
-        var select = $("#company-selector");
         $.get(url, function (data) {        
             $.each(data, function (index, company) {
                 var opt = $('<option>' + company.companyName + '</option>');
@@ -271,6 +294,7 @@
                 select.append(opt);
             });
         });
+        */
 
         // Set an event handler to populate the company form on select change
         select.change(function (evt) {

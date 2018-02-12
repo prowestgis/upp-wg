@@ -42,7 +42,7 @@ namespace ServiceDirectory
                     FROM MicroServiceProviders
                     WHERE provider_id IN @Identifiers
                     ",
-                    scopedIdentifiers)
+                    new { Identifiers = scopedIdentifiers })
                     .ToList();
 
                 // Get the list of new services
@@ -74,7 +74,7 @@ namespace ServiceDirectory
                         uri              = @Uri,
                         service_type     = @Type,
                         service_priority = @Priority,
-                        active           = @Active,
+                        active           = @Active
                     WHERE
                         provider_id = @Id
                     ",

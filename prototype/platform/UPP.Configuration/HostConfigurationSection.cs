@@ -9,11 +9,15 @@
     {
         public const string NANCY__BASE_URI = "Nancy:BaseUri";
         public const string SERVICE_DIRECTORY__BASE_URI = "ServiceDirectory:BaseUri";
+        public const string SERVICE_DIRECTORY__HOST_URI = "ServiceDirectory:HostUri";
+        public const string SERVICE_DIRECTORY__SCOPES = "ServiceDirectory:Scopes";
 
         public static IDictionary<string, string> DefaultValues = new Dictionary<string, string>
         {
             { NANCY__BASE_URI, "http://localhost:56484" },
-            { SERVICE_DIRECTORY__BASE_URI, null }
+            { SERVICE_DIRECTORY__BASE_URI, null },
+            { SERVICE_DIRECTORY__HOST_URI, null },
+            { SERVICE_DIRECTORY__SCOPES, null }
         };
     }
 

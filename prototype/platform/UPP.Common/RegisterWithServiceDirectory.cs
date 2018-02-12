@@ -24,7 +24,7 @@ namespace UPP.Common
         // Attempt to register ourselves after this many requests come in
         private const int REQUEST_THRESHOLD = 10;
 
-        public static Func<NancyContext, Response> GetPipelineHook(HostConfigurationSection config)
+        public static Func<NancyContext, Response> GetPipelineHook(string hostIdentity, HostConfigurationSection config)
         {
             var baseUrl = config.Keyword(Keys.SERVICE_DIRECTORY__BASE_URI);
             return ctx =>
@@ -43,13 +43,13 @@ namespace UPP.Common
                     var request = new RestRequest("api/v1/agent/register", Method.POST);
 
                     // This is the URI that should be used to access the services
-                    request.AddParameter("uri", "http://localhost:56486/api/v1/");
-
+                    request.AddParameter("uri", config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI));
+                    
                     // These are the UPP scopes that this implementation provides access to
-                    request.AddParameter("scopes", "*");
+                    request.AddParameter("scopes", config.Keyword(Keys.SERVICE_DIRECTORY__SCOPES));
 
                     // Certificate / Key that identifies us as a whitelisted entity
-                    request.AddParameter("whoami", "XYZ");
+                    request.AddParameter("whoami", hostIdentity);
 
                     // We provide UPP services
                     request.AddParameter("type", "upp");

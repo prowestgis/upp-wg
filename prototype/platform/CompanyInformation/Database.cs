@@ -19,7 +19,7 @@ namespace CompanyInformation
             base.Initialize();
 
             // Populate the database with initial data
-            ImportTableFromCSV(@"App_Data\COMPANY_DATA.csv", "CompanyInformation");
+            ImportTableFromCSV(@"App_Data\COMPANY_DATA.csv", "CompanyInformation", 100);
         }
 
         private bool Exists(IUserIdentity identity)

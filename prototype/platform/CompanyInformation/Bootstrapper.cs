@@ -5,11 +5,14 @@ using NLog;
 using Newtonsoft.Json;
 using UPP.Configuration;
 using UPP.Common;
+using System.Configuration;
 
 namespace CompanyInformation
 {
     public class Bootstrapper : UPP.Common.NancyBootstrapper
     {
+        private static string UPP_IDENTITY = ConfigurationManager.AppSettings[AppKeys.UPP_IDENTITY];
+
         protected override void ConfigureConventions(NancyConventions conventions)
         {
             base.ConfigureConventions(conventions);
@@ -36,7 +39,7 @@ namespace CompanyInformation
             // am improper hijack of the request pipeline, but *much* easier than setting up a real background monitor task
             // for prototype development.
             var config = container.Resolve<HostConfigurationSection>();
-            pipelines.BeforeRequest.AddItemToStartOfPipeline(RegisterWithServiceDirectory.GetPipelineHook(config));
+            pipelines.BeforeRequest.AddItemToStartOfPipeline(RegisterWithServiceDirectory.GetPipelineHook(UPP_IDENTITY, config));
         }
     }
 }

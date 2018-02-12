@@ -121,7 +121,7 @@ namespace UPP.Configuration
         /// </summary>
         /// <param name="csvFile"></param>
         /// <param name="tableName"></param>
-        protected void ImportTableFromCSV(string csvFile, string tableName)
+        protected void ImportTableFromCSV(string csvFile, string tableName, int maximum = 1000)
         {
             csvFile = ResolvePath(csvFile);
 
@@ -141,7 +141,7 @@ namespace UPP.Configuration
                 // Assume the CSV header matches the database fields
                 csv.Read();
                 csv.ReadHeader();
-                while (csv.Read())
+                for (int i = 0; i < maximum && csv.Read(); i++)
                 {
                     records.Add(csv.GetRecord<dynamic>());
                 }
