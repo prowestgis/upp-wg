@@ -182,6 +182,7 @@ namespace Manager.Host
             public string DimensionDescription { get; set; }
             public decimal Height { get; set; }
             public decimal Width { get; set; }
+            public decimal Length { get; set; }
             public decimal FrontOverhang { get; set; }
             public decimal RearOverhang { get; set; }
             public decimal LeftOverhang { get; set; }
@@ -208,7 +209,7 @@ namespace Manager.Host
             public decimal AxleOperatingWeights { get; set; }
             public decimal AxleGroupWeight { get; set; }
             public decimal AxleGroupMaxWidth { get; set; }
-            public decimal AxleGroupTotalWidth { get; set; }
+            public decimal AxleGroupTotalWeight { get; set; }
             public decimal AxleGroupDistance { get; set; }
         }
 

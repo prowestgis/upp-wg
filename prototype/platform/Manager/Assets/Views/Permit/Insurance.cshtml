@@ -1,0 +1,12 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Manager.Host.PermitView.InsuranceInfo>
+@using Manager.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Insurance Information</legend>
+    @Html.GroupItem(Model.Provider, "Insurance Provider")
+    @Html.GroupItem(Model.AgencyAddress, "Agency Address")
+    @Html.GroupItem(Model.PolicyNumber, "Policy Number")
+    @Html.GroupItem(Model.InsuredAmount, "Insured Amount")
+</fieldset>

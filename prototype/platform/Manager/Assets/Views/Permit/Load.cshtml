@@ -1,0 +1,14 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Manager.Host.PermitView.LoadInfo>
+@using Manager.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Load Information</legend>
+    @Html.GroupItem(Model.Owner, "Owner")
+    @Html.GroupItem(Model.OverSize, "Is the load over size? (yes/no)")
+    @Html.GroupItem(Model.OverWeight, "Is the load over weight? (yes/no)")
+    @Html.GroupItem(Model.Description, "Description")
+    @Html.GroupItem(Model.SizeOrModel, "Load Size or Model")
+    @Html.GroupItem(Model.Weight, "Weight")
+</fieldset>

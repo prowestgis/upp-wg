@@ -1,0 +1,18 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Manager.Host.PermitView.VehicleInfo>
+@using Manager.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Vehicle Information</legend>
+    @Html.GroupItem(Model.Year, "Year")
+    @Html.GroupItem(Model.Make, "Make")
+    @Html.GroupItem(Model.Model, "Model")
+    @Html.GroupItem(Model.Type, "Type")
+    @Html.GroupItem(Model.License, "License Number")
+    @Html.GroupItem(Model.State, "State")
+    @Html.GroupItem(Model.SerialNumber, "Truck Serial Number")
+    @Html.GroupItem(Model.USDOTNumber, "USDOT Number")
+    @Html.GroupItem(Model.EmptyWeight, "Empty Weight")
+    @Html.GroupItem(Model.RegisteredWeight, "Registered Weight")
+</fieldset>

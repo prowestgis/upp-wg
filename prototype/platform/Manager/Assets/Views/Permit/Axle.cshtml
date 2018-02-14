@@ -1,0 +1,27 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Manager.Host.PermitView.AxleInfo>
+@using Manager.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Axle Information</legend>
+    @Html.GroupItem(Model.Description, "Insurance Provider")
+    @Html.GroupItem(Model.WeightPerAxle, "Agency Address")
+    @Html.GroupItem(Model.DescriptionSummary, "Policy Number")
+    @Html.GroupItem(Model.AxleCount, "Insured Amount")
+    @Html.GroupItem(Model.GroupCount, "Group Count")
+    @Html.GroupItem(Model.ApproxAxleLength, "Approximate Axle Length (Total)")
+    @Html.GroupItem(Model.AxleLength, "Axle Length (axle spacing)")
+    @Html.GroupItem(Model.MaxAxleWidth, "Max Axle Width")
+    @Html.GroupItem(Model.MaxAxleWeight, "Max Axle Weight")
+    @Html.GroupItem(Model.TotalAxleWeight, "Total Axle Weight")
+    @Html.GroupItem(Model.AxleGroupSummary, "Axle Group Summary")
+    @Html.GroupItem(Model.AxelsPerGroup, "Axels Per Group")
+    @Html.GroupItem(Model.AxleGroupTireType, "Axle Group Tire Type")
+    @Html.GroupItem(Model.AxleGroupWidth, "Axle Group Width")
+    @Html.GroupItem(Model.AxleOperatingWeights, "Axle Operating Weights")
+    @Html.GroupItem(Model.AxleGroupWeight, "Axle Group Weight")
+    @Html.GroupItem(Model.AxleGroupMaxWidth, "Axle Group Max Width")
+    @Html.GroupItem(Model.AxleGroupTotalWeight, "Axle Group Total Weight")
+    @Html.GroupItem(Model.AxleGroupDistance, "Axle Group Distance")
+</fieldset>
