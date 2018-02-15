@@ -21,20 +21,20 @@ namespace Manager.Host
     {
         private readonly AuthSettings _authSettings;
 
-        public Frontend(Services services, AuthSettings authSettings)
+        public Frontend(Services services, AuthSettings authSettings, HostConfigurationSection config)
         {
             _authSettings = authSettings;
 
             Get["/"] = _ => View["Index", new DashboardView(services, Context)];
             Get["/dashboard.html"] = _ => View["Index", new DashboardView(services, Context)];            
-            Get["/authentication/logout"] = _ => Logout();
+            Get["/authentication/logout"] = _ => Logout(config.Keyword(Keys.NANCY__HOST_BASE_URI));
         }
 
-        public Response Logout()
+        public Response Logout(string baseUri)
         {
             // Reset the token to an empty string and set an very old expiration date
             var cookie = new NancyCookie(_authSettings.CookieName, String.Empty, DateTime.MinValue);
-            return Response.AsRedirect("/").WithCookie(cookie);
+            return Response.AsRedirect(baseUri).WithCookie(cookie);
         }
     }
 
