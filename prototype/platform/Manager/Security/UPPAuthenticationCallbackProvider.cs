@@ -20,12 +20,15 @@ namespace Manager.Security
 
         private readonly AuthSettings _authSettings;
         private readonly Services _services;
+        private readonly string _baseUrl;
+            
         private const string _bearerDeclaration = "Bearer ";        
 
-        public UPPAuthenticationCallbackProvider(AuthSettings authSettings, Services services)
+        public UPPAuthenticationCallbackProvider(AuthSettings authSettings, Services services, HostConfigurationSection config)
         {
             _authSettings = authSettings;
             _services = services;
+            _baseUrl = config.Keyword(Keys.NANCY__HOST_BASE_URI) ?? "/";
         }
         
         public dynamic Process(NancyModule nancyModule, AuthenticateCallbackData model)
@@ -97,18 +100,18 @@ namespace Manager.Security
                 if (linkAccounts)
                 {
                     return nancyModule.Response
-                        .AsRedirect("/account/link")
+                        .AsRedirect(_baseUrl + "account/link")
                         .WithCookie(cookie);
                 }
 
                 return nancyModule.Response
-                    .AsRedirect("/")
+                    .AsRedirect(_baseUrl)
                     .WithCookie(cookie);
             }
             catch (Exception e)
             {
                 logger.Debug(e);
-                return nancyModule.Response.AsRedirect("/");
+                return nancyModule.Response.AsRedirect(_baseUrl);
             }
         }
 

@@ -34,7 +34,7 @@ namespace Manager.Host
             // Get the host URI to bind Nancy to
             var hostUri = config.Keyword(Keys.NANCY__BASE_URI);
 
-            logger.Debug("Creating NancyHost");
+            logger.Debug("Creating NancyHost on {0}", hostUri);
             host = new NancyHost(hostConfig, new Uri(hostUri));
 
             logger.Debug("Creating data store instance");
