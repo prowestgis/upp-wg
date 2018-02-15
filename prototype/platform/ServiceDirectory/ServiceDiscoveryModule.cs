@@ -62,7 +62,13 @@ namespace ServiceDirectory
     {
         public ServiceDiscoveryHosts(Database database) : base("/api/v1/hosts")
         {
-            Get["/"] = _ => Response.AsJson(database.MicroServiceProviders.ToList());
+            Get["/"] = _ => {
+                var serviceList = database.MicroServiceProviders; 
+                if (!string.IsNullOrWhiteSpace(Request.Query["type"])) {
+                    serviceList = serviceList.Where(x => x.Type.Equals(Request.Query["type"]));
+                }
+
+                return Response.AsJson(serviceList.ToList()); };
         }
     }
 }
