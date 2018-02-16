@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPP.Common", "UPP.Common\UP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsuranceInformation", "InsuranceInformation\InsuranceInformation.csproj", "{782EC6F8-78DF-4146-A8D0-5D86CF7AE457}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VehicleInformation", "VehicleInformation\VehicleInformation.csproj", "{469E4C64-7DA4-4D29-9771-83A72D638006}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{782EC6F8-78DF-4146-A8D0-5D86CF7AE457}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{782EC6F8-78DF-4146-A8D0-5D86CF7AE457}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{782EC6F8-78DF-4146-A8D0-5D86CF7AE457}.Release|Any CPU.Build.0 = Release|Any CPU
+		{469E4C64-7DA4-4D29-9771-83A72D638006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{469E4C64-7DA4-4D29-9771-83A72D638006}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{469E4C64-7DA4-4D29-9771-83A72D638006}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{469E4C64-7DA4-4D29-9771-83A72D638006}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
