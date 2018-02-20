@@ -9,6 +9,10 @@ using Manager.Store;
 using RestSharp;
 using NLog;
 using UPP.Security;
+using System.IO;
+using Nancy.Responses;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 namespace Manager.Host
 {
@@ -22,6 +26,58 @@ namespace Manager.Host
         {
             //this.RequiresAuthentication();
             Get["/"] = _ => Response.AsJson(new { Message = "Hello", User = Context.CurrentUser });
+
+            // Generate a PDF permit
+            Get["/permit"] = _ => GeneratePermit();
+        }
+
+        private Response GeneratePermit()
+        {
+            // Raw response
+            var response = new Response();
+
+            // Create a simple PDF
+            var document = new Document(PageSize.A4, 25, 25, 30, 30);
+            byte[] pdf;
+
+            using (var memory = new MemoryStream())
+            {
+                using (var writer = PdfWriter.GetInstance(document, memory))
+                {
+                    document.Open();
+
+                    document.AddAuthor("Unified Permitting Project");
+                    document.AddCreator("UPP Reference Platform");
+                    document.AddKeywords("UPP Permit MnDOT");
+                    document.AddSubject("PErmit issues for Over-Size, Over-Weight (OSOW) loads");
+                    document.AddTitle("OSOW Permit");
+
+                    // Put a QR code in the corner for for law enforcement to quickly pull up a permit. Need perma-link
+                    // infrastructure
+                    var qrCode = new BarcodeQRCode("https://upp.prowestgis.com/law-enforcement/check?123456ABC", 1, 1, null);
+                    var qrCodeImage = qrCode.GetImage();
+                    qrCodeImage.SetAbsolutePosition(25, 25);
+                    qrCodeImage.ScalePercent(200);
+                    document.Add(qrCodeImage);
+
+                    document.Add(new Paragraph("This is a permit"));
+                    document.Close();
+
+                    pdf = memory.ToArray();
+                }
+            }
+
+            var filename = "permit.pdf";
+            response.ContentType = MimeTypes.GetMimeType(filename);
+            response.Contents = s =>
+            {
+                using (var memory = new MemoryStream(pdf))
+                {
+                    memory.CopyTo(s);
+                }
+            };
+
+            return response;
         }
     }
 
