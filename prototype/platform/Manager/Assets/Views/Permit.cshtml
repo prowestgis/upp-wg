@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="container-fluid">
-                    <form class="form-horizontal">
+                    <form id="permit-form" class="form-horizontal">
                         @Html.Partial("Permit/Hauler", Model.Hauler)
                         @Html.Partial("Permit/Company", Model.Company)
                         @Html.Partial("Permit/Insurance", Model.Insurance)
@@ -91,6 +91,7 @@
                         @Html.Partial("Permit/Trailer", Model.Trailer)
                         @Html.Partial("Permit/Load", Model.Load)
                         @Html.Partial("Permit/Movement", Model.Movement)
+                        <button type="submit"></button>
                     </form>
                 </div>
             </div>
