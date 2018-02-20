@@ -60,7 +60,6 @@ namespace Manager.Host
                     qrCodeImage.ScalePercent(200);
                     document.Add(qrCodeImage);
 
-
                     document.Add(new Paragraph("This is a permit"));
                     document.Close();
 
