@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsuranceInformation", "Ins
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VehicleInformation", "VehicleInformation\VehicleInformation.csproj", "{469E4C64-7DA4-4D29-9771-83A72D638006}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailerInformation", "TrailerInformation\TrailerInformation.csproj", "{481F39B0-87C7-4830-866D-65B4AD5F1779}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{469E4C64-7DA4-4D29-9771-83A72D638006}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{469E4C64-7DA4-4D29-9771-83A72D638006}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{469E4C64-7DA4-4D29-9771-83A72D638006}.Release|Any CPU.Build.0 = Release|Any CPU
+		{481F39B0-87C7-4830-866D-65B4AD5F1779}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{481F39B0-87C7-4830-866D-65B4AD5F1779}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{481F39B0-87C7-4830-866D-65B4AD5F1779}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{481F39B0-87C7-4830-866D-65B4AD5F1779}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
