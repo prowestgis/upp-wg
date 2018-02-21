@@ -3,7 +3,6 @@ using Nancy.Security;
 using Nancy.Authentication.Stateless;
 using System;
 using System.Linq;
-using Manager.API;
 using Newtonsoft.Json;
 using Manager.Store;
 using RestSharp;

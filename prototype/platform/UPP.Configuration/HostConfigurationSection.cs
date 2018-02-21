@@ -21,7 +21,7 @@
             { NANCY__HOST_BASE_URI, "/" },
             { SERVICE_DIRECTORY__BASE_URI, null },
             { SERVICE_DIRECTORY__HOST_URI, null },
-            { SERVICE_DIRECTORY__SCOPES, null }
+            { SERVICE_DIRECTORY__SCOPES, "" }
         };
     }
 

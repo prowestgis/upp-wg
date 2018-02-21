@@ -1,5 +1,4 @@
-﻿using Manager.Configuration;
-using Nancy;
+﻿using Nancy;
 using Nancy.Hosting.Self;
 using NLog;
 using System;

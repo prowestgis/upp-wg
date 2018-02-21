@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Manager.API
+﻿namespace UPP.Security
 {
     /// <summary>
     /// Define all of the claims used by UPP. A claim is a statement about a user. The specific claims

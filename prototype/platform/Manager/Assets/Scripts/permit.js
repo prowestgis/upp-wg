@@ -167,7 +167,7 @@
 
         // Got at least one provider, so use them to populate the company information drop-down
         var service = data[0];
-        $.get(service.url, function (companies) {
+        $.get(service.uri, function (companies) {
             $.each(companies, function (index, company) {
                 var opt = $('<option>' + company.companyName + '</option>');
                 opt.data("company", company);

@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Manager.Security;
 using Nancy.Cookies;
 using NLog;
-using Manager.API;
 using UPP.Security;
 using UPP.Configuration;
 
@@ -25,8 +24,8 @@ namespace Manager.Host
         {
             _authSettings = authSettings;
 
-            Get["/"] = _ => View["Index", new DashboardView(services, Context)];
-            Get["/dashboard.html"] = _ => View["Index", new DashboardView(services, Context)];            
+            Get["/"] = _ => View["Index", new DashboardView(services, config, Context)];
+            Get["/dashboard.html"] = _ => View["Index", new DashboardView(services, config, Context)];            
             Get["/authentication/logout"] = _ => Logout(config.Keyword(Keys.NANCY__HOST_BASE_URI));
         }
 
@@ -53,11 +52,12 @@ namespace Manager.Host
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public DashboardView(Services services, NancyContext context)
+        public DashboardView(Services services, HostConfigurationSection config, NancyContext context)
         {
+            ServiceDirectoryUrl = config.Keyword(Keys.SERVICE_DIRECTORY__BASE_URI);
             Logins = services.AuthenticationProviders.Select(x => new PrimaryLogin
             {
-                Name = x.Name,
+                Name = x.DisplayName,
                 Url = String.Format("/authentication/redirect/{0}", x.Name),
                 Image = String.Format("/images/{0}-login-button.png", x.Name)
             }).ToList();
@@ -68,13 +68,14 @@ namespace Manager.Host
 
             // List the active OAuth credentials and registered microservices
             Auths = services.AuthenticationProviders.ToList();
-            MicroServices = services.MicroServices.ToList();
+            //MicroServices = services.MicroServices.ToList();
         }
 
+        public string ServiceDirectoryUrl { get; set; }
         public AuthUser User { get; set; }
         public List<PrimaryLogin> Logins { get; }
-        public List<Services.OAuthProviderConfig> Auths { get; }
-        public List<Services.MicroServiceProviderConfig> MicroServices { get; }
+        public List<Services.OAuthProvider> Auths { get; }
+        //public List<Services.MicroServiceProviderConfig> MicroServices { get; }
 
         public sealed class PrimaryLogin
         {

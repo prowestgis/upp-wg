@@ -1,5 +1,4 @@
-﻿using Manager.Configuration;
-using Manager.Host;
+﻿using Manager.Host;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
