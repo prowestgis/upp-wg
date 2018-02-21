@@ -62,6 +62,25 @@
             });
         };
 
+        // When the user submits the application, one of the first things to do
+        // is use the designated geometry service to chop up the route among
+        // the designated authorities
+        function divide_route(route) {
+
+            // Ask UPP for the geometry service
+            var url = apiUrl + "api/hauler";
+            $.get(url, function (data) {
+                if (!data.boundaryServiceUrl) {
+                    alert('No boundary service is configured');
+                    return;
+                }
+
+                // Intersect the route geometry with the service layer and get a collection of
+                // permit authorities
+
+            });
+        };
+
         // If both origin and destination have locations, route it
         function check_route() {
             var origin_pt = $('#movementinfo-origin').data('location');
@@ -71,27 +90,43 @@
 
                 // Ask UPP what service we should use for routing.  The UPP services API is responsible for acquiring any
                 // OAuth tokens that are needed for the service
-                var url = apiUrl + "api/hauler";
-                $.get(url, function (data) {
-                    if (!data.routeUrl && data.routeToken) {
-                        alert('No route service access is configured');
+                var serviceLocator = sdUrl + "api/v1/hosts?type=route";
+                $.get(serviceLocator, function (records) {
+                    // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+                    if (records.length === 0) {
+                        alert('The service locator did not return any services for routing');
                         return;
                     }
 
-                    var routeTask = new RouteTask(data.routeUrl + "?token=" + data.routeToken);
-                    var routeParams = new RouteParameters();
-                    routeParams.stops = new FeatureSet();
-                    routeParams.stops.features.push(new Graphic(origin_pt, null, {}));
-                    routeParams.stops.features.push(new Graphic(destination_pt, null, {}));
-                    routeTask.solve(routeParams).then(function (result) {
-                        // Show the route on the route map
-                        var routeSymbol = new SimpleLineSymbol().setColor(new dojo.Color([0, 0, 255, 0.5])).setWidth(5);
-                        array.forEach(result.routeResults, function (result) {
-                            route_map.graphics.add(result.route.setSymbol(routeSymbol));
-                            route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
+                    var record = records[0];
+
+                    // Now ask for credentials
+                    var url = sdUrl + "api/v1/hosts/" + record.name + "/access";
+                    $.get(url, function (service) {
+                        if (!service.url) {
+                            alert('No route service access is configured');
+                            return;
+                        }
+
+                        if (service.url && service.isSecured && !service.token) {
+                            alert('Unable to aquire token to access secured routing service');
+                            return;
+                        }
+
+                        var routeTask = new RouteTask(service.url + "?token=" + service.token);
+                        var routeParams = new RouteParameters();
+                        routeParams.stops = new FeatureSet();
+                        routeParams.stops.features.push(new Graphic(origin_pt, null, {}));
+                        routeParams.stops.features.push(new Graphic(destination_pt, null, {}));
+                        routeTask.solve(routeParams).then(function (result) {
+                            // Show the route on the route map
+                            var routeSymbol = new SimpleLineSymbol().setColor(new dojo.Color([0, 0, 255, 0.5])).setWidth(5);
+                            array.forEach(result.routeResults, function (result) {
+                                route_map.graphics.add(result.route.setSymbol(routeSymbol));
+                                route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
+                            });
                         });
                     });
-
                 });
             }
         };

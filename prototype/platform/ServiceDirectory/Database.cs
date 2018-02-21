@@ -5,6 +5,7 @@ using UPP.Configuration;
 using UPP.Common;
 using Dapper;
 using UPP.Protocols;
+using UPP.Security;
 
 namespace ServiceDirectory
 {
@@ -20,6 +21,22 @@ namespace ServiceDirectory
 
             // Populate the database with initial data
             ImportTableFromCSV(@"App_Data\MICROSERVICES.csv", "MicroServiceProviders");
+            ImportTableFromCSV(@"App_Data\OAUTH.csv", "OAuth2Providers");
+        }
+
+        public MicroServiceProviderConfig FindMicroServiceProviderByName(string name)
+        {
+            return MicroServiceProviders.FirstOrDefault(x => x.Name == name);
+        }
+
+        public IEnumerable<MicroServiceProviderConfig> FindMicroServiceProviderByType(string type)
+        {
+            return MicroServiceProviders.Where(x => type == null || x.Type == type);
+        }
+
+        public OAuthProviderConfig FindOAuthProviderForService(MicroServiceProviderConfig service)
+        {
+            return OAuthProviders.FirstOrDefault(x => x.Name == service.OAuthId);
         }
 
         public object RegisterService(ServiceRegistrationRecord record)
@@ -100,6 +117,27 @@ namespace ServiceDirectory
             }
         }
 
+        private IEnumerable<OAuthProviderConfig> OAuthProviders
+        {
+            get
+            {
+                using (var conn = SimpleDbConnection())
+                {
+                    return conn.Query<OAuthProviderConfig>(@"
+                    SELECT
+                        provider_id AS Name,
+                        display_name AS DisplayName,
+                        client_key AS Key,
+                        client_secret AS Secret,
+                        scopes AS Scopes
+                    FROM OAuth2Providers
+                    WHERE Active = 1
+                    "
+                    );
+                }
+            }            
+        }
+
         public IEnumerable<MicroServiceProviderConfig> MicroServiceProviders
         {
             get
@@ -122,15 +160,15 @@ namespace ServiceDirectory
                 }
             }
         }
-
-        public sealed class MicroServiceProviderConfig
-        {
-            public string Name { get; set; }
-            public string DisplayName { get; set; }
-            public string OAuthId { get; set; }
-            public string Uri { get; set; }
-            public string Type { get; set; }
-            public int Priority { get; set; }
-        }
     }
+
+    public sealed class MicroServiceProviderConfig
+    {
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public string OAuthId { get; set; }
+        public string Uri { get; set; }
+        public string Type { get; set; }
+        public int Priority { get; set; }
+    }    
 }
