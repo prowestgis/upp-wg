@@ -9,8 +9,8 @@
     @Html.GroupItem(Model.EmptyWeight, "Empty Weight")
     @Html.GroupItem(Model.RegisteredWeight, "Registered Weight")
     @Html.GroupItem(Model.RegulationWeight, "Regulation Weight")
-    @Html.GroupItem(Model.DimensionSummary, "Dimension Summary")
-    @Html.GroupItem(Model.DimensionDescription, "Dimension Description")
+    @Html.GroupItem(Model.DimensionSummary, "Dimension Summary", true)
+    @Html.GroupItem(Model.DimensionDescription, "Overall Dimension Description", true)
     @Html.GroupItem(Model.Height, "Height")
     @Html.GroupItem(Model.Width, "Width")
     @Html.GroupItem(Model.Length, "Length")
@@ -18,5 +18,5 @@
     @Html.GroupItem(Model.RearOverhang, "Rear Overhang")
     @Html.GroupItem(Model.LeftOverhang, "Left Overhang")
     @Html.GroupItem(Model.RightOverhang, "Right Overhang")
-    @Html.GroupItem(Model.Diagram, "Diagram")
+    @Html.GroupItem(Model.Diagram, "Diagram", true)
 </fieldset>
