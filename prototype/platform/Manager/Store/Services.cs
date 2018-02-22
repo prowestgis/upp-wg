@@ -35,6 +35,7 @@ namespace Manager.Store
                 OAuthProviders.Add(new OAuthProvider("google", settings[AppKeys.GOOGLE_OAUTH_KEY], settings[AppKeys.GOOGLE_OAUTH_SECRET]));
             }
 
+            /*
             if (keys.Contains(AppKeys.RTVISION_OAUTH_KEY) && keys.Contains(AppKeys.RTVISION_OAUTH_SECRET))
             {
                 OAuthProviders.Add(new OAuthProvider("rtvision", settings[AppKeys.RTVISION_OAUTH_KEY], settings[AppKeys.RTVISION_OAUTH_SECRET]));
@@ -44,13 +45,12 @@ namespace Manager.Store
             {
                 OAuthProviders.Add(new OAuthProvider("mndot", settings[AppKeys.MNDOT_OAUTH_KEY], settings[AppKeys.MNDOT_OAUTH_SECRET]));
             }
+            */
 
-            /*
             if (keys.Contains(AppKeys.ARCGISONLINE_OAUTH_KEY) && keys.Contains(AppKeys.ARCGISONLINE_OAUTH_SECRET))
             {
                 OAuthProviders.Add(new OAuthProvider("agol", settings[AppKeys.ARCGISONLINE_OAUTH_KEY], settings[AppKeys.ARCGISONLINE_OAUTH_SECRET]));
             }
-            */
         }
 
         public Services()
@@ -76,7 +76,8 @@ namespace Manager.Store
                     case "google":
                         authenticationProviderFactory.AddProvider(new GoogleProvider(parameters));
                         break;
-
+                    
+                        /*
                     case "rtvision":
                         authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
                         break;
@@ -84,9 +85,9 @@ namespace Manager.Store
                     case "mndot":
                         authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
                         break;
-
+                        */
                     case "agol":
-                        authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
+                        authenticationProviderFactory.AddProvider(new ArcGISOnlineProvider(parameters));
                         break;
 
                     default:
@@ -113,6 +114,19 @@ namespace Manager.Store
             get
             {
                 return OAuthProviders;
+            }
+        }
+
+        public void AddToIdentityFromExternalAuth(string guid, string provider, string externalId)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                // Create a new External Login tied to this user
+                conn.Execute(@"
+                    INSERT INTO ExternalLogins (user_id, provider_id, provider_user_id)
+                    VALUES (@User, @Provider, @ExternalId)
+                    ", new { User = guid, Provider = provider, ExternalId = externalId }
+                );
             }
         }
 
