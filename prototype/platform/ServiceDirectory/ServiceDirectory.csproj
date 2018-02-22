@@ -59,6 +59,10 @@
       <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net452\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -84,6 +88,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="App_Data\OAUTH.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App_Data\MICROSERVICES.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -107,6 +114,10 @@
     <ProjectReference Include="..\UPP.Protocols\UPP.Protocols.csproj">
       <Project>{858d151d-a8d9-49d9-9a03-8aee00417b3e}</Project>
       <Name>UPP.Protocols</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UPP.Security\UPP.Security.csproj">
+      <Project>{c1cd4690-5abc-40e6-bf0d-fec1f6238a1e}</Project>
+      <Name>UPP.Security</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

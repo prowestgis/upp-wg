@@ -162,13 +162,13 @@
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="header">
-                                    <h4 class="title">OAuth2 Providers</h4>
+                                    <h4 class="title">OAuth2 Login Providers</h4>
                                     <p class="category">Security</p>
                                 </div>
                                 <div class="content">
                                     <table class="table">
                                         <tbody>
-                                            @foreach (Services.OAuthProviderConfig oauth in Model.Auths)
+                                            @foreach (var oauth in Model.Auths)
                                             {
                                                 <tr>
                                                     <td>@oauth.Name</td>
@@ -205,17 +205,7 @@
                                                 <th>Priority</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            @foreach (Services.MicroServiceProviderConfig service in Model.MicroServices)
-                                            {
-                                                <tr>
-                                                    <td>@service.DisplayName</td>
-                                                    <td>@(service.OAuthId ?? "None")</td>
-                                                    <td>@service.Uri</td>
-                                                    <td>@service.Type</td>
-                                                    <td>@service.Priority</td>
-                                                </tr>
-                                            }
+                                        <tbody id="microservice-table">
                                         </tbody>
                                     </table>
                                 </div>
@@ -240,5 +230,25 @@
     </div>
     <script src="js/jquery.3.2.1.min.js"></script>
     <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        // Fetch the current list of registered microservices
+        var sdUrl = "@Model.ServiceDirectoryUrl";
+        $.get(sdUrl + 'api/v1/hosts', function (services) {
+            var table = $('#microservice-table');
+            $.each(services, function (index, service) {
+                var row = $(
+                    '<tr>' +
+                        '<td>' + service.displayName + '</td>' +
+                        '<td>' + (service.oAuthId || "None") + '</td>' +
+                        '<td>' + service.uri + '</td>' +
+                        '<td>' + service.type + '</td>' +
+                        '<td>' + service.priority + '</td>' +
+                    '</tr>'
+                );
+
+                table.append(row);
+            });
+        });
+    </script>
 </body>
 </html>

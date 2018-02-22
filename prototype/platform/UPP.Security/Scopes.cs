@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Manager.API
+﻿namespace UPP.Security
 {
     /// <summary>
     /// Scopes partition the services that a given client (program) is going to ask for.  For example,

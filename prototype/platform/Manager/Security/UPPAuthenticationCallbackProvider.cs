@@ -53,31 +53,27 @@ namespace Manager.Security
                 // If there is no entry in the external login table, if the user is currently logged in, ask if this new log in should
                 // be added to their current UPP Identity, otherwise create a new Identity
                 var existingUser = _services.FindExternalUser(model.ProviderName, model.AuthenticatedClient.UserInformation.Id);
-                var linkAccounts = false;
+                var currentUser = nancyModule.Context.CurrentUser as AuthUser;
 
-                if (existingUser == null)
+                // Case 1: No record in database, not yet logged in
+                if (existingUser == null && currentUser == null)
                 {
-                    var currentUser = nancyModule.Context.CurrentUser as AuthUser;
-                    if (currentUser != null)
-                    {
-                        // Redirect to a confirmation page about adding this login to the UPP Identity
-                        linkAccounts = true;
-                    }
-                    else
-                    {
-                        // Create a new Identity in the database
-                        existingUser = _services.CreateNewIdentityFromExternalAuth(model.ProviderName, model.AuthenticatedClient.UserInformation.Id);
-                    }
+                    existingUser = _services.CreateNewIdentityFromExternalAuth(model.ProviderName, model.AuthenticatedClient.UserInformation.Id);
                 }
 
-                // Make sure the (user, provider) exist in our database.  Need to include the provider
-                // to avoid the possibility of a differnt user from a different identity provider getting
-                // mapped to the same UPP user.
-                // var user = FindUser(provider, username);
+                // Case 2: No record in database, use is currently logged in unde different identity
+                if (existingUser == null && currentUser != null)
+                {
+                    existingUser = currentUser.ExtendedClaims["upp"].ToString();
+                    _services.AddToIdentityFromExternalAuth(existingUser, model.ProviderName, model.AuthenticatedClient.UserInformation.Id);
+                }
 
                 // Create an encrypted JWT from the user information with appropriate claims
                 var req_url = nancyModule.Context.Request.Url;
                 var iss = String.Format("{0}://{1}:{2}", req_url.Scheme, req_url.HostName, req_url.Port);
+
+                // Now, what to do about the token.  If the user is not currently logged in, just create a new token.  Otherwise,
+                // extend the existing claims
 
                 var tokenPayload = new AuthToken
                 {
@@ -90,19 +86,16 @@ namespace Manager.Security
                     Phone = "1-800-867-5309"
                 };
 
+                if (currentUser != null)
+                {
+                    tokenPayload.Idp = String.Format("{0} {1}", currentUser.ExtendedClaims["idp"], tokenPayload.Idp);
+                    tokenPayload.Email = String.Format("{0} {1}", currentUser.ExtendedClaims["email"], tokenPayload.Email);
+                }
+
                 var token = Jose.JWT.Encode(tokenPayload, _authSettings.SecretKey, JwsAlgorithm.HS256, null, IdentityProvider.JwtSettings);
                 var cookie = new NancyCookie(_authSettings.CookieName, token);
 
                 logger.Debug("Setting JWT cookie: {0} = {1}", _authSettings.CookieName, token);
-
-                // If the user is logged in, but authenticated to a new provider, ask if they want to 
-                // link this provider to their UPP Identity
-                if (linkAccounts)
-                {
-                    return nancyModule.Response
-                        .AsRedirect(_baseUrl + "account/link")
-                        .WithCookie(cookie);
-                }
 
                 return nancyModule.Response
                     .AsRedirect(_baseUrl)
