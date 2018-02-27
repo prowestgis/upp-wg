@@ -68,8 +68,8 @@ namespace ServiceDirectory
                 // Insert the new values
                 logger.Debug("Inserting new services");
                 conn.Execute(@"
-                    INSERT INTO MicroServiceProviders (provider_id, display_name, uri, service_type, service_priority, active)
-                    VALUES (@Id, @Name, @Uri, @Type, @Priority, @Active)
+                    INSERT INTO MicroServiceProviders (provider_id, display_name, uri, service_type, service_priority, active, scopes)
+                    VALUES (@Id, @Name, @Uri, @Type, @Priority, @Active, @Scopes)
                     ",
                     insertIdentifiers.Select(id => new
                     {
@@ -78,7 +78,8 @@ namespace ServiceDirectory
                         Uri = record.Uri,
                         Type = type.Key,
                         Priority = 1,
-                        Active = 1
+                        Active = 1,
+                        Scopes = record.Scopes
                     })
                 );
 
@@ -91,7 +92,8 @@ namespace ServiceDirectory
                         uri              = @Uri,
                         service_type     = @Type,
                         service_priority = @Priority,
-                        active           = @Active
+                        active           = @Active,
+                        scopes           = @Scopes
                     WHERE
                         provider_id = @Id
                     ",
@@ -102,7 +104,8 @@ namespace ServiceDirectory
                         Uri = record.Uri,
                         Type = type.Key,
                         Priority = 1,
-                        Active = 1
+                        Active = 1,
+                        Scopes = record.Scopes
                     })
                 );
 
@@ -152,7 +155,8 @@ namespace ServiceDirectory
                             uri AS Uri,
                             service_type AS Type,
                             service_priority AS Priority,
-                            active AS Active
+                            active AS Active,
+                            scopes AS Scopes
                         FROM MicroServiceProviders
                         WHERE Active = 1
                         "
@@ -169,6 +173,7 @@ namespace ServiceDirectory
         public string OAuthId { get; set; }
         public string Uri { get; set; }
         public string Type { get; set; }
+        public string Scopes { get; set; }
         public int Priority { get; set; }
     }    
 }

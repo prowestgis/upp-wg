@@ -15,6 +15,7 @@ create table MicroServiceProviders
 	display_name                       varchar(100) not null,
 	uri                                varchar(1024) not null,
 	service_type                       varchar(100) not null,  -- alias for an OAuth scope
-	service_priority                   integer not null, 
-    active                             integer not null
+	service_priority                   integer not null,
+    active                             integer not null,
+	scopes                             varchar(256)
 );

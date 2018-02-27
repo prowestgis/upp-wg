@@ -1,4 +1,4 @@
-provider_id,oauth_provider_id,display_name,uri,service_type,service_priority,active
-"esri.routing","agol","Esri Premium Routing Service","https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World","route",1,1
-"esri.geometry",,"Esri Geometry Service","https://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer","geometry",1,1
-"esri.county.boundaries",,"Esri County Boundaries","https://services.arcgis.com/BG6nSlhZSAWtExvp/arcgis/rest/services/counties_MN/FeatureServer/0","county.boundaries",1,1
+provider_id,oauth_provider_id,display_name,uri,service_type,service_priority,active,scopes
+"esri.routing","agol","Esri Premium Routing Service","https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World","route",1,1,"route.information"
+"esri.geometry",,"Esri Geometry Service","https://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer","geometry",1,1,"geometry.services"
+"esri.county.boundaries",,"Esri County Boundaries","https://services.arcgis.com/BG6nSlhZSAWtExvp/arcgis/rest/services/counties_MN/FeatureServer/0","county.boundaries",1,1,"county.boundaries"

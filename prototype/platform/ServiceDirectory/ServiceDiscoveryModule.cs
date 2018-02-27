@@ -67,13 +67,13 @@ namespace ServiceDirectory
             this.RequiresAuthentication();
             // this.RequiresClaims(new[] { });
 
-            Get["default", "/"] = _ => ListHosts(database, Request.Query["type"]);
+            Get["default", "/"] = _ => ListHosts(database, Request.Query["type"], Request.Query["scope"]);
             Get["get_service", "/{name}/access"] = _ => AccessHost(database, _.name);
         }
 
-        private Response ListHosts(Database database, string type)
+        private Response ListHosts(Database database, string type, string scope)
         {
-            return Response.AsJson(database.FindMicroServiceProviderByType(type).ToList());
+            return Response.AsJson(database.FindMicroServiceProviderByType(type).Where(x => scope == null || x.Scopes.Contains(scope)).ToList());
         }
 
         private Response AccessHost(Database database, string name)
