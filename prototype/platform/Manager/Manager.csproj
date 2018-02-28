@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\HtmlHelpers.cs" />
+    <Compile Include="Host\AccountModule.cs" />
     <Compile Include="Host\ApiModule.cs" />
     <Compile Include="Host\Frontend.cs" />
     <Compile Include="Host\Server.cs" />
@@ -186,6 +187,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Assets\Views\AuthCallback.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\Views\Link.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Assets\Views\Permit.cshtml">
