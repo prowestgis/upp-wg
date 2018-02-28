@@ -5,6 +5,13 @@
 }
 <fieldset>
     <legend>Vehicle Information</legend>
+    <div class="form-group row">
+        <div class="col-sm-offset-2 col-sm-8">
+            <select class="form-control" id="vehicle-selector">
+                <option></option>
+            </select>
+        </div>
+    </div>
     @Html.GroupItem(Model.Year, "Year")
     @Html.GroupItem(Model.Make, "Make")
     @Html.GroupItem(Model.Model, "Model")

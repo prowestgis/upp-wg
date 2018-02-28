@@ -5,6 +5,13 @@
 }
 <fieldset>
     <legend>Trailer Information</legend>
+    <div class="form-group row">
+        <div class="col-sm-offset-2 col-sm-8">
+            <select class="form-control" id="trailer-selector">
+                <option></option>
+            </select>
+        </div>
+    </div>
     @Html.GroupItem(Model.Description, "Description")
     @Html.GroupItem(Model.Make, "Make")
     @Html.GroupItem(Model.Model, "Model")

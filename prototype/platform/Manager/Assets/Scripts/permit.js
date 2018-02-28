@@ -155,10 +155,10 @@
     });
 
     // Ask the service locator to give us a UPP host that can provide company information.
-    var serviceLocator = sdUrl + "api/v1/hosts?type=upp&scope=information.company";
+    var serviceLocator = sdUrl + "api/v1/hosts"; //?type=upp&scope=information.company";
     var select = $("#company-selector");
 
-    $.get(serviceLocator, function (data) {
+    $.get(serviceLocator, { type: "upp", scope: "information.company" }, function (data) {
         // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
         if (data.length === 0) {
             alert('The service locator did not return any UPP services for company information');
@@ -192,6 +192,178 @@
             $('#companyinfo-billing-address').val(data.billingAddress);
         }
     });
+
+    // Ask the service locator to give us a UPP host that can provide insurance information.
+    var insurerSelect = $("#insurer-selector");
+
+    $.get(serviceLocator, { type : "upp", scope: "information.insurance"}, function (data) {
+        // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+        if (data.length === 0) {
+            alert('The service locator did not return any UPP services for insurance information');
+            return;
+        }
+
+        // Got at least one provider, so use them to populate the company information drop-down
+        var service = data[0];
+        $.get(service.uri, function (companies) {
+            $.each(companies, function (index, company) {
+                var opt = $('<option>' + company.providerName + '</option>');
+                opt.data("company", company);
+
+                insurerSelect.append(opt);
+            });
+        });
+    });
+
+    // Set an event handler to populate the company form on select change
+    insurerSelect.change(function (evt) {
+        var opt = insurerSelect.find(":selected");
+        var data = opt.data("company");
+        console.log(data);
+        if (data) {
+            $('#insuranceinfo-insurance-provider').val(data.providerName);
+            $('#insuranceinfo-agency-address').val(data.agencyAddress);
+            $('#insuranceinfo-policy-number').val(data.policyNumber);
+        }
+    });
+
+    // Ask the service locator to give us a UPP host that can provide vehicle information.
+    var vehicleSelect = $("#vehicle-selector");
+
+    $.get(serviceLocator, { type: "upp", scope: "information.vehicle" }, function (data) {
+        // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+        if (data.length === 0) {
+            alert('The service locator did not return any UPP services for vehicle information');
+            return;
+        }
+
+        // Got at least one provider, so use them to populate the company information drop-down
+        var service = data[0];
+        $.get(service.uri, function (vechiles) {
+            $.each(vechiles, function (index, vehicle) {
+                var opt = $('<option>' + vehicle.make + ' / ' + vehicle.model + ' (' + vehicle.usdotNumber + ')</option>');
+                opt.data("vehicle", vehicle);
+
+                vehicleSelect.append(opt);
+            });
+        });
+    });
+
+    // Set an event handler to populate the vehicle form on select change
+    vehicleSelect.change(function (evt) {
+        var opt = vehicleSelect.find(":selected");
+        var data = opt.data("vehicle");
+        console.log(evt);
+        if (data) {
+            $('#vehicleinfo-year').val(data.year);
+            $('#vehicleinfo-make').val(data.make);
+            $('#vehicleinfo-model').val(data.model);
+            $('#vehicleinfo-type').val(data.type);
+            $('#vehicleinfo-license-number').val(data.license);
+            $('#vehicleinfo-state').val(data.state);
+            $('#vehicleinfo-truck-serial-number').val(data.serialNumber);
+            $('#vehicleinfo-usdot-number').val(data.usdotNumber);
+            $('#vehicleinfo-empty-weight').val(data.emptyWeight);
+            $('#vehicleinfo-registered-weight').val(data.registedWeight);
+
+            // Ask the service locator to give us a UPP host that can provide truck information.
+            var truckSelect = $("#truck-selector");
+
+            $.get(serviceLocator, { type: "upp", scope: "information.truck" }, function (data) {
+                // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+                if (data.length === 0) {
+                    alert('The service locator did not return any UPP services for truck information');
+                    return;
+                }
+                // Got at least one provider, so use them to populate the company information drop-down
+                var service = data[0];
+                $.get(service.uri, function (trucks) {
+                    var index = $("#vehicle-selector").children('option:selected').index() -1;
+                    if (trucks && trucks[index]) {
+                        var truckData = trucks[index];
+                        $('#truckinfo-total-gross-weight').val(truckData.grossWeight);
+                        $('#truckinfo-empty-weight').val(truckData.emptyWeight);
+                        $('#truckinfo-registered-weight').val(truckData.registedWeight);
+                        $('#truckinfo-regulation-weight').val(truckData.regulationWeight);
+                        $('#truckinfo-dimension-summary').val(truckData.height + ' / ' + truckData.width + ' / ' + truckData.length);
+                        $('#truckinfo-overall-dimension-description').val('Len: ' + (truckData.length + truckData.frontOverhang + truckData.rearOverhang) + ' Wid: ' + (truckData.width + truckData.rightOverhang + truckData.leftOverhang));
+                        $('#truckinfo-height').val(truckData.height);
+                        $('#truckinfo-width').val(truckData.width);
+                        $('#truckinfo-length').val(truckData.length);
+                        $('#truckinfo-front-overhang').val(truckData.frontOverhang);
+                        $('#truckinfo-rear-overhang').val(truckData.rearOverhang);
+                        $('#truckinfo-left-overhang').val(truckData.leftOverhang);
+                        $('#truckinfo-right-overhang').val(truckData.rightOverhang);
+                        $('#truckinfo-diagram').val(truckData.diagram);
+                    }
+
+                });
+            });
+        }
+    });
+    var UpdateSummaries = function () {
+        var h = parseInt($('#truckinfo-height').val(), 10);
+        var w = parseInt($('#truckinfo-width').val(), 10);
+        var l = parseInt($('#truckinfo-length').val(), 10);
+        var of = parseInt($('#truckinfo-front-overhang').val(), 10);
+        var or = parseInt($('#truckinfo-rear-overhang').val(), 10);
+        var ol = parseInt($('#truckinfo-left-overhang').val(), 10);
+        var ort = parseInt($('#truckinfo-right-overhang').val(), 10);
+
+       $('#truckinfo-dimension-summary').val(h + ' / ' + w + ' / ' + l);
+       $('#truckinfo-overall-dimension-description').val('Len: ' + (l + of + or) + ' Wid: ' + (w + ort + ol));
+
+    }
+    $('#truckinfo-height').change(UpdateSummaries);
+    $('#truckinfo-width').change(UpdateSummaries);
+    $('#truckinfo-length').change(UpdateSummaries);
+    $('#truckinfo-front-overhang').change(UpdateSummaries);
+    $('#truckinfo-rear-overhang').change(UpdateSummaries);
+    $('#truckinfo-left-overhang').change(UpdateSummaries);
+    $('#truckinfo-right-overhang').change(UpdateSummaries);
+
+    // Ask the service locator to give us a UPP host that can provide insurance information.
+    var trailerSelect = $("#trailer-selector");
+
+    $.get(serviceLocator, { type: "upp", scope: "information.trailer" }, function (data) {
+        // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+        if (data.length === 0) {
+            alert('The service locator did not return any UPP services for trailer information');
+            return;
+        }
+
+        // Got at least one provider, so use them to populate the trailer information drop-down
+        var service = data[0];
+        $.get(service.uri, function (trailers) {
+            $.each(trailers, function (index, trailer) {
+                var opt = $('<option>' + trailer.description + '</option>');
+                opt.data("trailer", trailer);
+
+                trailerSelect.append(opt);
+            });
+        });
+    });
+
+    // Set an event handler to populate the company form on select change
+    trailerSelect.change(function (evt) {
+        var opt = trailerSelect.find(":selected");
+        var data = opt.data("trailer");
+        console.log(data);
+        if (data) {
+            $('#trailerinfo-description').val(data.description);
+            $('#trailerinfo-make').val(data.make);
+            $('#trailerinfo-model').val(data.model);
+            $('#trailerinfo-trailer-type').val(data.type);
+            $('#trailerinfo-serial-number').val(data.serialNumber);
+            $('#trailerinfo-license-number').val(data.license);
+            $('#trailerinfo-state').val(data.state);
+            $('#trailerinfo-empty-weight').val(data.emptyWeight);
+            $('#trailerinfo-registered-weight').val(data.registedWeight);
+            $('#trailerinfo-regulation-weight').val(data.registedWeight);
+        }
+    });
+
+
 })(
     jQuery,
     require,
