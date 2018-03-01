@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Nancy.TinyIoc;
 using SimpleAuthentication.Core;
 using SimpleAuthentication.Core.Providers;
+using SimpleAuthentication.ExtraProviders;
 using UPP.SimpleAuthentication.Providers;
 using UPP.Configuration;
 
@@ -34,7 +35,10 @@ namespace Manager.Store
             {
                 OAuthProviders.Add(new OAuthProvider("google", settings[AppKeys.GOOGLE_OAUTH_KEY], settings[AppKeys.GOOGLE_OAUTH_SECRET]));
             }
-
+            if (keys.Contains(AppKeys.GITHUB_OAUTH_KEY) && keys.Contains(AppKeys.GITHUB_OAUTH_SECRET))
+            {
+                OAuthProviders.Add(new OAuthProvider("github", settings[AppKeys.GITHUB_OAUTH_KEY], settings[AppKeys.GITHUB_OAUTH_SECRET]));
+            }
             /*
             if (keys.Contains(AppKeys.RTVISION_OAUTH_KEY) && keys.Contains(AppKeys.RTVISION_OAUTH_SECRET))
             {
@@ -76,16 +80,19 @@ namespace Manager.Store
                     case "google":
                         authenticationProviderFactory.AddProvider(new GoogleProvider(parameters));
                         break;
-                    
-                        /*
-                    case "rtvision":
-                        authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
-                        break;
 
-                    case "mndot":
-                        authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
+                    case "github":
+                        authenticationProviderFactory.AddProvider(new GitHubProvider(parameters));
                         break;
-                        */
+                    /*
+                case "rtvision":
+                    authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
+                    break;
+
+                case "mndot":
+                    authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
+                    break;
+                    */
                     case "agol":
                         authenticationProviderFactory.AddProvider(new ArcGISOnlineProvider(parameters));
                         break;

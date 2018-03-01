@@ -91,6 +91,10 @@
       <HintPath>..\packages\SimpleAuthentication.Core.0.8.0\lib\net40\SimpleAuthentication.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SimpleAuthentication.ExtraProviders, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SimpleAuthentication.ExtraProviders.0.8.0\lib\net40\SimpleAuthentication.ExtraProviders.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />

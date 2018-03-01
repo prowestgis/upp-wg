@@ -5,6 +5,9 @@
         public const string GOOGLE_OAUTH_KEY = "UPP:Security:OAuth:Google:Key";
         public const string GOOGLE_OAUTH_SECRET = "UPP:Security:OAuth:Google:Secret";
 
+        public const string GITHUB_OAUTH_KEY = "UPP:Security:OAuth:GitHub:Key";
+        public const string GITHUB_OAUTH_SECRET = "UPP:Security:OAuth:GitHub:Secret";
+
         public const string RTVISION_OAUTH_KEY = "UPP:Security:OAuth:RTVision:Key";
         public const string RTVISION_OAUTH_SECRET = "UPP:Security:OAuth:RTVision:Secret";
 
