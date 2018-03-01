@@ -37,8 +37,8 @@
             if (!map_ref) {
                 map_ref = new Map(map_id, {
                     basemap: "topo",
-                    center: [-180 + 94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
-                    zoom: 13
+                    center: [-94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
+                    zoom: 11
                 });
 
                 on(map_ref, 'click', function (evt) {
@@ -149,8 +149,8 @@
 
         route_map = new Map('route-map', {
             basemap: "topo",
-            center: [-122.45, 37.75],
-            zoom: 12
+            center: [-94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
+            zoom: 10
         });
     });
 
