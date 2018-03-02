@@ -82,6 +82,11 @@ namespace Manager.Store
                         break;
 
                     case "github":
+                        // Request the full user scope instead of the default which is user:email
+                        List<string> scopes = new List<string>();
+                        scopes.Add("user");
+                        parameters.Scopes = scopes;
+
                         authenticationProviderFactory.AddProvider(new GitHubProvider(parameters));
                         break;
                     /*

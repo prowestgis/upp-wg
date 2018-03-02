@@ -30,10 +30,12 @@ namespace Manager.Security
             _services = services;
             _baseUrl = config.Keyword(Keys.NANCY__HOST_BASE_URI) ?? "/";
         }
-        
+
         public dynamic Process(NancyModule nancyModule, AuthenticateCallbackData model)
         {
             logger.Debug("Received callback from provider: '{0}'", model.ProviderName);
+
+            if (model.Exception != null) throw model.Exception;
 
             try
             {
