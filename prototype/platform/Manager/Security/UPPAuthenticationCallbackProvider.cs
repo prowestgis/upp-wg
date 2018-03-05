@@ -35,7 +35,11 @@ namespace Manager.Security
         {
             logger.Debug("Received callback from provider: '{0}'", model.ProviderName);
 
-            if (model.Exception != null) throw model.Exception;
+            if (model.Exception != null)
+            {
+                logger.Warn(model.Exception);
+                throw model.Exception;
+            }
 
             try
             {
