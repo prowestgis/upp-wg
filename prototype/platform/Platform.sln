@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TruckInformation", "TruckIn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AxleInformation", "AxleInformation\AxleInformation.csproj", "{3EA7D875-213B-4186-A87D-0AE2C2FCCBB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PermitIssuer", "PermitIssuer\PermitIssuer.csproj", "{73C47170-D5F8-4477-89EA-9E9DB943DCCA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{3EA7D875-213B-4186-A87D-0AE2C2FCCBB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EA7D875-213B-4186-A87D-0AE2C2FCCBB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EA7D875-213B-4186-A87D-0AE2C2FCCBB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73C47170-D5F8-4477-89EA-9E9DB943DCCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73C47170-D5F8-4477-89EA-9E9DB943DCCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73C47170-D5F8-4477-89EA-9E9DB943DCCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73C47170-D5F8-4477-89EA-9E9DB943DCCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
