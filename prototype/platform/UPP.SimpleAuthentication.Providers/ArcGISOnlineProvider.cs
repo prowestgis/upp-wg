@@ -50,7 +50,7 @@ namespace UPP.SimpleAuthentication.Providers
                 throw new ArgumentNullException("redirectUri");
             }
 
-            var restRequest = new RestRequest("/sharing/oauth2/authorize", Method.POST);
+            var restRequest = new RestRequest("/sharing/rest/oauth2/authorize", Method.POST);
             restRequest.AddParameter("client_id", PublicApiKey);
             restRequest.AddParameter("client_secret", SecretApiKey);
             restRequest.AddParameter("redirect_uri", redirectUri.AbsoluteUri);

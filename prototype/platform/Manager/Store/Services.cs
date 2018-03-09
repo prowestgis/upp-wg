@@ -53,7 +53,7 @@ namespace Manager.Store
 
             if (keys.Contains(AppKeys.ARCGISONLINE_OAUTH_KEY) && keys.Contains(AppKeys.ARCGISONLINE_OAUTH_SECRET))
             {
-                OAuthProviders.Add(new OAuthProvider("agol", settings[AppKeys.ARCGISONLINE_OAUTH_KEY], settings[AppKeys.ARCGISONLINE_OAUTH_SECRET]));
+                OAuthProviders.Add(new OAuthProvider("arcgisonline", settings[AppKeys.ARCGISONLINE_OAUTH_KEY], settings[AppKeys.ARCGISONLINE_OAUTH_SECRET]));
             }
         }
 
@@ -98,7 +98,7 @@ namespace Manager.Store
                     authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
                     break;
                     */
-                    case "agol":
+                    case "arcgisonline":
                         authenticationProviderFactory.AddProvider(new ArcGISOnlineProvider(parameters));
                         break;
 
