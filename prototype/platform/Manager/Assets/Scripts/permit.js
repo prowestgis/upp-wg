@@ -4,6 +4,8 @@
     require([
         "esri/map",
         "esri/tasks/locator",
+        "esri/tasks/query",
+        "esri/tasks/QueryTask",
         "esri/tasks/RouteTask",
         "esri/tasks/RouteParameters",
         "esri/tasks/FeatureSet",
@@ -14,7 +16,7 @@
         "dojo/_base/array",
         "dojo/on",
         "dojo/domReady!"
-    ], function (Map, Locator, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, array, on) {
+    ], function (Map, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, array, on) {
         var symbol = new SimpleMarkerSymbol({
             "color": [255, 255, 255, 64],
             "size": 12,
@@ -32,6 +34,16 @@
         });
 
         var locator = new Locator("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer");
+
+        var routeResult = null;
+
+        // Ask UPP for the geometry service
+        var geometryService = null;
+        $.get(sdUrl + "api/v1/hosts?type=geometry", function (data) {
+            if (data && data.uri) {
+                geometryService = new GeometryService(data.uri);
+            }
+        });
 
         function init_map(map_id, map_ref) {
             if (!map_ref) {
@@ -68,16 +80,31 @@
         function divide_route(route) {
 
             // Ask UPP for the geometry service
-            var url = apiUrl + "api/hauler";
+            var url = sdUrl + "api/v1/hosts?type=county.boundaries";
             $.get(url, function (data) {
-                if (!data.boundaryServiceUrl) {
+                if (!data || data.length === 0) {
                     alert('No boundary service is configured');
                     return;
                 }
-
+                if (!route || !route.geometry) {
+                    alert("No route selected.");
+                    return;
+                }
                 // Intersect the route geometry with the service layer and get a collection of
                 // permit authorities
+                var queryTask = new QueryTask(data[0].uri);
+                var query = new Query();
+                query.geometry = route.geometry;
+                query.outFields = ["*"];
+                query.returnGeometry = true;
+                query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
 
+                queryTask.execute(query, function (result) {
+                    console.log(result);
+                    $("#permit-authorities").val(array.map(result.features, function (county) {
+                        return county.attributes.NAME;
+                    }).toString());
+                }, function (err) { console.log(err); });
             });
         };
 
@@ -119,11 +146,13 @@
                         routeParams.stops.features.push(new Graphic(origin_pt, null, {}));
                         routeParams.stops.features.push(new Graphic(destination_pt, null, {}));
                         routeTask.solve(routeParams).then(function (result) {
+                            routeResult = result.routeResults;
                             // Show the route on the route map
                             var routeSymbol = new SimpleLineSymbol().setColor(new dojo.Color([0, 0, 255, 0.5])).setWidth(5);
                             array.forEach(result.routeResults, function (result) {
                                 route_map.graphics.add(result.route.setSymbol(routeSymbol));
                                 route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
+                                divide_route(result.route);
                             });
                         });
                     });
@@ -363,6 +392,9 @@
         }
     });
 
+    $("#request-permit").click(function (evt) {
+        console.log(evt);
+    });
 
 })(
     jQuery,
