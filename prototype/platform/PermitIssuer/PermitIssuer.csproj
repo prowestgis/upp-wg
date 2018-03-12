@@ -89,6 +89,10 @@
       <Project>{f633c5f6-ef54-4990-9e00-85806eb0a08b}</Project>
       <Name>UPP.Configuration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UPP.Protocols\UPP.Protocols.csproj">
+      <Project>{858d151d-a8d9-49d9-9a03-8aee00417b3e}</Project>
+      <Name>UPP.Protocols</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UPP.Security\UPP.Security.csproj">
       <Project>{c1cd4690-5abc-40e6-bf0d-fec1f6238a1e}</Project>
       <Name>UPP.Security</Name>

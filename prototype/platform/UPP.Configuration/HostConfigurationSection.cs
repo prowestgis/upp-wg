@@ -7,6 +7,7 @@
 
     public static partial class Keys
     {
+        public const string SELF__IDENTIFIER = "Self:Identifier";
         public const string NANCY__BASE_URI = "Nancy:BaseUri";
         public const string NANCY__HOST_URI = "Nancy:HostUri";
         public const string NANCY__HOST_BASE_URI = "Nancy:HostBaseUri";
@@ -21,7 +22,8 @@
             { NANCY__HOST_BASE_URI, "/" },
             { SERVICE_DIRECTORY__BASE_URI, null },
             { SERVICE_DIRECTORY__HOST_URI, null },
-            { SERVICE_DIRECTORY__SCOPES, "" }
+            { SERVICE_DIRECTORY__SCOPES, "" },
+            { SELF__IDENTIFIER, null }
         };
     }
 
