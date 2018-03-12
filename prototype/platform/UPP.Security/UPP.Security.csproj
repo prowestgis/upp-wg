@@ -60,6 +60,7 @@
     <Compile Include="AuthUser.cs" />
     <Compile Include="AuthToken.cs" />
     <Compile Include="Claims.cs" />
+    <Compile Include="Https.cs" />
     <Compile Include="IdentityProvider.cs" />
     <Compile Include="JoseNewtonsoftMapper.cs" />
     <Compile Include="OAuth.cs" />
