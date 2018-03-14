@@ -14,9 +14,13 @@
         "esri/symbols/SimpleLineSymbol",
         "esri/graphic",
         "dojo/_base/array",
+		"dojo/_base/Deferred",
+		"dojo/DeferredList",
+		"dojo/dom-construct", 
+		"dojo/query",
         "dojo/on",
         "dojo/domReady!"
-    ], function (Map, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, array, on) {
+    ], function (Map, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, array, Deferred, DeferredList, domConstruct, dojoQuery, on) {
         var symbol = new SimpleMarkerSymbol({
             "color": [255, 255, 255, 64],
             "size": 12,
@@ -107,7 +111,21 @@
                 }, function (err) { console.log(err); });
             });
         };
-
+		function serializeForm(form){
+			var o = {};
+			var a = form.serializeArray();
+			$.each(a, function() {
+				if (o[this.name]) {
+					if (!o[this.name].push) {
+						o[this.name] = [o[this.name]];
+					}
+					o[this.name].push(this.value || '');
+				} else {
+					o[this.name] = this.value || '';
+				}
+			});
+			return o;
+		};
         // If both origin and destination have locations, route it
         function check_route() {
             var origin_pt = $('#movementinfo-origin').data('location');
@@ -181,6 +199,42 @@
             center: [-94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
             zoom: 10
         });
+		
+		function submit_permit(authorityId){
+			var def = new Deferred();
+			$.get(serviceLocator, { type : "upp", scope: "permit.approval." + authorityId.replace(/\s+/g, '')}, function (data) { 
+				console.log(data);
+				var form = $("#permit-form");
+				if(!data || data.length === 0){
+					//alert
+					form.append('<input type="hidden" name="Authority" value="'+ authorityId +': Service Not Found." />');
+					def.resolve("Service Not Found");
+				}else {
+					$.post(data[0].uri, serializeForm(form), function(permitData){
+						console.log(permitData);
+						form.append('<input type="hidden" name="Authority" value="'+ authorityId +': ' + permitData.status +'." />');
+						def.resolve("Service Found");
+					});
+				}
+			});
+			return def;
+		}
+		$("#request-permit").click(function (evt) {
+			console.log(evt);
+			dojoQuery("input[name=Authority]").forEach(domConstruct.destroy);
+			var auths = $("#permit-authorities").val().split(',');
+			var form = $("#permit-form");
+			
+			var dl = new DeferredList(array.map(auths, function(auth){
+				//form.append('<input type="hidden" name="Authority" value="'+ auth +'" />')
+				return submit_permit(auth);
+			}));
+			dl.then(function(result){
+				console.log("deferred list then");
+				console.log(form);
+				form.submit();
+			});
+		}); 
     });
 
     // Ask the service locator to give us a UPP host that can provide company information.
@@ -392,9 +446,8 @@
         }
     });
 
-    $("#request-permit").click(function (evt) {
-        console.log(evt);
-    });
+
+
 
 })(
     jQuery,

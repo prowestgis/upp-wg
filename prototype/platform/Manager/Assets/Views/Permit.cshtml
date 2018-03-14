@@ -87,7 +87,7 @@
 
             <div class="content">
                 <div class="container-fluid">
-                    <form id="permit-form" class="form-horizontal">
+                    <form id="permit-form" target="_blank" action="api/permit" class="form-horizontal" method="post">
                         @Html.Partial("Permit/Hauler", Model.Hauler)
                         @Html.Partial("Permit/Company", Model.Company)
                         @Html.Partial("Permit/Insurance", Model.Insurance)

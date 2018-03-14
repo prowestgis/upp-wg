@@ -5,9 +5,9 @@
 }
 <fieldset>
     <legend>Hauler Information</legend>
-    @Html.GroupItem(Model.Name, "Name", true)
-    @Html.GroupItem(Model.Date, "Application Date")
-    @Html.GroupItem(Model.Email, "Email", true)
-    @Html.GroupItem(Model.Phone, "Phone", true)
-    @Html.GroupItem(Model.Fax, "Fax")
+    @Html.GroupItem(Model.Name, "Name", "Name", true)
+    @Html.GroupItem(Model.Date, "Date", "Application Date")
+    @Html.GroupItem(Model.Email, "email", "Email", true)
+    @Html.GroupItem(Model.Phone, "phone", "Phone", true)
+    @Html.GroupItem(Model.Fax, "fax", "Fax")
 </fieldset>
