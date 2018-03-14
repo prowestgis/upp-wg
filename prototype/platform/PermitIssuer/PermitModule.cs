@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UPP.Configuration;
+using UPP.Protocols;
 
 namespace PermitIssuer
 {
@@ -13,17 +15,25 @@ namespace PermitIssuer
     /// </summary>
     public sealed class PermitModule : NancyModule
     {
-        public PermitModule() : base("/api/v1/issue")
+        public PermitModule(HostConfigurationSection config) : base("/api/v1/issue")
         {
             // Need a valid JWT to access
             this.RequiresAuthentication();
 
             // Registers service metadata from a trusted source
-            Post["/"] = _ => ProcessApplication();
+            Post["/"] = _ => ProcessApplication(config);
         }
-        private Response ProcessApplication()
+
+        private Response ProcessApplication(HostConfigurationSection config)
         {
-            return Response.AsJson(new { Status = "Approved" });
+            var identifier = config.Keyword(Keys.SELF__IDENTIFIER);
+
+            return Response.AsJson(new PermitApprovalRecord
+            {
+                Timestamp = DateTime.Now,
+                Status = PermitApprovalStatus.APPROVED,
+                Identifier = identifier
+            });
         }
     }
 }
