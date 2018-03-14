@@ -49,11 +49,11 @@
             }
         });
 
-        function init_map(map_id, map_ref) {
+        function init_map(map_id, map_ref, center) {
             if (!map_ref) {
                 map_ref = new Map(map_id, {
                     basemap: "topo",
-                    center: [-94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
+                    center: center || [-94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
                     zoom: 11
                 });
 
@@ -104,13 +104,15 @@
                 query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
 
                 queryTask.execute(query, function (result) {
-                    console.log(result);
+                    
                     $("#permit-authorities").val(array.map(result.features, function (county) {
                         return county.attributes.NAME;
                     }).toString());
                 }, function (err) { console.log(err); });
             });
         };
+
+        // Serialize the data from the permit so it can be sent to the Permit Authorities.
 		function serializeForm(form){
 			var o = {};
 			var a = form.serializeArray();
@@ -166,6 +168,7 @@
                         routeTask.solve(routeParams).then(function (result) {
                             routeResult = result.routeResults;
                             // Show the route on the route map
+							route_map.graphics.clear();
                             var routeSymbol = new SimpleLineSymbol().setColor(new dojo.Color([0, 0, 255, 0.5])).setWidth(5);
                             array.forEach(result.routeResults, function (result) {
                                 route_map.graphics.add(result.route.setSymbol(routeSymbol));
@@ -179,7 +182,7 @@
         };
 
         $('#startLocationModal').on('shown.bs.modal', function () {
-            start_map = init_map('start-map', start_map);
+            start_map = init_map('start-map', start_map, [-92.100487, 46.786671]);
         });
 
         $('#startLocationModal').on('hidden.bs.modal', function () {
@@ -187,7 +190,7 @@
         });
 
         $('#endLocationModal').on('shown.bs.modal', function () {
-            end_map = init_map('end-map', end_map);
+            end_map = init_map('end-map', end_map, [-97.03203, 47.92408]);
         });
 
         $('#endLocationModal').on('hidden.bs.modal', function () {
@@ -203,16 +206,16 @@
 		function submit_permit(authorityId){
 			var def = new Deferred();
 			$.get(serviceLocator, { type : "upp", scope: "permit.approval." + authorityId.replace(/\s+/g, '')}, function (data) { 
-				console.log(data);
 				var form = $("#permit-form");
 				if(!data || data.length === 0){
-					//alert
+					// The service directory did not return a service for the permit authority
 					form.append('<input type="hidden" name="Authority" value="'+ authorityId +': Service Not Found." />');
 					def.resolve("Service Not Found");
-				}else {
+				} else {
+                    // Submit the permit request to the permit authority.
 					$.post(data[0].uri, serializeForm(form), function(permitData){
-						console.log(permitData);
-						form.append('<input type="hidden" name="Authority" value="'+ authorityId +': ' + permitData.status +'." />');
+						
+						form.append('<input type="hidden" name="Authority" value="'+ authorityId +': ' + permitData.status + ' - ' + permitData.timestamp + '." />');
 						def.resolve("Service Found");
 					});
 				}
@@ -220,25 +223,21 @@
 			return def;
 		}
 		$("#request-permit").click(function (evt) {
-			console.log(evt);
 			dojoQuery("input[name=Authority]").forEach(domConstruct.destroy);
 			var auths = $("#permit-authorities").val().split(',');
 			var form = $("#permit-form");
 			
 			var dl = new DeferredList(array.map(auths, function(auth){
-				//form.append('<input type="hidden" name="Authority" value="'+ auth +'" />')
 				return submit_permit(auth);
 			}));
 			dl.then(function(result){
-				console.log("deferred list then");
-				console.log(form);
 				form.submit();
 			});
 		}); 
     });
 
     // Ask the service locator to give us a UPP host that can provide company information.
-    var serviceLocator = sdUrl + "api/v1/hosts"; //?type=upp&scope=information.company";
+    var serviceLocator = sdUrl + "api/v1/hosts"; 
     var select = $("#company-selector");
 
     $.get(serviceLocator, { type: "upp", scope: "information.company" }, function (data) {
@@ -302,7 +301,7 @@
     insurerSelect.change(function (evt) {
         var opt = insurerSelect.find(":selected");
         var data = opt.data("company");
-        console.log(data);
+        
         if (data) {
             $('#insuranceinfo-insurance-provider').val(data.providerName);
             $('#insuranceinfo-agency-address').val(data.agencyAddress);
@@ -336,7 +335,7 @@
     vehicleSelect.change(function (evt) {
         var opt = vehicleSelect.find(":selected");
         var data = opt.data("vehicle");
-        console.log(evt);
+        
         if (data) {
             $('#vehicleinfo-year').val(data.year);
             $('#vehicleinfo-make').val(data.make);
@@ -431,7 +430,7 @@
     trailerSelect.change(function (evt) {
         var opt = trailerSelect.find(":selected");
         var data = opt.data("trailer");
-        console.log(data);
+        
         if (data) {
             $('#trailerinfo-description').val(data.description);
             $('#trailerinfo-make').val(data.make);

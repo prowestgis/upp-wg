@@ -62,7 +62,7 @@ namespace Manager.Host
                     qrCodeImage.SetAbsolutePosition(document.PageSize.Width - 36f - 72f, document.PageSize.Height - 36f - 72f);
                     qrCodeImage.ScalePercent(200);
                     document.Add(qrCodeImage);
-                    //document.Add(new Paragraph("Hauler Information"));
+                    
                     document.Add(record.HaulerInfo());
                     document.Add(record.CompanyInfo());
                     document.Add(record.InsuranceInfo());
@@ -146,10 +146,6 @@ namespace Manager.Host
 
     public sealed class GeneratePermitModel
     {
-        public GeneratePermitModel()
-        {
-            //haulerinfo = new HaulerInfo();
-        }
         public string haulerinfoName { get; set; }
         public DateTime haulerinfoDate {get; set;}
         public string haulerinfoemail { get; set; }
@@ -233,7 +229,6 @@ namespace Manager.Host
 
         public Paragraph HaulerInfo()
         {
-            //Font font = FontFactory.GetFont(FontFactory.COURIER, 8);
             Paragraph hauler = new Paragraph("Hauler Information");
             hauler.Add(Environment.NewLine);
             List list = new List();
@@ -422,7 +417,7 @@ namespace Manager.Host
             list.IndentationLeft = 10;
 
             list.Add(FormattedListItem("Route Origin", movementinfoOrigin));
-            list.Add(FormattedListItem("Route", movementinfoDestination));
+            list.Add(FormattedListItem("Route Destination", movementinfoDestination));
 
             para.Add(list);
             return para;
