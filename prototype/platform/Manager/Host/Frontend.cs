@@ -247,9 +247,15 @@ namespace Manager.Host
             public string Destination { get; set; }
 
             public string RouteDescription { get; set; }
+            public string RouteCountyNumbers { get; set; }
             public decimal MileOfCountyRoad { get; set; }
             public decimal RouteLength { get; set; }
+
+            public string StateHighwayPermitNumber { get; set; }
+            public string StateHighwayPermitIssued { get; set; }
             public bool NeedPilotCar { get; set; }
+            public bool DestinationWithinCityLimits { get; set; }
+            public bool DestinationWithinApplyingCounty { get; set; }
         }
     }
 }
