@@ -71,3 +71,7 @@
         position: initial;
     }
 }
+
+.is-breakable {
+    word-break: break-all;
+}

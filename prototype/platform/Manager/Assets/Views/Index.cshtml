@@ -171,10 +171,9 @@
                                             @foreach (var oauth in Model.Auths)
                                             {
                                                 <tr>
-                                                    <td>@oauth.Name</td>
                                                     <td>@oauth.DisplayName</td>
-                                                    <td>@oauth.Key</td>
-                                                    <td>@oauth.Scopes</td>
+                                                    <td class="is-breakable">@oauth.Key</td>
+                                                    <td class="is-breakable">@oauth.Scopes</td>
                                                 </tr>
                                             }
                                         </tbody>
