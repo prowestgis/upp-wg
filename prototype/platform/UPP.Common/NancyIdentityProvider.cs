@@ -46,9 +46,19 @@ namespace UPP.Common
         public override string GetToken(NancyContext context)
         {
             // Get the token from either the special cookie or the Authorization header
-            return context.Request.Cookies.ContainsKey(_authSettings.CookieName)
-                ? context.Request.Cookies[_authSettings.CookieName]
-                : context.Request.Headers.Authorization;
+            if (context.Request.Cookies.ContainsKey(_authSettings.CookieName))
+            {
+                return context.Request.Cookies[_authSettings.CookieName];
+            }
+
+            if (!String.IsNullOrEmpty(context.Request.Headers.Authorization))
+            {
+                var token = context.Request.Headers.Authorization.Replace("Bearer", "");
+                token = token.Trim();
+                return token;
+            }
+
+            return null;
         }
 
         public override IUserIdentity CreateUser(AuthToken token)
