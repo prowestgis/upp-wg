@@ -6,14 +6,13 @@ using SimpleAuthentication.Core;
 using SimpleAuthentication.Core.Exceptions;
 using SimpleAuthentication.Core.Providers;
 using SimpleAuthentication.Core.Tracing;
-using UPP.SimpleAuthentication.Providers.RTVision;
+using UPP.SimpleAuthentication.Providers.ArcGISOnline;
 
 namespace UPP.SimpleAuthentication.Providers
 {
     public class ArcGISOnlineProvider : BaseOAuth20Provider<AccessTokenResult>
     {
-        private const string AccessTokenKey = "access_token";
-        private const string TokenTypeKey = "token_type";
+        private const string AccessTokenKey = "token";
 
         public ArcGISOnlineProvider(ProviderParams providerParams) : this("ArcGISOnline", providerParams)
         {
@@ -31,11 +30,6 @@ namespace UPP.SimpleAuthentication.Providers
             get { return new[] { "user:email" }; }
         }
 
-        public override string ScopeSeparator
-        {
-            get { return ","; }
-        }
-
         protected override IRestResponse<AccessTokenResult> ExecuteRetrieveAccessToken(string authorizationCode,
                                                                                        Uri redirectUri)
         {
@@ -50,18 +44,21 @@ namespace UPP.SimpleAuthentication.Providers
                 throw new ArgumentNullException("redirectUri");
             }
 
-            var restRequest = new RestRequest("/sharing/rest/oauth2/authorize", Method.POST);
+            var restRequest = new RestRequest("/sharing/rest/oauth2/token", Method.POST);
             restRequest.AddParameter("client_id", PublicApiKey);
-            restRequest.AddParameter("client_secret", SecretApiKey);
-            restRequest.AddParameter("redirect_uri", redirectUri.AbsoluteUri);
             restRequest.AddParameter("code", authorizationCode);
+            restRequest.AddParameter("redirect_uri", redirectUri.AbsoluteUri);
             restRequest.AddParameter("grant_type", "authorization_code");
 
             var restClient = RestClientFactory.CreateRestClient("https://www.arcgis.com/");
             TraceSource.TraceVerbose("Retrieving Access Token endpoint: {0}",
                                      restClient.BuildUri(restRequest).AbsoluteUri);
 
-            return restClient.Execute<AccessTokenResult>(restRequest);
+            // ArcGIS Online returns the token as text/plain, but it's actually a JSON payload
+            restClient.AddHandler("text/plain", new RestSharp.Deserializers.JsonDeserializer());
+
+            var response = restClient.Execute<AccessTokenResult>(restRequest);
+            return response;
         }
 
         protected override AccessToken MapAccessTokenResultToAccessToken(AccessTokenResult accessTokenResult)
@@ -71,21 +68,20 @@ namespace UPP.SimpleAuthentication.Providers
                 throw new ArgumentNullException("accessTokenResult");
             }
 
-            if (string.IsNullOrEmpty(accessTokenResult.AccessToken) ||
-                string.IsNullOrEmpty(accessTokenResult.TokenType))
+            if (string.IsNullOrEmpty(accessTokenResult.AccessToken))
             {
                 var errorMessage =
                     string.Format(
-                        "Retrieved an RTVision Access Token but it doesn't contain one or more of either: {0} or {1}.",
-                        AccessTokenKey, TokenTypeKey);
+                        "Retrieved an ArcGIS Online Access Token but it doesn't contain: {0}",
+                        AccessTokenKey);
                 TraceSource.TraceError(errorMessage);
                 throw new AuthenticationException(errorMessage);
             }
 
             return new AccessToken
             {
-                PublicToken = accessTokenResult.AccessToken
-                //ExpiresOn = DateTime.UtcNow.AddSeconds(accessTokenResult.ExpiresIn)
+                PublicToken = accessTokenResult.AccessToken,
+                ExpiresOn = DateTime.UtcNow.AddSeconds(accessTokenResult.ExpiresIn)
             };
         }
 
@@ -107,9 +103,11 @@ namespace UPP.SimpleAuthentication.Providers
             {
                 var restRequest = new RestRequest("/sharing/rest/community/self", Method.GET);
                 restRequest.AddParameter(AccessTokenKey, accessToken.PublicToken);
+                restRequest.AddParameter("f", "json");
 
+                // ArcGIS Online returns the token as text/plain, but it's actually a JSON payload
                 var restClient = RestClientFactory.CreateRestClient("https://www.arcgis.com");
-
+                restClient.AddHandler("text/plain", new RestSharp.Deserializers.JsonDeserializer());
                 restClient.UserAgent = PublicApiKey;
 
                 TraceSource.TraceVerbose("Retrieving user information. ArcGIS Online Endpoint: {0}",
@@ -132,23 +130,12 @@ namespace UPP.SimpleAuthentication.Providers
                         response == null ? string.Empty : response.StatusDescription));
             }
 
-            // Lets check to make sure we have some bare minimum data.
-            if (string.IsNullOrEmpty(response.Data.Id.ToString()) ||
-                string.IsNullOrEmpty(response.Data.Login))
-            {
-                throw new AuthenticationException(
-                    string.Format(
-                        "Retrieve some user info from the ArcGIS Online Api, but we're missing one or both: Id: '{0}' and Login: '{1}'.",
-                        string.IsNullOrEmpty(response.Data.Id.ToString()) ? "--missing--" : response.Data.Id.ToString(),
-                        string.IsNullOrEmpty(response.Data.Login) ? "--missing--" : response.Data.Login));
-            }
-
             return new UserInformation
             {
-                Id = response.Data.Id.ToString(),
-                Name = response.Data.Name,
-                Email = response.Data.Email ?? "",
-                UserName = response.Data.Login
+                Id = response.Data.UserName,
+                Name = response.Data.FullName,
+                Email = response.Data.Email,
+                UserName = response.Data.UserName
             };
         }
 
