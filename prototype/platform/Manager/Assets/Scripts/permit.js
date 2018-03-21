@@ -83,17 +83,27 @@
         // the designated authorities
         function divide_route(route) {
 
+            if (!route || !route.geometry) {
+                alert("No route selected.");
+                return;
+            }
+            var dl = new DeferredList([getAuthorities("county.boundaries", "NAME", route), getAuthorities("city.boundaries", "Name", route)]);
+            dl.then(function (result) {
+                $("#permit-authorities").val(result[0][1].concat(result[1][1]).toString());
+            });
+
+        };
+        function getAuthorities(type, fieldName, route) {
+            var def = new Deferred();
             // Ask UPP for the geometry service
-            var url = sdUrl + "api/v1/hosts?type=county.boundaries";
-            $.get(url, function (data) {
+            var url = sdUrl + "api/v1/hosts";
+            $.get(url, {type: type}, function (data) {
                 if (!data || data.length === 0) {
-                    alert('No boundary service is configured');
-                    return;
+                    var message = 'No boundary service is configured for ' + type;
+                    alert(message);
+                    def.reject(message);
                 }
-                if (!route || !route.geometry) {
-                    alert("No route selected.");
-                    return;
-                }
+
                 // Intersect the route geometry with the service layer and get a collection of
                 // permit authorities
                 var queryTask = new QueryTask(data[0].uri);
@@ -104,14 +114,14 @@
                 query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
 
                 queryTask.execute(query, function (result) {
-                    
-                    $("#permit-authorities").val(array.map(result.features, function (county) {
-                        return county.attributes.NAME;
-                    }).toString());
-                }, function (err) { console.log(err); });
-            });
-        };
 
+                    def.resolve(array.map(result.features, function (county) {
+                        return county.attributes[fieldName];
+                    }));
+                }, function (err) { console.log(err); def.reject(err); });
+            });
+            return def.promise;
+        };
         // Serialize the data from the permit so it can be sent to the Permit Authorities.
 		function serializeForm(form){
 			var o = {};
@@ -190,7 +200,7 @@
         });
 
         $('#endLocationModal').on('shown.bs.modal', function () {
-            end_map = init_map('end-map', end_map, [-97.03203, 47.92408]);
+            end_map = init_map('end-map', end_map, [-96.60645, 47.77423]);
         });
 
         $('#endLocationModal').on('hidden.bs.modal', function () {
