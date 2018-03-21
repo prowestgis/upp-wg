@@ -5,18 +5,18 @@
 }
 <fieldset>
     <legend>Truck Information</legend>
-    @Html.GroupItem(Model.GrossWeight, "GrossWeight", "Total Gross Weight")
+    @Html.GroupItem(Model.GrossWeight, new GroupItemProperties("GrossWeight") { label = "Total Gross Weight", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
     @*@Html.GroupItem(Model.EmptyWeight, "EmptyWeight", "Empty Weight")*@
     @*@Html.GroupItem(Model.RegisteredWeight, "RegisteredWeight", "Registered Weight")*@
     @*@Html.GroupItem(Model.RegulationWeight, "RegulationWeight", "Regulation Weight")*@
-    @Html.GroupItem(Model.DimensionSummary, "DimensionSummary", "Dimension Summary", true)
-    @Html.GroupItem(Model.DimensionDescription, "DimensionDescription", "Overall Dimension Description", true)
-    @Html.GroupItem(Model.Height, "Height", "Height")
-    @Html.GroupItem(Model.Width, "Width", "Width")
-    @Html.GroupItem(Model.Length, "Length", "Length")
-    @Html.GroupItem(Model.FrontOverhang, "FrontOverhang", "Front Overhang")
-    @Html.GroupItem(Model.RearOverhang, "RearOverhang", "Rear Overhang")
-    @Html.GroupItem(Model.LeftOverhang, "LeftOverhang", "Left Overhang")
-    @Html.GroupItem(Model.RightOverhang, "RightOverhang", "Right Overhang")
-    @Html.GroupItem(Model.Diagram, "Diagram", "Diagram", true)
+    @Html.GroupItem(Model.DimensionSummary, new GroupItemProperties("DimensionSummary") { label = "Dimension Summary", readOnly = true })
+    @Html.GroupItem(Model.DimensionDescription, new GroupItemProperties("DimensionDescription") { label = "Overall Dimension Description", readOnly = true })
+    @Html.GroupItem(Model.Height, new GroupItemProperties("Height") { label = "Height", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.Width, new GroupItemProperties("Width") { label = "Width", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.Length, new GroupItemProperties("Length") { label = "Length", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.FrontOverhang, new GroupItemProperties("FrontOverhang") { label = "Front Overhang", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.RearOverhang, new GroupItemProperties("RearOverhang") { label = "Rear Overhang", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.LeftOverhang, new GroupItemProperties("LeftOverhang") { label = "Left Overhang", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.RightOverhang, new GroupItemProperties("RightOverhang") { label = "Right Overhang", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.Diagram, new GroupItemProperties("Diagram") { label = "Diagram", readOnly = true })
 </fieldset>

@@ -12,12 +12,12 @@
             </select>
         </div>
     </div>
-    @Html.GroupItem(Model.Name, "Name", "Name")
-    @Html.GroupItem(Model.Address, "Address", "Address")
-    @Html.GroupItem(Model.Email, "Email", "Email")
-    @Html.GroupItem(Model.Contact, "Contact", "Contact")
-    @Html.GroupItem(Model.Phone, "Phone", "Phone")
-    @Html.GroupItem(Model.Fax, "Fax", "Fax")
+    @Html.GroupItem(Model.Name, new GroupItemProperties("Name") { label = "Name" })
+    @Html.GroupItem(Model.Address, new GroupItemProperties("Address") { label = "Address" })
+    @Html.GroupItem(Model.Email, new GroupItemProperties("Email") { label = "Email", inputType = GroupItemProperties.InputType.EMAIL})
+    @Html.GroupItem(Model.Contact, new GroupItemProperties("Contact") { label = "Contact" })
+    @Html.GroupItem(Model.Phone, new GroupItemProperties("Phone") { label = "Phone" })
+    @Html.GroupItem(Model.Fax, new GroupItemProperties("Fax") { label = "Fax" })
     @*@Html.GroupItem(Model.Cell, "Cell", "Cell")*@
     @*@Html.GroupItem(Model.BillTo, "BillTo", "Bill To")*@
     @*@Html.GroupItem(Model.BillingAddress, "BillingAddress", "Billing Address")*@

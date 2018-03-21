@@ -13,13 +13,13 @@
         </div>
     </div>
     @*@Html.GroupItem(Model.Year, "Year", "Year")*@
-    @Html.GroupItem(Model.Make, "Make", "Make")
+    @Html.GroupItem(Model.Make, new GroupItemProperties("Make") { label = "Make" })
     @*@Html.GroupItem(Model.Model, "Model", "Model")*@
-    @Html.GroupItem(Model.Type, "Type", "Type")
-    @Html.GroupItem(Model.License, "License", "License Number")
-    @Html.GroupItem(Model.State, "State", "State")
-    @Html.GroupItem(Model.SerialNumber, "SerialNumber", "Truck Serial Number")
-    @Html.GroupItem(Model.USDOTNumber, "USDOTNumber", "USDOT Number")
-    @Html.GroupItem(Model.EmptyWeight, "EmptyWeight", "Empty Weight")
+    @Html.GroupItem(Model.Type, new GroupItemProperties("Type") { label = "Type" })
+    @Html.GroupItem(Model.License, new GroupItemProperties("License") { label = "License Number" })
+    @Html.GroupItem(Model.State, new GroupItemProperties("State") { label = "State" })
+    @Html.GroupItem(Model.SerialNumber, new GroupItemProperties("SerialNumber") { label = "Truck Serial Number" })
+    @Html.GroupItem(Model.USDOTNumber, new GroupItemProperties("USDOTNumber") { label = "USDOT Number" })
+    @Html.GroupItem(Model.EmptyWeight, new GroupItemProperties("EmptyWeight") { label = "Empty Weight", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
     @*@Html.GroupItem(Model.RegisteredWeight, "RegisteredWeight", "Registered Weight")*@
 </fieldset>

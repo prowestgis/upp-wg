@@ -6,18 +6,18 @@
 <fieldset>
     <legend>Axle Information</legend>
     @* @Html.GroupItem(Model.Description, "Description", "Description") *@
-    @Html.GroupItem(Model.WeightPerAxle, "WeightPerAxle", "Weight Per Axle")
+    @Html.GroupItem(Model.WeightPerAxle, new GroupItemProperties("WeightPerAxle") { label = "Weight Per Axle", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
     @* @Html.GroupItem(Model.DescriptionSummary, "DescriptionSummary", "Description Summary") *@
-    @Html.GroupItem(Model.AxleCount, "AxleCount", "Axle Count")
+    @Html.GroupItem(Model.AxleCount, new GroupItemProperties("AxleCount") { label = "Axle Count", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
     @* @Html.GroupItem(Model.GroupCount, "GroupCount", "Group Count") *@
     @* @Html.GroupItem(Model.ApproxAxleLength, "ApproxAxleLength", "Approximate Axle Length (Total)") *@
-    @Html.GroupItem(Model.AxleLength, "AxleLength", "Axle Length (axle spacing)")
-    @Html.GroupItem(Model.MaxAxleWidth, "MaxAxleWidth", "Max Axle Width")
-    @Html.GroupItem(Model.MaxAxleWeight, "MaxAxleWeight", "Max Axle Weight", true)
-    @Html.GroupItem(Model.TotalAxleWeight, "TotalAxleWeight", "Total Axle Weight", true)
+    @Html.GroupItem(Model.AxleLength, new GroupItemProperties("AxleLength") { label = "Axle Length (axle spacing)", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.MaxAxleWidth, new GroupItemProperties("MaxAxleWidth") { label = "Max Axle Width", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.MaxAxleWeight, new GroupItemProperties("MaxAxleWeight") { label = "Max Axle Weight", readOnly = true })
+    @Html.GroupItem(Model.TotalAxleWeight, new GroupItemProperties("TotalAxleWeight") { label = "Total Axle Weight", readOnly = true })
     @*@Html.GroupItem(Model.AxleGroupSummary, "AxleGroupSummary", "Axle Group Summary")*@
     @*@Html.GroupItem(Model.AxelsPerGroup, "AxelsPerGroup", "Axels Per Group")*@
-    @Html.GroupItem(Model.AxleGroupTireType, "AxleGroupTireType", "Axle Group Tire Type")
+    @Html.GroupItem(Model.AxleGroupTireType, new GroupItemProperties("AxleGroupTireType") { label = "Axle Group Tire Type" })
     @*@Html.GroupItem(Model.AxleGroupWidth, "AxleGroupWidth", "Axle Group Width")*@
     @*@Html.GroupItem(Model.AxleOperatingWeights, "AxleOperatingWeights", "Axle Operating Weights")*@
     @*@Html.GroupItem(Model.AxleGroupWeight, "AxleGroupWeight", "Axle Group Weight")*@

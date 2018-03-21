@@ -8,7 +8,7 @@
     @*@Html.GroupItem(Model.Owner, "Owner", "Owner")*@
     @*@Html.GroupItem(Model.OverSize, "OverSize", "Is the load over size? (yes/no)")*@
     @*@Html.GroupItem(Model.OverWeight, "OverWeight", "Is the load over weight? (yes/no)")*@
-    @Html.GroupItem(Model.Description, "Description", "Description")
+    @Html.GroupItem(Model.Description, new GroupItemProperties("Description") { label = "Description" })
     @*@Html.GroupItem(Model.SizeOrModel, "SizeOrModel", "Load Size or Model")*@
     @*@Html.GroupItem(Model.Weight, "Weight", "Weight")*@
 </fieldset>
