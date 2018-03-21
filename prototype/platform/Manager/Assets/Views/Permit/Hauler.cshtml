@@ -7,7 +7,7 @@
     <legend>Hauler Information</legend>
     @Html.GroupItem(Model.Name, new GroupItemProperties("Name") { label = "Name", readOnly = true })
     @Html.GroupItem(Model.Date, new GroupItemProperties("Date") { label = "Application Date", inputType = GroupItemProperties.InputType.DATE })
-    @Html.GroupItem(Model.Email, new GroupItemProperties("email") { label = "Email", readOnly = true, inputType = GroupItemProperties.InputType.DATE })
+    @Html.GroupItem(Model.Email, new GroupItemProperties("email") { label = "Email", readOnly = true, inputType = GroupItemProperties.InputType.EMAIL })
     @Html.GroupItem(Model.Phone, new GroupItemProperties("phone") { label = "Phone", readOnly = true })
     @Html.GroupItem(Model.Fax, new GroupItemProperties("fax") { label = "Fax" })
 </fieldset>
