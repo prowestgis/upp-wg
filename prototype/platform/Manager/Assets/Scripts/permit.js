@@ -3,6 +3,7 @@
 
     require([
         "esri/map",
+        "esri/dijit/Search",
         "esri/tasks/locator",
         "esri/tasks/query",
         "esri/tasks/QueryTask",
@@ -13,6 +14,7 @@
         "esri/symbols/SimpleMarkerSymbol",
         "esri/symbols/SimpleLineSymbol",
         "esri/graphic",
+		"esri/layers/GraphicsLayer",
         "dojo/_base/array",
 		"dojo/_base/Deferred",
 		"dojo/DeferredList",
@@ -20,7 +22,7 @@
 		"dojo/query",
         "dojo/on",
         "dojo/domReady!"
-    ], function (Map, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, array, Deferred, DeferredList, domConstruct, dojoQuery, on) {
+    ], function (Map, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, Deferred, DeferredList, domConstruct, dojoQuery, on) {
         var symbol = new SimpleMarkerSymbol({
             "color": [255, 255, 255, 64],
             "size": 12,
@@ -50,16 +52,30 @@
         });
 
         function init_map(map_id, map_ref, center) {
-            if (!map_ref) {
-                map_ref = new Map(map_id, {
+			map_ref = map_ref || {};
+            if (!map_ref.map) {
+                map_ref.map = new Map(map_id, {
                     basemap: "topo",
                     center: center || [-94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
                     zoom: 11
                 });
-
-                on(map_ref, 'click', function (evt) {
-                    map_ref.graphics.clear();
-                    map_ref.graphics.add(new Graphic(evt.mapPoint, symbol));
+				var searchLayer = new GraphicsLayer();
+				map_ref.map.addLayer(searchLayer);
+                var search = new Search({
+                    map: map_ref.map,
+					showInfoWindowOnSelect: false,
+					graphicsLayer: searchLayer
+                }, map_id + "-search");
+                search.startup();
+				search.on('select-result', function(evnt){
+					map_ref.map.graphics.clear();
+					map_ref.selectedLocation = { point: evnt.result.feature.geometry, address: evnt.result.name  };
+				});
+                on(map_ref.map, 'click', function (evt) {
+                    map_ref.map.graphics.clear();
+					searchLayer.clear();
+                    map_ref.map.graphics.add(new Graphic(evt.mapPoint, symbol));
+					map_ref.selectedLocation = { point: evt.mapPoint };
                 });
             }
 
@@ -67,15 +83,27 @@
         };
 
         function find_address(map, el) {
-            var point = map.graphics.graphics[0].geometry;
-            webPoint = webMercatorUtils.webMercatorToGeographic(point);
-
-            locator.locationToAddress(webPoint, 100).then(function (result) {
-                $(el).val(result.address.Match_addr);
+			if(!map.selectedLocation){
+				$(el).val('');
+				$(el).data('location', null);
+				return;
+			}
+            var point = map.selectedLocation.point;
+			
+			if(map.selectedLocation.address){
+			    $(el).val(map.selectedLocation.address);
                 $(el).data('location', point);
+				check_route();
+			} else {
+				webPoint = webMercatorUtils.webMercatorToGeographic(point);
 
-                check_route();
-            });
+				locator.locationToAddress(webPoint, 100).then(function (result) {
+					$(el).val(result.address.Match_addr);
+					$(el).data('location', point);
+
+					check_route();
+				});
+			}
         };
 
         // When the user submits the application, one of the first things to do
