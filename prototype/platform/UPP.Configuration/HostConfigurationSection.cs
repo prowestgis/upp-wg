@@ -25,19 +25,49 @@
             { SERVICE_DIRECTORY__SCOPES, "" },
             { SELF__IDENTIFIER, null }
         };
+
+        // Get a command line argument.
+        public static string CommandLineValue(string key)
+        {
+            // Format is a simple key=value
+            var args = Environment.GetCommandLineArgs();
+            return args
+                .Where(a => a.StartsWith(key))
+                .Select(a => a.Split('=')[1].Trim())
+                .FirstOrDefault();
+        }
     }
 
     public class HostConfigurationSection : ConfigurationSection
     {
+        private static IDictionary<string, Func<string>> UserDefaultValues = new Dictionary<string, Func<string>>();
+
+        public void SetDefaultValue(string key, Func<string> defaultValue)
+        {
+            UserDefaultValues[key] = defaultValue;
+        }
+
         [ConfigurationProperty("keywords", IsRequired = false)]
         public KeywordsCollection Keywords
         {
             get { return base["keywords"] as KeywordsCollection; }
         }
 
+        // When we look for a keyword value, we first check the configuration section and then look at the
+        // command line for any overrides.  If neither are set, then we take the built-in default value.
         public string Keyword(string key)
         {
-            return Keywords.Where(x => x.Key.Equals(key)).Select(x => x.Value).FirstOrDefault() ?? Keys.DefaultValues[key];
+            return Keyword(key, () => null);
+        }
+
+        public string Keyword(string key, Func<string> defaultValue)
+        {
+            return
+                Keys.CommandLineValue(key) ??
+                Keywords.Where(x => x.Key.Equals(key)).Select(x => x.Value).FirstOrDefault() ??
+                defaultValue() ??
+                (UserDefaultValues.ContainsKey(key) ? UserDefaultValues[key]() : Keys.DefaultValues[key])
+                ;
         }
 
         public T Keyword<T>(string key)
