@@ -1,0 +1,119 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+@{
+    Layout = null;
+}
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/png" href="/images/favicon.ico">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+        <meta name="viewport" content="width=device-width" />
+        <title>UPP Prototype</title>
+
+        <!-- Styling content -->
+        <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+
+        <!--  Light Bootstrap Table core CSS    -->
+        <link href="css/bootstrap/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet" />
+
+        <!--  CSS for Demo Purpose, don't include it in your project     -->
+        <!-- <link href="css/app.css" rel="stylesheet" /> -->
+
+        <!--  Fonts and icons     -->
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+        <link href='//fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+        <link href="css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
+    </head>
+<body>
+    <div class="wrapper">
+        <div class="sidebar" data-color="blue">
+            <div class="sidebar-wrapper">
+                <div class="logo">
+                    Permit Issuer Setup
+                </div>
+                <ul class="nav">
+                    <li class="active">
+                        <a href="">
+                            <i class="pe-7s-config"></i>
+                            <p>Configuration</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-panel">
+            <nav class="navbar navbar-default navbar-fixed">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                    </div>
+                </div>
+            </nav>
+
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Fixed Configuration Parameters</h4>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td>Scope</td>
+                                        <td>@Model.Configuration.Keyword(UPP.Configuration.Keys.SERVICE_DIRECTORY__SCOPES)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Self URI</td>
+                                        <td>@Model.Configuration.Keyword(UPP.Configuration.Keys.SERVICE_DIRECTORY__HOST_URI)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form>
+                                <fieldset>
+                                    <legend>Approval Behavior</legend>
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" type="radio" name="approval-behavior" id="approval-behavior-always" value="always" checked>
+                                            Always Approve
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" type="radio" name="approval-behavior" id="approval-behavior-never" value="never">
+                                            Always Deny
+                                        </label>
+                                    </div>
+                                    <div class="form-check disabled">
+                                        <label class="form-check-label">
+                                            <input class="form-check-input" type="radio" name="approval-behavior" id="approval-behavior-sometimes" value="random">
+                                            Randomly Choose
+                                        </label>
+                                    </div>
+                                </fieldset>
+                                <hr />
+                                <button class="btn btn-default">Update</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                                
+            <footer class="footer">
+                <div class="container-fluid">
+                    <p class="copyright pull-right">
+                        &copy;
+                        <script>document.write(new Date().getFullYear())</script>
+                    </p>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script src="js/jquery.3.2.1.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>    
+</body>
+</html>

@@ -24,23 +24,6 @@ namespace Manager.Host
     {
         private Store.Services services;
 
-        protected override void ConfigureConventions(NancyConventions conventions)
-        {
-            base.ConfigureConventions(conventions);
-
-            // Look for views under the 'Assets' folder
-            conventions.ViewLocationConventions.Insert(0, (viewName, model, context) =>
-            {
-                return string.Concat("Assets/Views/", viewName);
-            });
-
-            // Map static assets to specific virtual paths
-            conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("/images", "Assets/Images"));
-            conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("/fonts", "Assets/Fonts"));
-            conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("/css", "Assets/Style"));
-            conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("/js", "Assets/Scripts"));
-        }
-
         protected override void ConfigureApplicationContainer(TinyIoCContainer container)
         {
             base.ConfigureApplicationContainer(container);
