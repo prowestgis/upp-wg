@@ -23,5 +23,6 @@ namespace UPP.Protocols
     public static class PermitApprovalStatus
     {
         public const string APPROVED = "Approved";
+        public const string DENIED = "Denied";
     }
 }

@@ -1,4 +1,4 @@
-﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<dynamic>
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.WebModule.WebModuleViewModel>
 @{
     Layout = null;
 }
@@ -73,30 +73,27 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <form>
-                                <fieldset>
-                                    <legend>Approval Behavior</legend>
-                                    <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input class="form-check-input" type="radio" name="approval-behavior" id="approval-behavior-always" value="always" checked>
-                                            Always Approve
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input class="form-check-input" type="radio" name="approval-behavior" id="approval-behavior-never" value="never">
-                                            Always Deny
-                                        </label>
-                                    </div>
-                                    <div class="form-check disabled">
-                                        <label class="form-check-label">
-                                            <input class="form-check-input" type="radio" name="approval-behavior" id="approval-behavior-sometimes" value="random">
-                                            Randomly Choose
-                                        </label>
-                                    </div>
-                                </fieldset>
-                                <hr />
-                                <button class="btn btn-default">Update</button>
+                            <h4>Service Behavior</h4>
+                            <form role="form" method="post" action="">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="radio" name="behavior" value="always" @(Model.ModuleConfiguration.Behavior == "always" ? "checked" : "")>
+                                        Always Approve
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="radio" name="behavior" value="never" @(Model.ModuleConfiguration.Behavior == "never" ? "checked" : "")>
+                                        Always Deny
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="radio" name="behavior" value="random" @(Model.ModuleConfiguration.Behavior == "random" ? "checked" : "")>
+                                        Randomly Choose
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-default">Update</button>
                             </form>
                         </div>
                     </div>
