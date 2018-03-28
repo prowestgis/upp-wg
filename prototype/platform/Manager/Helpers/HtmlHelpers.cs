@@ -14,13 +14,19 @@ namespace Manager.Helpers
         public static IHtmlString GroupItem<TModel, TValue>(this Nancy.ViewEngines.Razor.HtmlHelpers<TModel> htmlHelper, TValue value, GroupItemProperties properties)
         {
             var prefix = typeof(TModel).Name.ToLower();
+            var inner = @"<input id=""{2}-{5}"" name=""{2}{3}"" type=""{6}"" class=""form-control"" value=""{1}""  {4} {7}/>";
+
+            if (!String.IsNullOrEmpty(properties.suffix))
+            {
+                inner = @"<div class=""input-group"">" + inner + @"<span class=""input-group-addon"">" + properties.suffix  + @"</span></div>";
+            }
 
             return htmlHelper.Raw(String.Format(@"
                 <div class=""form-group row"">
                     <label class=""col-sm-2 control-label"">{0}</label>
-                    <div class=""col-sm-8"">
-                        <input id=""{2}-{5}"" name=""{2}{3}"" type=""{6}"" class=""form-control"" value=""{1}""  {4} {7}/>
-                    </div>
+                    <div class=""col-sm-8"">" +
+                      inner +
+                    @"</div>
                 </div>
             ", properties.label, value, prefix, properties.id, properties.readOnly ? "readonly": string.Empty, properties.label.ToLower().Replace(" ","-"), properties.inputType, properties.range.AsInputProperties()));
         }
@@ -28,6 +34,15 @@ namespace Manager.Helpers
 
     public class GroupItemProperties
     {
+        public static class Suffixes
+        {
+            public const string POUNDS = "lbs";
+            public const string INCHES = "in";
+            public const string FEET = "ft";
+            public const string MILES = "miles";
+            public const string TONS = "tons";
+        }
+
         public GroupItemProperties(string id)
         {
             this.id = id;
@@ -35,11 +50,13 @@ namespace Manager.Helpers
             readOnly = false;
             inputType = "text";
             range = new Range();
+            suffix = null;
         }
         public string id { get; private set; }
         public string label { get; set; }
         public bool readOnly { get; set; }
         public string inputType { get; set; }
+        public string suffix { get; set; }
         public Range range { get; set; }
 
         public class Range

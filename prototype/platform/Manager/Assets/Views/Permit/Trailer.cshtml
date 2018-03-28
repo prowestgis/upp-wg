@@ -19,7 +19,7 @@
     @*@Html.GroupItem(Model.SerialNumber, "SerialNumber", "Serial Number")*@
     @Html.GroupItem(Model.LicenseNumber, new GroupItemProperties("LicenseNumber") { label = "License Number" })
     @Html.GroupItem(Model.State, new GroupItemProperties("State") { label = "State" })
-    @Html.GroupItem(Model.EmptyWeight, new GroupItemProperties("EmptyWeight") { label = "Empty Weight", inputType = GroupItemProperties.InputType.NUMBER , range = new GroupItemProperties.Range() { min = 0 } })
+    @Html.GroupItem(Model.EmptyWeight, new GroupItemProperties("EmptyWeight") { label = "Empty Weight", inputType = GroupItemProperties.InputType.NUMBER , range = new GroupItemProperties.Range() { min = 0 }, suffix = GroupItemProperties.Suffixes.POUNDS })
     @*@Html.GroupItem(Model.RegisteredWeight, "RegisteredWeight", "Registered Weight")*@
     @*@Html.GroupItem(Model.RegulationWeight, "RegulationWeight", "Regulation Weight")*@
 </fieldset>

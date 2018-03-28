@@ -48,8 +48,8 @@
 
     @Html.GroupItem(Model.RouteDescription, new GroupItemProperties("RouteDescription") { label = "Route Description" })
     @Html.GroupItem(Model.RouteCountyNumbers, new GroupItemProperties("RouteCountyNumbers"){ label = "County Roads" })
-    @Html.GroupItem(Model.MileOfCountyRoad, new GroupItemProperties("MileOfCountyRoad") { label = "Miles on County Roads", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0, step = 0.1 }  })
-    @Html.GroupItem(Model.RouteLength, new GroupItemProperties("RouteLength") { label = "Total Route Length", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min=0, step = 0.1 } })
+    @Html.GroupItem(Model.MileOfCountyRoad, new GroupItemProperties("MileOfCountyRoad") { label = "Miles on County Roads", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0, step = 0.1 }, suffix = GroupItemProperties.Suffixes.MILES })
+    @Html.GroupItem(Model.RouteLength, new GroupItemProperties("RouteLength") { label = "Total Route Length", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min=0, step = 0.1 }, suffix = GroupItemProperties.Suffixes.MILES })
 
     @Html.GroupItem(Model.StateHighwayPermitNumber, new GroupItemProperties("StateHighwayPermitNumber") { label = "State Highway Permit Number" })
     @Html.GroupItem(Model.StateHighwayPermitIssued, new GroupItemProperties("StateHiughwayPermitIssued") { label = "State Highway Permit Issued Date", inputType= GroupItemProperties.InputType.DATE })
