@@ -205,6 +205,7 @@
                         routeParams.stops.features.push(new Graphic(destination_pt, null, {}));
                         routeTask.solve(routeParams).then(function (result) {
                             routeResult = result.routeResults;
+
                             // Show the route on the route map
 							route_map.graphics.clear();
                             var routeSymbol = new SimpleLineSymbol().setColor(new dojo.Color([0, 0, 255, 0.5])).setWidth(5);
@@ -213,6 +214,13 @@
                                 route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
                                 divide_route(result.route);
                             });
+
+                            // Fill in the total miles traveled and the route description
+                            var firstRoute = result.routeResults[0];
+                            if (firstRoute) {
+                                $("#movementinfo-route-description").val(firstRoute.route.attributes['Name']);
+                                $("#movementinfo-total-route-length").val(firstRoute.route.attributes['Total_Miles']);
+                            }
                         });
                     });
                 });
