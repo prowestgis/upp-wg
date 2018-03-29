@@ -115,7 +115,14 @@
                 alert("No route selected.");
                 return;
             }
-            var dl = new DeferredList([getAuthorities("county.boundaries", "NAME", route), getAuthorities("city.boundaries", "Name", route)]);
+            var countyDef = getAuthorities("county.boundaries", "NAME", route);
+
+            // Set the value of "Destination is within the applying County"
+            // based on how many county authorities are returned.
+            countyDef.then(function (result) {
+                $("input[name='movementinfoDestinationWithinApplyingCounty'").prop('checked', result.length === 1);
+            });
+            var dl = new DeferredList([countyDef, getAuthorities("city.boundaries", "Name", route)]);
             dl.then(function (result) {
                 $("#permit-authorities").val(result[0][1].concat(result[1][1]).toString());
             });
