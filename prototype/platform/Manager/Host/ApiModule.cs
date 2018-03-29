@@ -223,8 +223,22 @@ namespace Manager.Host
         public string loadinfoDescription { get; set; }
         public string loadinfoSizeOrModel { get; set; }
         public string loadinfoWeight { get; set; }
+
+        public DateTime? movementinfoStartDate{ get; set; }
+        public DateTime? movementinfoEndDate{ get; set; }
+        public string movementinfoHaulingHours{ get; set; }
         public string movementinfoOrigin { get; set; }
         public string movementinfoDestination { get; set; }
+        public string movementinfoRouteDescription { get; set; }
+        public string movementinfoRouteCountyNumbers { get; set; }
+        public double movementinfoMileOfCountyRoad { get; set; }
+        public double movementinfoRouteLength { get; set; }
+        public string movementinfoStateHighwayPermitNumber { get; set; }
+        public DateTime? movementinfoStateHiughwayPermitIssued { get; set; }
+        public bool? movementinfoNeedPilotCar { get; set; }
+        public bool? movementinfoDestinationWithinCityLimits { get; set; }
+        public bool? movementinfoDestinationWithinApplyingCounty { get; set; }
+
         public string[] Authority { get; set; }
 
         public Paragraph HaulerInfo()
@@ -416,8 +430,20 @@ namespace Manager.Host
             list.SetListSymbol(string.Empty);
             list.IndentationLeft = 10;
 
+            list.Add(FormattedListItem("Start Date", movementinfoStartDate.HasValue ? movementinfoStartDate.Value.ToShortDateString() : string.Empty));
+            list.Add(FormattedListItem("End Date", movementinfoEndDate.HasValue ? movementinfoEndDate.Value.ToShortDateString() : string.Empty));
+            list.Add(FormattedListItem("Hauling Hours", movementinfoHaulingHours));
             list.Add(FormattedListItem("Route Origin", movementinfoOrigin));
             list.Add(FormattedListItem("Route Destination", movementinfoDestination));
+            list.Add(FormattedListItem("Route Description", movementinfoRouteDescription));
+            list.Add(FormattedListItem("County Roads", movementinfoRouteCountyNumbers));
+            list.Add(FormattedListItem("Miles on County Roads", movementinfoMileOfCountyRoad.ToString()));
+            list.Add(FormattedListItem("Total Route Length", movementinfoRouteLength.ToString()));
+            list.Add(FormattedListItem("State Highway Permit Number", movementinfoStateHighwayPermitNumber));
+            list.Add(FormattedListItem("State Highway Permit Issued Date", movementinfoStateHiughwayPermitIssued.HasValue ? movementinfoStateHiughwayPermitIssued.Value.ToShortDateString() : string.Empty));
+            list.Add(FormattedListItem("Need Pilot Car?", movementinfoNeedPilotCar.HasValue.ToString()));
+            list.Add(FormattedListItem("Destination is within City Limits?", movementinfoDestinationWithinCityLimits.HasValue.ToString()));
+            list.Add(FormattedListItem("Destination is within the applying County?", movementinfoDestinationWithinApplyingCounty.HasValue.ToString()));
 
             para.Add(list);
             return para;
