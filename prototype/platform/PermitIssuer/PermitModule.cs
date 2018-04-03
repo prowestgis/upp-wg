@@ -16,7 +16,6 @@ namespace PermitIssuer
     public sealed class PermitModule : NancyModule
     {
         private Func<NancyContext, string> EvaluatePermit = DefaultPermitEvaluation;
-        private static Random RNG = new Random();
 
         public PermitModule(HostConfigurationSection config) : base("/api/v1/issue")
         {
@@ -32,7 +31,8 @@ namespace PermitIssuer
             switch (WebModule.Configuration.Behavior)
             {
                 case "always": return PermitApprovalStatus.APPROVED;
-                case "random": return (RNG.NextDouble() < 0.5) ? PermitApprovalStatus.APPROVED : PermitApprovalStatus.DENIED;
+                case "random": return PermitApprovalStatus.RANDOM;
+                case "na": return PermitApprovalStatus.NA;
                 default:
                 case "never": return PermitApprovalStatus.DENIED;
             }

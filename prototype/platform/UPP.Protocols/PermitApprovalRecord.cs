@@ -24,5 +24,18 @@ namespace UPP.Protocols
     {
         public const string APPROVED = "Approved";
         public const string DENIED = "Denied";
+        public const string NA = "Not Applicable";
+
+        public static string RANDOM
+        {
+            get
+            {
+                Random RNG = new Random();
+                var rnd = RNG.Next(1, 4);
+                if (rnd == 1) return APPROVED;
+                if (rnd == 2) return DENIED;
+                return NA;
+            }
+        }
     }
 }

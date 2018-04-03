@@ -89,6 +89,12 @@
                                 </div>
                                 <div class="form-group">
                                     <label>
+                                        <input type="radio" name="behavior" value="na" @(Model.ModuleConfiguration.Behavior == "na" ? "checked" : "")>
+                                        Always N/A
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>
                                         <input type="radio" name="behavior" value="random" @(Model.ModuleConfiguration.Behavior == "random" ? "checked" : "")>
                                         Randomly Choose
                                     </label>
