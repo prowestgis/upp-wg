@@ -129,6 +129,132 @@ namespace Manager.Store
             }
         }
 
+        private sealed class UserRecord
+        {
+            public string UserId { get; set; }
+            public string ExtraClaims { get; set; }
+        }
+
+        public string AddClaimToIdentity(string guid, string claim)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                // Search for the user, return null if no user found
+                var user = conn.Query<UserRecord>(@"
+                    SELECT user_id as UserId, extra_claims as ExtraClaims
+                    FROM Users
+                    WHERE user_id = @User
+                    ",
+                    new { User = guid }
+                    )
+                    .FirstOrDefault();
+
+                if (user == null)
+                {
+                    return null;
+                }
+
+                // Unpack the current claims
+                var claims = (user.ExtraClaims ?? String.Empty).Split(' ').Select(x => x.Trim()).ToList();
+
+                // Add the new claim
+                claims.Add(claim);
+
+                // Pack into a string
+                var newClaims = String.Join(" ", claims);
+                    
+                // Update the record
+                conn.Execute(@"
+                    UPDATE Users
+                    SET extra_claims = @Claims
+                    WHERE user_id = @User
+                    ", new { User = guid, Claims = newClaims }
+                );
+
+                // Return the updated claims
+                return newClaims;
+            }
+        }
+
+        public IDictionary<string, object> QueryAdditionalClaimsForIdentity(string guid)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                var claims = new Dictionary<string, object>();
+
+                // Search for the user, return null if no user found
+                var user = conn.Query<UserRecord>(@"
+                    SELECT user_id as UserId, extra_claims as ExtraClaims
+                    FROM Users
+                    WHERE user_id = @User
+                    ",
+                    new { User = guid }
+                    )
+                    .FirstOrDefault();
+
+                if (user == null)
+                {
+                    return claims;
+                }
+
+                // Unpack the current claims
+                var extra_claims = (user.ExtraClaims ?? String.Empty).Split(' ').Select(x => x.Trim()).ToList();
+
+                foreach (var claim in extra_claims)
+                {
+                    claims[claim] = true;
+                }
+                
+                // Return the updated claims
+                return claims;
+            }
+        }
+
+        public string RemoveClaimFromIdentity(string guid, string claim)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                // Search for the user, return null if no user found
+                var user = conn.Query<UserRecord>(@"
+                    SELECT user_id as UserId, extra_claims as ExtraClaims
+                    FROM Users
+                    WHERE user_id = @User
+                    ",
+                    new { User = guid }
+                    )
+                    .FirstOrDefault();
+
+                if (user == null)
+                {
+                    return null;
+                }
+
+                // Unpack the current claims
+                var claims = (user.ExtraClaims ?? String.Empty).Split(' ').Select(x => x.Trim()).ToList();
+
+                // Try to remove the claim
+                if (!claims.Remove(claim))
+                {
+                    // If not found, return the claims unchanged
+                    return user.ExtraClaims;
+                }
+
+                // Pack into a string
+                var newClaims = String.Join(" ", claims);
+
+                // Update the record
+                conn.Execute(@"
+                    UPDATE Users
+                    SET extra_claims = @Claims
+                    WHERE user_id = @User
+                    ", new { User = guid, Claims = newClaims }
+                );
+
+                // Return the updated claims
+                return newClaims;
+            }
+        }
+
         public void AddToIdentityFromExternalAuth(string guid, string provider, string externalId)
         {
             using (var conn = SimpleDbConnection())
@@ -148,7 +274,11 @@ namespace Manager.Store
             {
                 // Create a new User
                 var guid = Guid.NewGuid().ToString();
-                conn.Execute(@"INSERT INTO Users (user_id) VALUES (@User)", new { User = guid });
+                conn.Execute(@"
+                    INSERT INTO Users (user_id, extra_claims)
+                    VALUES (@User, null)
+                    ", new { User = guid }
+                    );
 
                 // Create a new External Login tied to this user
                 conn.Execute(@"

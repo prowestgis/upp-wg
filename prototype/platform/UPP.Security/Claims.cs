@@ -9,5 +9,8 @@
     {
         // This identity is a hauler (person that drives a truck)
         public const string HAULER = "hauler";
+
+        // Identifies users that are UPP administrators
+        public const string UPP_ADMIN = "upp.admin";
     }
 }

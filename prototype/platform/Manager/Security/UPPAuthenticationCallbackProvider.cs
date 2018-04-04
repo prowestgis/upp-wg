@@ -21,6 +21,7 @@ namespace Manager.Security
         private readonly AuthSettings _authSettings;
         private readonly Services _services;
         private readonly string _baseUrl;
+        private readonly List<string> _administrators;
             
         private const string _bearerDeclaration = "Bearer ";        
 
@@ -29,6 +30,7 @@ namespace Manager.Security
             _authSettings = authSettings;
             _services = services;
             _baseUrl = config.Keyword(Keys.NANCY__HOST_BASE_URI) ?? "/";
+            _administrators = config.Keyword(Keys.UPP_ADMINISTRATORS).Split(';').Select(x => x.Trim()).ToList();
         }
 
         public dynamic Process(NancyModule nancyModule, AuthenticateCallbackData model)
@@ -72,6 +74,12 @@ namespace Manager.Security
                 {
                     existingUser = currentUser.ExtendedClaims["upp"].ToString();
                     _services.AddToIdentityFromExternalAuth(existingUser, model.ProviderName, model.AuthenticatedClient.UserInformation.Id);
+                }
+
+                // If the current user is in the configured list of UPP administrators, add the appropriate claim to their record
+                if (_administrators.Contains(model.AuthenticatedClient.UserInformation.Email))
+                {
+                    _services.AddClaimToIdentity(existingUser, Claims.UPP_ADMIN);
                 }
 
                 // Create an encrypted JWT from the user information with appropriate claims

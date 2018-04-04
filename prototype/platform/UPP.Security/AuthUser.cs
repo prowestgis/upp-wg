@@ -54,9 +54,11 @@ namespace UPP.Security
             UtcExpiration = token.Exp;
         }
 
-        public void AddClaim(string claim, string value)
+        public void AddClaim(string claim, object value)
         {
             ExtendedClaims.Add(claim, value);
         }
+
+        public bool IsUPPAdmin { get { return IsAuthenticated && ExtendedClaims.ContainsKey(UPP.Security.Claims.UPP_ADMIN); } }
     }
 }

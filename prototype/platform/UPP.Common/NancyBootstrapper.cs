@@ -38,6 +38,9 @@ namespace UPP.Common
 
             // Make the generic configuration block easily available
             container.Register(ConfigurationManager.GetSection("upp") as HostConfigurationSection);
+
+            // Wire up a default claims provider
+            container.Register<IAdditionalClaimProvider, DefaultAdditionalClaimProvider>();
         }
 
         protected override void ApplicationStartup(TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)

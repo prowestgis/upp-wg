@@ -3,7 +3,8 @@
 -- to map UPP authorized users to existing resources.
 create table Users
 (
-	user_id                            varchar(200) not null           -- GUID under control of UPP
+	user_id                            varchar(200) not null, -- GUID under control of UPP; mapped to 'upp' claim in JWT
+	extra_claims                       varchar(1000)          -- Space-delimited claims added by UPP manager, e.g. upp.admin, law.enforcement
 );
 
 -- Table of external id tokens used to track multiple identities associated with 

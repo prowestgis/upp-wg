@@ -51,6 +51,15 @@
                             <p>Permit</p>
                         </a>
                     </li>
+                    @if (Model.User != null && Model.User.IsUPPAdmin)
+                    {
+                        <li>
+                            <a href="admin.html">
+                                <i class="pe-7s-key"></i>
+                                <p>Administration</p>
+                            </a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>

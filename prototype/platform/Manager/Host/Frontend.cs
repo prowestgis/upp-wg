@@ -26,7 +26,7 @@ namespace Manager.Host
 
             Get["/"] = _ => View["Index", new DashboardView(services, config, Context)];
             Get["/dashboard.html"] = _ => View["Index", new DashboardView(services, config, Context)];            
-            Get["/authentication/logout"] = _ => Logout(config.Keyword(Keys.NANCY__HOST_BASE_URI));
+            Get["/authentication/logout"] = _ => Logout(config.Keyword(Keys.NANCY__HOST_BASE_URI));            
         }
 
         public Response Logout(string baseUri)
@@ -45,6 +45,17 @@ namespace Manager.Host
             this.RequiresClaims(new[] { Claims.HAULER });
 
             Get["/permit.html"] = _ => View["Permit", new PermitView(services, Context)];
+        }
+    }
+
+    public sealed class AdministrativeInterface : NancyModule
+    {
+        public AdministrativeInterface(Services services)
+        {
+            this.RequiresAuthentication();
+            this.RequiresClaims(new[] { Claims.UPP_ADMIN });
+
+            Get["/admin.html"] = _ => View["Administration"];
         }
     }
 
