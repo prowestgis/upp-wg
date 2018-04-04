@@ -24,7 +24,7 @@ namespace CompanyInformation
 
             // Bootstrap our application services
             logger.Debug("Registering database singleton");
-            container.Register(new Database());
+            container.Register<Database>();
         }
 
         protected override void ApplicationStartup(TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)

@@ -26,6 +26,12 @@ namespace UPP.Configuration
         
         public sealed class DataStoreOptions
         {
+            public DataStoreOptions(HostConfigurationSection config)
+            {
+                DeleteDatabaseOnStartup = config.Keyword<bool>(Keys.DATABASE__DELETE_ON_STARTUP);
+                CreateDatabaseOnStartup = config.Keyword<bool>(Keys.DATABASE__CREATE_ON_STARTUP);
+            }
+
             public DataStoreOptions()
             {
                 DeleteDatabaseOnStartup = true;
@@ -44,6 +50,11 @@ namespace UPP.Configuration
             }
 
             return Path.Combine(baseDirectory, path);
+        }
+
+        public DataStore(string databaseFile, string schemaFile, HostConfigurationSection config)
+            : this(databaseFile, schemaFile, new DataStoreOptions(config))
+        {            
         }
 
         public DataStore(string databaseFile, string schemaFile, DataStoreOptions options = null)
@@ -90,7 +101,7 @@ namespace UPP.Configuration
             return new SQLiteConnection("Data Source=" + dbFile);
         }
 
-        protected void CreateDatabase()
+        protected virtual void CreateDatabase()
         {
             using (var cnn = SimpleDbConnection())
             {
