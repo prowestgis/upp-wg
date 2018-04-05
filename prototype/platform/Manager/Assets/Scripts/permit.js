@@ -1,5 +1,5 @@
 ﻿(function($, require, apiUrl, sdUrl) {
-    var start_map, end_map, route_map;
+    var start_map, end_map, route_map, bridgeUtils;
 
     require({
         packages: [{
@@ -180,7 +180,8 @@
 			return o;
 		};
         // If both origin and destination have locations, route it
-        function check_route() {
+        function check_route(barriers) {
+			console.log(barriers);
             var origin_pt = $('#movementinfo-origin').data('location');
             var destination_pt = $('#movementinfo-destination').data('location');
 
@@ -216,6 +217,13 @@
                         routeParams.stops = new FeatureSet();
                         routeParams.stops.features.push(new Graphic(origin_pt, null, {}));
                         routeParams.stops.features.push(new Graphic(destination_pt, null, {}));
+						
+						if(barriers){
+							routeParams.polygonBarriers = new FeatureSet();
+							array.forEach(barriers, function(barrier){
+								routeParams.polygonBarriers.features.push(new Graphic(barrier, null, {}));
+							});
+						}
                         routeTask.solve(routeParams).then(function (result) {
                             routeResult = result.routeResults;
 
@@ -227,9 +235,11 @@
                                 route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
                                 divide_route(result.route);
                             });
-							Bridges.forRoute(result.routeResults[0], sdUrl).then(function(bridges){
-								var form = $("#permit-form");
-								Bridges.addToForm(form, bridges);
+                            bridgeUtils.forRoute(result.routeResults[0], sdUrl).then(function (bridges) {
+                                bridgeUtils.addToMap(bridges);
+								//var form = $("#permit-form");
+								bridgeUtils.addToForm(bridges);
+
 							});
                             // Fill in the total miles traveled and the route description
                             var firstRoute = result.routeResults[0];
@@ -265,6 +275,8 @@
             zoom: 10
         });
 		
+		bridgeUtils = new Bridges(route_map, $("#permit-form"));
+		
 		function submit_permit(authorityId){
 			var def = new Deferred();
 			$.get(serviceLocator, { type : "upp", scope: "permit.approval." + authorityId.replace(/\s+/g, '')}, function (data) { 
@@ -296,6 +308,9 @@
 				form.submit();
 			});
 		}); 
+		$("#recalc-route").click(function(evt){
+			check_route(bridgeUtils.barriers);
+		});
     });
 
     // Ask the service locator to give us a UPP host that can provide company information.
