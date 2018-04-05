@@ -30,7 +30,7 @@ namespace Manager.Security
             _authSettings = authSettings;
             _services = services;
             _baseUrl = config.Keyword(Keys.NANCY__HOST_BASE_URI) ?? "/";
-            _administrators = config.Keyword(Keys.UPP_ADMINISTRATORS).Split(';').Select(x => x.Trim()).ToList();
+            _administrators = config.Keyword(Keys.UPP__ADMINISTRATORS).Split(';').Select(x => x.Trim()).ToList();
         }
 
         public dynamic Process(NancyModule nancyModule, AuthenticateCallbackData model)

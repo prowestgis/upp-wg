@@ -14,7 +14,10 @@
         public const string SERVICE_DIRECTORY__BASE_URI = "ServiceDirectory:BaseUri";
         public const string SERVICE_DIRECTORY__HOST_URI = "ServiceDirectory:HostUri";
         public const string SERVICE_DIRECTORY__SCOPES = "ServiceDirectory:Scopes";
-        public const string UPP_ADMINISTRATORS = "UPP:Administrators";
+        public const string UPP__ADMINISTRATORS = "UPP:Administrators";
+
+        public const string DATABASE__DELETE_ON_STARTUP = "Database:DeleteOnStartup";
+        public const string DATABASE__CREATE_ON_STARTUP = "Database:CreateOnStartup";
 
         public static IDictionary<string, string> DefaultValues = new Dictionary<string, string>
         {
@@ -25,7 +28,9 @@
             { SERVICE_DIRECTORY__HOST_URI, null },
             { SERVICE_DIRECTORY__SCOPES, "" },
             { SELF__IDENTIFIER, null },
-            { UPP_ADMINISTRATORS, "" }
+            { UPP__ADMINISTRATORS, "" },
+            { DATABASE__DELETE_ON_STARTUP, "true" },
+            { DATABASE__CREATE_ON_STARTUP, "true" }
         };
 
         // Get a command line argument.

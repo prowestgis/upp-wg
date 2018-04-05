@@ -10,15 +10,16 @@ namespace CompanyInformation
 {
     public class Database : DataStore
     {
-        public Database() : base("CompanyInformation.sqlite", @"App_Data\Schema.sql")
+        public Database(HostConfigurationSection config)
+            : base("CompanyInformation.sqlite", @"App_Data\Schema.sql", config)
         {
         }
 
-        public override void Initialize()
+        protected override void CreateDatabase()
         {
-            base.Initialize();
+            base.CreateDatabase();
 
-            // Populate the database with initial data
+            // Populate the database with initial data if it was just created
             ImportTableFromCSV(@"App_Data\COMPANY_DATA.csv", "CompanyInformation", 100);
         }
 
