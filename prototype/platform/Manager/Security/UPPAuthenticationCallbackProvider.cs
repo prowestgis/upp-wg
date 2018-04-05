@@ -66,7 +66,7 @@ namespace Manager.Security
                 // Case 1: No record in database, not yet logged in
                 if (existingUser == null && currentUser == null)
                 {
-                    existingUser = _services.CreateNewIdentityFromExternalAuth(model.ProviderName, model.AuthenticatedClient.UserInformation.Id);
+                    existingUser = _services.CreateNewIdentityFromExternalAuth(model.ProviderName, model.AuthenticatedClient.UserInformation.Email, model.AuthenticatedClient.UserInformation.Id);
                 }
 
                 // Case 2: No record in database, use is currently logged in unde different identity

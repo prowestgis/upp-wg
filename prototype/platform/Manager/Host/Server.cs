@@ -37,7 +37,7 @@ namespace Manager.Host
             host = new NancyHost(hostConfig, new Uri(hostUri));
 
             logger.Debug("Creating data store instance");
-            database = new Manager.Store.Services();
+            database = new Manager.Store.Services(config);
         }
 
         public void Start()

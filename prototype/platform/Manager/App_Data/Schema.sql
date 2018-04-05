@@ -4,6 +4,7 @@
 create table Users
 (
 	user_id                            varchar(200) not null, -- GUID under control of UPP; mapped to 'upp' claim in JWT
+	user_label                         varchar(200),          -- Something for a human to know who this is....
 	extra_claims                       varchar(1000)          -- Space-delimited claims added by UPP manager, e.g. upp.admin, law.enforcement
 );
 

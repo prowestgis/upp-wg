@@ -31,18 +31,18 @@ namespace Manager.Host
         {
             base.ConfigureApplicationContainer(container);
 
-            // Bootstrap our application services
-            services = new Store.Services();
-
             // Get the registerd configuration
             var config = container.Resolve<HostConfigurationSection>();
-            var hostUri = new Uri(config.Keyword(Keys.NANCY__HOST_URI) ?? config.Keyword(Keys.NANCY__BASE_URI));
-            var authConfig = new UPPAuthenticationConfigurationOptions { BasePath = hostUri };
+
+            // Bootstrap our application services
+            services = new Store.Services(config);
 
             // Register our own interface for looking up additional claims for users (override default implementation)
             container.Register<IAdditionalClaimProvider, DatabaseAdditionalClaimProvider>();
 
             // Register a configuration for the Simple Authentication
+            var hostUri = new Uri(config.Keyword(Keys.NANCY__HOST_URI) ?? config.Keyword(Keys.NANCY__BASE_URI));
+            var authConfig = new UPPAuthenticationConfigurationOptions { BasePath = hostUri };
             container.Register<IConfigurationOptions>(authConfig);      
 
             // Bind the callback handler to our own implementation

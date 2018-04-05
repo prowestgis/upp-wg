@@ -141,13 +141,19 @@
                                                 <td>@Model.User.Email</td>
                                             </tr>
                                             <tr>
-                                                <td>Phone</td>
-                                                <td>@Model.User.Phone</td>
-                                            </tr>
-                                            <tr>
                                                 <td>UPP Token</td>
                                                 <td>@Model.User.ExtendedClaims["upp"]</td>
                                             </tr>
+                                            <tr>
+                                                <td>All Claims</td>
+                                                <td>
+                                                    @foreach (var claim in Model.User.ExtendedClaims)
+                                                    {
+                                                        <span>@(claim.Key): @(claim.Value)</span><br />
+                                                    }
+                                                </td>
+                                            </tr>
+
                                         </tbody>
                                     </table>
                                     }
