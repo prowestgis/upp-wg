@@ -127,6 +127,9 @@
     <Compile Include="Store\Services.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Scripts\bridges.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Scripts\permit.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

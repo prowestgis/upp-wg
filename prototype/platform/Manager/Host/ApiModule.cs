@@ -15,6 +15,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.factories;
 using static Manager.Host.PermitView;
+using Newtonsoft.Json.Linq;
 
 namespace Manager.Host
 {
@@ -241,6 +242,8 @@ namespace Manager.Host
 
         public string[] Authority { get; set; }
 
+        public string[] Bridges { get; set; }
+
         public Paragraph HaulerInfo()
         {
             Paragraph hauler = new Paragraph("Hauler Information");
@@ -446,8 +449,25 @@ namespace Manager.Host
             list.Add(FormattedListItem("Destination is within the applying County?", movementinfoDestinationWithinApplyingCounty.HasValue.ToString()));
 
             para.Add(list);
+
+            para.Add(Environment.NewLine);
+
+            para.Add("Bridges:");
+            List bridgetList = new List();
+            bridgetList.IndentationLeft = 10;
+            foreach (var bridge in Bridges)
+            {
+                JToken token = JObject.Parse(Uri.UnescapeDataString(bridge));
+                string load = ((double)token.SelectToken("ALTIRLOAD") / 0.90718474).ToString("F2");
+                // "BRIDGE_ID","FEATINT","FACILITY","ALTIRMETH","ALTIRLOAD"
+                string text = string.Format("ID: {0} - {1} / {2} Load Rating:{3}", token.SelectToken("BRIDGE_ID"), token.SelectToken("FEATINT"), token.SelectToken("FACILITY"), load);
+                bridgetList.Add(GeneratePermitModel.FormattedListItem(text));
+            }
+            para.Add(bridgetList);
+
             return para;
         }
+
         private ListItem FormattedListItem(string label, string value)
         {
             string text = string.Format("{0}: {1}",label, value);

@@ -1,7 +1,12 @@
 ﻿(function($, require, apiUrl, sdUrl) {
     var start_map, end_map, route_map;
 
-    require([
+    require({
+        packages: [{
+            "name": "scripts",
+            "location": location.pathname.replace(/\/[^/]+$/, '') + "/js"
+        }]
+    }, [
         "esri/map",
         "esri/dijit/Search",
         "esri/tasks/locator",
@@ -21,8 +26,9 @@
 		"dojo/dom-construct", 
 		"dojo/query",
         "dojo/on",
+		"scripts/bridges",
         "dojo/domReady!"
-    ], function (Map, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, Deferred, DeferredList, domConstruct, dojoQuery, on) {
+    ], function (Map, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, Deferred, DeferredList, domConstruct, dojoQuery, on, Bridges) {
         var symbol = new SimpleMarkerSymbol({
             "color": [255, 255, 255, 64],
             "size": 12,
@@ -221,7 +227,10 @@
                                 route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
                                 divide_route(result.route);
                             });
-
+							Bridges.forRoute(result.routeResults[0], sdUrl).then(function(bridges){
+								var form = $("#permit-form");
+								Bridges.addToForm(form, bridges);
+							});
                             // Fill in the total miles traveled and the route description
                             var firstRoute = result.routeResults[0];
                             if (firstRoute) {

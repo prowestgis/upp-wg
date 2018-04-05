@@ -3,3 +3,4 @@ provider_id,oauth_provider_id,display_name,uri,service_type,service_priority,act
 "esri.geometry",,"Esri Geometry Service","https://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer","geometry",1,1,"geometry.services"
 "esri.county.boundaries",,"Esri County Boundaries","https://services.arcgis.com/BG6nSlhZSAWtExvp/arcgis/rest/services/counties_MN/FeatureServer/0","county.boundaries",1,1,"county.boundaries"
 "city.boundaries",,"City Boundaries","https://services.arcgis.com/pEosvuftL1Kgj1UF/ArcGIS/rest/services/Minnesota_Cities/FeatureServer/0","city.boundaries",1,1,"city.boundaries"
+"bridges","agol","Bridges","https://services.arcgis.com/pEosvuftL1Kgj1UF/arcgis/rest/services/BRIDGE/FeatureServer","bridges",1,1,"bridges"
