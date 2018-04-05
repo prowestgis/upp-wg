@@ -1,6 +1,7 @@
 ﻿using Nancy;
 using Dapper;
 using Manager.Store;
+using Nancy.ModelBinding;
 using Nancy.Security;
 using Nancy.Responses.Negotiation;
 using System;
@@ -50,13 +51,28 @@ namespace Manager.Host
 
     public sealed class AdministrativeInterface : NancyModule
     {
-        public AdministrativeInterface(Services services)
+        public AdministrativeInterface(Services services, HostConfigurationSection config)
         {
             this.RequiresAuthentication();
             this.RequiresClaims(new[] { Claims.UPP_ADMIN });
 
-            Get["/admin.html"] = _ => View["Administration"];
+            Get["/admin.html"] = _ => View["Administration", new AdministrativeView { Users = services.AllUsers() }];
+            Get["/users/{id}/edit"] = _ => View["EditUser", services.AllUsers().FirstOrDefault(x => x.UserId == _.id)];
+            Post["/users/{id}/edit"] = _ => UpdateUser(services, config.Keyword(Keys.NANCY__HOST_BASE_URI));
         }
+
+        private Response UpdateUser(Services services, string baseUri)
+        {
+            var user = this.Bind<Manager.Store.Services.UserRecord>();
+            user = services.UpdateIdentityRecord(user);
+
+            return Response.AsRedirect(String.Format("{0}users/{1}/edit", baseUri, user.UserId));
+        }
+    }
+
+    public sealed class AdministrativeView
+    {
+        public List<Services.UserRecord> Users { get; set; }
     }
 
     public sealed class DashboardView

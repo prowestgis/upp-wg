@@ -57,8 +57,8 @@ namespace Manager.Store
             }
         }
 
-        public Services()
-            : base("SimpleDb.sqlite", @"App_Data\Schema.sql")
+        public Services(HostConfigurationSection config)
+            : base("SimpleDb.sqlite", @"App_Data\Schema.sql", config)
         {            
         }
 
@@ -129,10 +129,55 @@ namespace Manager.Store
             }
         }
 
-        private sealed class UserRecord
+        public sealed class UserRecord
         {
             public string UserId { get; set; }
+            public string UserLabel { get; set; }
             public string ExtraClaims { get; set; }
+        }
+
+        public List<UserRecord> AllUsers()
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                return conn.Query<UserRecord>(@"
+                    SELECT user_id as UserId, user_label as UserLabel, extra_claims as ExtraClaims
+                    FROM Users
+                    "
+                 ).ToList();
+            }
+        }
+
+        public UserRecord UpdateIdentityRecord(UserRecord record)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                // Search for the user, return null if no user found
+                var user = conn.Query<UserRecord>(@"
+                    SELECT user_id as UserId, user_label, extra_claims as ExtraClaims
+                    FROM Users
+                    WHERE user_id = @User
+                    ",
+                    new { User = record.UserId }
+                    )
+                    .FirstOrDefault();
+
+                if (user == null)
+                {
+                    return null;
+                }
+
+                // Update the record
+                conn.Execute(@"
+                    UPDATE Users
+                    SET user_label= @Label, extra_claims = @Claims
+                    WHERE user_id = @User
+                    ", new { User = user.UserId, Label = record.UserLabel, Claims = record.ExtraClaims }
+                );
+
+                // Return the updated claims
+                return record;
+            }
         }
 
         public string AddClaimToIdentity(string guid, string claim)
@@ -268,16 +313,16 @@ namespace Manager.Store
             }
         }
 
-        public string CreateNewIdentityFromExternalAuth(string provider, string externalId)
+        public string CreateNewIdentityFromExternalAuth(string provider, string label, string externalId)
         {
             using (var conn = SimpleDbConnection())
             {
                 // Create a new User
                 var guid = Guid.NewGuid().ToString();
                 conn.Execute(@"
-                    INSERT INTO Users (user_id, extra_claims)
-                    VALUES (@User, null)
-                    ", new { User = guid }
+                    INSERT INTO Users (user_id, user_label, extra_claims)
+                    VALUES (@User, @Label, null)
+                    ", new { User = guid, Label = label }
                     );
 
                 // Create a new External Login tied to this user
