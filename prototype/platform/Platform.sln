@@ -35,6 +35,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedWebAssets", "SharedWe
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		SharedWebAssets\SharedWebAssets.projitems*{5e4ae8f9-0292-4f32-94d0-02e84dad1121}*SharedItemsImports = 4
 		SharedWebAssets\SharedWebAssets.projitems*{73c47170-d5f8-4477-89ea-9e9db943dcca}*SharedItemsImports = 4
 		SharedWebAssets\SharedWebAssets.projitems*{7f63d5d4-8f53-4700-bd76-1ef76658e767}*SharedItemsImports = 13
 		SharedWebAssets\SharedWebAssets.projitems*{bb2ea740-66f0-48de-b423-5271b0b64eac}*SharedItemsImports = 4

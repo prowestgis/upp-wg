@@ -91,6 +91,42 @@ namespace CompanyInformation
             }
         }
 
+        public int Count()
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                return conn.Query<int>(@"SELECT COUNT(*) FROM CompanyInformation").First();
+            }
+        }
+
+        public IEnumerable<dynamic> Query(int start, int length)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                return conn.Query<dynamic>(@"
+                    SELECT
+                        company_name AS CompanyName,
+                        email AS Email,
+                        contact AS Contact,
+                        phone AS Phone,
+                        fax AS Fax,
+                        cell AS Cell,
+                        bill_to AS BillTo,
+                        billing_address AS BillingAddress
+                    FROM CompanyInformation
+                    WHERE company_id NOT IN (
+                        SELECT company_id
+                        FROM CompanyInformation
+                        ORDER BY company_name LIMIT @Start
+                    )
+                    ORDER BY company_name
+                    LIMIT @Length
+                    ",
+                    new { Start = start, Length = length }
+                    );
+            }
+        }
+
         public IEnumerable<dynamic> FindCompanyInfoForUser(IUserIdentity identity)
         {
             // First, check if this user exists it the database.  If not, this is for prototyping, so
