@@ -272,9 +272,9 @@ namespace Manager.Host
             list.Add(FormattedListItem(String.Format("Contact: {0}", companyinfoContact)));
             list.Add(FormattedListItem(String.Format("Phone #: {0}", companyinfoPhone)));
             list.Add(FormattedListItem(String.Format("Fax #: {0}", companyinfoFax)));
-            list.Add(FormattedListItem(String.Format("Cell Phone #: {0}", companyinfoCell)));
-            list.Add(FormattedListItem(String.Format("Bill To: {0}", companyinfoBillTo)));
-            list.Add(FormattedListItem(String.Format("Billing Address: {0}", companyinfoBillingAddress)));
+            //list.Add(FormattedListItem(String.Format("Cell Phone #: {0}", companyinfoCell)));
+            //list.Add(FormattedListItem(String.Format("Bill To: {0}", companyinfoBillTo)));
+            //list.Add(FormattedListItem(String.Format("Billing Address: {0}", companyinfoBillingAddress)));
 
             company.Add(list);
             return company;
@@ -289,7 +289,7 @@ namespace Manager.Host
             list.Add(FormattedListItem(String.Format("Provider: {0}", insuranceinfoProvider)));
             list.Add(FormattedListItem(String.Format("Agency Address: {0}", insuranceinfoAgencyAddress)));
             list.Add(FormattedListItem(String.Format("Policy #: {0}", insuranceinfoPolicyNumber)));
-            list.Add(FormattedListItem(String.Format("Insured Amount: {0}", insuranceinfoInsuredAmount)));
+            //list.Add(FormattedListItem(String.Format("Insured Amount: {0}", insuranceinfoInsuredAmount)));
 
             insurance.Add(list);
             return insurance;
@@ -301,16 +301,16 @@ namespace Manager.Host
             List list = new List();
             list.SetListSymbol("");
             list.IndentationLeft = 10;
-            list.Add(FormattedListItem(String.Format("Year: {0}", vehicleinfoYear)));
+            //list.Add(FormattedListItem(String.Format("Year: {0}", vehicleinfoYear)));
             list.Add(FormattedListItem(String.Format("Make: {0}", insuranceinfoAgencyAddress)));
-            list.Add(FormattedListItem(String.Format("Model: {0}", insuranceinfoPolicyNumber)));
+            //list.Add(FormattedListItem(String.Format("Model: {0}", insuranceinfoPolicyNumber)));
             list.Add(FormattedListItem(String.Format("Type: {0}", vehicleinfoType)));
             list.Add(FormattedListItem(String.Format("License #: {0}", vehicleinfoLicense)));
             list.Add(FormattedListItem(String.Format("State: {0}", vehicleinfoState)));
             list.Add(FormattedListItem(String.Format("Truck Serial #: {0}", vehicleinfoSerialNumber)));
             list.Add(FormattedListItem(String.Format("USDOT #: {0}", vehicleinfoUSDOTNumber)));
             list.Add(FormattedListItem(String.Format("Empty Weight: {0}", vehicleinfoEmptyWeight)));
-            list.Add(FormattedListItem(String.Format("Registered Weight: {0}", vehicleinfoRegisteredWeight)));
+            //list.Add(FormattedListItem(String.Format("Registered Weight: {0}", vehicleinfoRegisteredWeight)));
 
             vehicle.Add(list);
             return vehicle;
@@ -325,9 +325,9 @@ namespace Manager.Host
             list.SetListSymbol(string.Empty);
             list.IndentationLeft = 10;
             list.Add(FormattedListItem(String.Format("Gross Weight: {0}", truckinfoGrossWeight)));
-            list.Add(FormattedListItem(String.Format("EmptyWeight: {0}", truckinfoEmptyWeight)));
-            list.Add(FormattedListItem(String.Format("Registered Weight: {0}", truckinfoRegisteredWeight)));
-            list.Add(FormattedListItem(String.Format("Regulation Weight: {0}", truckinfoRegulationWeight)));
+            //list.Add(FormattedListItem(String.Format("EmptyWeight: {0}", truckinfoEmptyWeight)));
+            //list.Add(FormattedListItem(String.Format("Registered Weight: {0}", truckinfoRegisteredWeight)));
+            //list.Add(FormattedListItem(String.Format("Regulation Weight: {0}", truckinfoRegulationWeight)));
             list.Add(FormattedListItem(String.Format("Dimension Summary: {0}", truckinfoDimensionSummary)));
             list.Add(FormattedListItem(String.Format("Dimension Description: {0}", truckinfoDimensionDescription)));
             list.Add(FormattedListItem(String.Format("Height: {0}", truckinfoHeight)));
@@ -360,23 +360,23 @@ namespace Manager.Host
             list.Add(FormattedListItem("Description", axleinfoDescription));
 
             list.Add(FormattedListItem("Weight Per Axle", axleinfoWeightPerAxle));
-            list.Add(FormattedListItem("Description Summary", axleinfoDescriptionSummary));
+            //list.Add(FormattedListItem("Description Summary", axleinfoDescriptionSummary));
             list.Add(FormattedListItem("Axle Count", axleinfoAxleCount.ToString()));
-            list.Add(FormattedListItem("Group Count", axleinfoGroupCount.ToString()));
-            list.Add(FormattedListItem("Approximate Axle Length (Total)", axleinfoApproxAxleLength));
+            //list.Add(FormattedListItem("Group Count", axleinfoGroupCount.ToString()));
+            //list.Add(FormattedListItem("Approximate Axle Length (Total)", axleinfoApproxAxleLength));
             list.Add(FormattedListItem("Axle Length (axle spacing)", axleinfoAxleLength));
             list.Add(FormattedListItem("Max Axle Width", axleinfoMaxAxleWidth));
             list.Add(FormattedListItem("Max Axle Weight", axleinfoMaxAxleWeight));
             list.Add(FormattedListItem("Total Axle Weight", axleinfoTotalAxleWeight));
-            list.Add(FormattedListItem("Axle Group Summary", axleinfoAxleGroupSummary));
-            list.Add(FormattedListItem("Axels Per Group", axleinfoAxelsPerGroup));
+            //list.Add(FormattedListItem("Axle Group Summary", axleinfoAxleGroupSummary));
+            //list.Add(FormattedListItem("Axels Per Group", axleinfoAxelsPerGroup));
             list.Add(FormattedListItem("Axle Group Tire Type", axleinfoAxleGroupTireType));
-            list.Add(FormattedListItem("Axle Group Width", axleinfoAxleGroupWidth));
-            list.Add(FormattedListItem("Axle Operating Weights", axleinfoAxleOperatingWeights));
-            list.Add(FormattedListItem("Axle Group Weight", axleinfoAxleGroupWeight));
-            list.Add(FormattedListItem("Axle Group Max Width", axleinfoAxleGroupMaxWidth));
-            list.Add(FormattedListItem("Axle Group Total Weight", axleinfoAxleGroupTotalWeight));
-            list.Add(FormattedListItem("Axle Group Distance", axleinfoAxleGroupDistance));
+            //list.Add(FormattedListItem("Axle Group Width", axleinfoAxleGroupWidth));
+            //list.Add(FormattedListItem("Axle Operating Weights", axleinfoAxleOperatingWeights));
+            //list.Add(FormattedListItem("Axle Group Weight", axleinfoAxleGroupWeight));
+            //list.Add(FormattedListItem("Axle Group Max Width", axleinfoAxleGroupMaxWidth));
+            //list.Add(FormattedListItem("Axle Group Total Weight", axleinfoAxleGroupTotalWeight));
+            //list.Add(FormattedListItem("Axle Group Distance", axleinfoAxleGroupDistance));
 
             para.Add(list);
             return para;
@@ -390,16 +390,16 @@ namespace Manager.Host
             List list = new List();
             list.SetListSymbol(string.Empty);
             list.IndentationLeft = 10;
-            list.Add(FormattedListItem("Description", trailerinfoDescription));
+            //list.Add(FormattedListItem("Description", trailerinfoDescription));
             list.Add(FormattedListItem("Make", trailerinfoMake));
-            list.Add(FormattedListItem("Model", trailerinfoModel));
+            //list.Add(FormattedListItem("Model", trailerinfoModel));
             list.Add(FormattedListItem("Type", trailerinfoType));
-            list.Add(FormattedListItem("Serial Number", trailerinfoSerialNumber));
+            //list.Add(FormattedListItem("Serial Number", trailerinfoSerialNumber));
             list.Add(FormattedListItem("License Number", trailerinfoLicenseNumber));
             list.Add(FormattedListItem("State", trailerinfoState));
             list.Add(FormattedListItem("Empty Weight", trailerinfoEmptyWeight));
-            list.Add(FormattedListItem("Registered Weight", trailerinfoRegisteredWeight));
-            list.Add(FormattedListItem("Regulation Weight", trailerinfoRegulationWeight));
+            //list.Add(FormattedListItem("Registered Weight", trailerinfoRegisteredWeight));
+            //list.Add(FormattedListItem("Regulation Weight", trailerinfoRegulationWeight));
             para.Add(list);
             return para;
         }
@@ -413,12 +413,12 @@ namespace Manager.Host
             list.SetListSymbol(string.Empty);
             list.IndentationLeft = 10;
 
-            list.Add(FormattedListItem("Owner", loadinfoOwner));
-            list.Add(FormattedListItem("Is the load over size? (yes/no)", loadinfoOverSize));
-            list.Add(FormattedListItem("Is the load over weight? (yes/no)", loadinfoOverWeight));
+            //list.Add(FormattedListItem("Owner", loadinfoOwner));
+            //list.Add(FormattedListItem("Is the load over size? (yes/no)", loadinfoOverSize));
+            //list.Add(FormattedListItem("Is the load over weight? (yes/no)", loadinfoOverWeight));
             list.Add(FormattedListItem("Description", loadinfoDescription));
-            list.Add(FormattedListItem("Load Size or Model", loadinfoSizeOrModel));
-            list.Add(FormattedListItem("Weight", loadinfoWeight));
+            //list.Add(FormattedListItem("Load Size or Model", loadinfoSizeOrModel));
+            //list.Add(FormattedListItem("Weight", loadinfoWeight));
 
             para.Add(list);
             return para;
