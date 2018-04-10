@@ -18,7 +18,7 @@ _Note_: Some types are listed as _restricted_ utf8-encoded strings.  This is a p
   
 * **Application Date**
 
-  The name of the applicant requesting an OSOW permit. This can be the name of an individual, or company representative.
+  The date the applicant requested an OSOW permit.
 
   | | |
   | -- | --
