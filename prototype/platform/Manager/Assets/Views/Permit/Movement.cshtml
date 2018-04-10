@@ -40,6 +40,7 @@
     </div>
     <div class="form-group row">
         <button id="recalc-route" type="button">Recalculate Route</button>
+        <button id="toggle-barriers" type="button">Toggle Route Barriers</button>
     </div>
     <div class="form-group row">
         <label class="col-sm-2 control-label">Permit Authorities</label>
@@ -56,7 +57,7 @@
     @Html.GroupItem(Model.StateHighwayPermitNumber, new GroupItemProperties("StateHighwayPermitNumber") { label = "State Highway Permit Number" })
     @Html.GroupItem(Model.StateHighwayPermitIssued, new GroupItemProperties("StateHiughwayPermitIssued") { label = "State Highway Permit Issued Date", inputType= GroupItemProperties.InputType.DATE })
     @Html.GroupItem(Model.NeedPilotCar, new GroupItemProperties("NeedPilotCar") { label = "Need Pilot Car?", inputType = GroupItemProperties.InputType.CHECKBOX })
-    @Html.GroupItem(Model.DestinationWithinCityLimits, new GroupItemProperties("DestinationWithinCityLimits") { label = "Destination is within City Limits?", inputType = GroupItemProperties.InputType.CHECKBOX })
-    @Html.GroupItem(Model.DestinationWithinApplyingCounty, new GroupItemProperties("DestinationWithinApplyingCounty") { label = "Destination is within the applying County?" , inputType = GroupItemProperties.InputType.CHECKBOX })
+    @Html.GroupItem(Model.DestinationWithinCityLimits, new GroupItemProperties("DestinationWithinCityLimits") { label = "Destination is within City Limits?", readOnly = true, inputType = GroupItemProperties.InputType.CHECKBOX })
+    @Html.GroupItem(Model.DestinationWithinApplyingCounty, new GroupItemProperties("DestinationWithinApplyingCounty") { label = "Destination is within the applying County?", readOnly = true, inputType = GroupItemProperties.InputType.CHECKBOX })
 
 </fieldset>

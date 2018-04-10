@@ -11,6 +11,7 @@ define([
 	"esri/geometry/Circle",
     "esri/graphic",
     "esri/layers/GraphicsLayer",
+	"esri/symbols/SimpleFillSymbol",
     "esri/symbols/SimpleLineSymbol",
     "esri/symbols/SimpleMarkerSymbol",
     "esri/tasks/query",
@@ -19,7 +20,7 @@ define([
 	"esri/units"
 	
 ], function (declare, lang, array, Deferred, domConstruct, dojoQuery,
-        Color, InfoTemplate, Circle, Graphic, GraphicsLayer, SimpleLineSymbol, SimpleMarkerSymbol, Query, QueryTask, GeometryEngine, Units) {
+        Color, InfoTemplate, Circle, Graphic, GraphicsLayer, SimpleFillSymbol, SimpleLineSymbol, SimpleMarkerSymbol, Query, QueryTask, GeometryEngine, Units) {
 
     return declare(null,{
         layer: null,
@@ -63,7 +64,7 @@ define([
 						var queryTask = new QueryTask(service.url + "/0?token=" + service.token);
 						var query = new Query();
 						query.geometry = GeometryEngine.geodesicBuffer(route.route.geometry, 10, 'feet', true);
-						query.outFields = ["BRIDGE_ID","FEATINT","FACILITY","ALTIRMETH","ALTIRLOAD"];
+						query.outFields = ["BRKEY","RoadWidth","VERT_CLEAR","RECORD_TYPE","FEATINT","FACILITY","LOCATION","ALTIRMETH", "LoadRating"];
 						query.returnGeometry = true;
 						query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
 
@@ -83,14 +84,38 @@ define([
 			});
         },
         validForLoad: function (bridge, load) {
+			var messages = [];
+			var valid = true;
 			
-            return (bridge.ALTIRLOAD / 0.90718474) > load.weight;
+			if(bridge.ALTIRMETH === "PED" && bridge.RECORD_TYPE === "ON" && bridge.VERT_CLEAR === 99)
+				return { valid: true, messages: messages};
+			
+			if(bridge.RoadWidth < load.width && bridge.RoadWidth > 0){
+				messages.push("Load width " + load.width + " exceeds the road width " + bridge.RoadWidth);
+				valid = false;
+			}
+			
+			if(bridge.RECORD_TYPE === "UNDER" && bridge.VERT_CLEAR <= load.height ){
+				messages.push("Load height " + load.height + " exceeds the clearance " + bridge.VERT_CLEAR);
+				valid = false;
+			} else {
+				if(bridge.LoadRating <= load.weight / 2000) {
+					messages.push("Load weight " + load.weight / 2000 + " exceeds the load rating " + bridge.LoadRating);
+					valid = false;
+				}
+			}
+			return { valid: valid, messages: messages};
         },
         addToMap(bridges) {
 			if (!this.layer) {
-                this.layer = new GraphicsLayer();
-                this.layer.setInfoTemplate(new InfoTemplate("Bridge", "${*}"));
+				this.barrierLayer = new GraphicsLayer();
+                this.barrierLayer.setInfoTemplate(new InfoTemplate("Barriers: ${BRKEY}", "${*}"));
+				this.map.addLayer(this.barrierLayer);
+
+				this.layer = new GraphicsLayer();
+                this.layer.setInfoTemplate(new InfoTemplate("Bridge: ${BRKEY}", "${*}"));
                 this.map.addLayer(this.layer);
+
                 this.bridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 12,
                                             new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
                                             new Color([0, 0, 0]), 1),
@@ -98,6 +123,9 @@ define([
 				this.invalidBridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 12,
                                             new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 0, 0]), 1),
                                             new Color([255, 255, 0, 0.75]));
+				this.barrierSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 12,
+										new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+										new Color([0,0,0]), 2),new Color([255,0,0,0.75]));
             }
 			
 			this.layer.clear();
@@ -106,16 +134,38 @@ define([
 			
             array.forEach(bridges, function (bridge) {
 				var load = {
-					weight: document.getElementById("truckinfo-total-gross-weight").value
+					weight: Number(document.getElementById("truckinfo-total-gross-weight").value),
+					width: Number(document.getElementById("truckinfo-width").value) + Number(document.getElementById("truckinfo-right-overhang").value)  / 12 + Number(document.getElementById("truckinfo-left-overhang").value) / 12,
+					height: Number(document.getElementById("truckinfo-height").value)
 				};
-				if(self.validForLoad(bridge.attributes, load)){
+				//console.log(load);
+				var status = self.validForLoad(bridge.attributes, load);
+				if(status.valid){
 					self.layer.add(new Graphic(bridge.geometry, self.bridgeSymbol, bridge.attributes));
 				} else {
 					self.barriers = self.barriers || [];
-					self.barriers.push(new Circle(bridge.geometry, { "geodesic": true, "radius": 10, "radiusUnit":Units.FEET}));
-					self.layer.add(new Graphic(bridge.geometry, self.invalidBridgeSymbol, bridge.attributes));
+					var geo = new Circle(bridge.geometry, { "geodesic": true, "radius": 10, "radiusUnit":Units.FEET});
+					var attribs = lang.clone(bridge.attributes);
+					attribs.Reason = status.messages.toString();
+					self.barriers.push(geo);
+					
+					self.barrierLayer.add(new Graphic(geo, self.barrierSymbol, attribs));
+					self.layer.add(new Graphic(bridge.geometry, self.invalidBridgeSymbol, attribs));
 				}
             });
-        }
+        },
+		toggleBarriers: function(){
+			if(this.barrierLayer.visible){
+				this.barrierLayer.hide();
+			} else {
+				this.barrierLayer.show();
+			}
+		},
+		clearBarriers: function(){
+			if(this.barrierLayer){
+				this.barrierLayer.clear();
+			}
+			this.barriers = [];
+		}
     });
 });

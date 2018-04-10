@@ -455,14 +455,22 @@ namespace Manager.Host
             para.Add("Bridges:");
             List bridgetList = new List();
             bridgetList.IndentationLeft = 10;
-            foreach (var bridge in Bridges)
+            if (Bridges != null)
             {
-                JToken token = JObject.Parse(Uri.UnescapeDataString(bridge));
-                string load = ((double)token.SelectToken("ALTIRLOAD") / 0.90718474).ToString("F2");
-                // "BRIDGE_ID","FEATINT","FACILITY","ALTIRMETH","ALTIRLOAD"
-                string text = string.Format("ID: {0} - {1} / {2} Load Rating:{3}", token.SelectToken("BRIDGE_ID"), token.SelectToken("FEATINT"), token.SelectToken("FACILITY"), load);
-                bridgetList.Add(GeneratePermitModel.FormattedListItem(text));
+                foreach (var bridge in Bridges)
+                {
+                    JToken token = JObject.Parse(Uri.UnescapeDataString(bridge));
+                    string load = ((double)token.SelectToken("LoadRating")).ToString("F2");
+                    // "BRIDGE_ID","FEATINT","FACILITY","ALTIRMETH","ALTIRLOAD"
+                    string text = string.Format("ID: {0} - {1} / {2} Load Rating: {3} Road Width: {4} Vert Clearance: {5} Record Type: {6}",
+                        token.SelectToken("BRKEY"), token.SelectToken("FEATINT"), token.SelectToken("FACILITY"), load, token.SelectToken("RoadWidth"), token.SelectToken("VERT_CLEAR"), token.SelectToken("RECORD_TYPE"));
+                    bridgetList.Add(GeneratePermitModel.FormattedListItem(text));
+                }
+            } else
+            {
+                bridgetList.Add(GeneratePermitModel.FormattedListItem("None found for the selected route."));
             }
+
             para.Add(bridgetList);
 
             return para;

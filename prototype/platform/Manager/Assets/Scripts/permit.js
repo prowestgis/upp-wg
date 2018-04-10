@@ -181,7 +181,7 @@
 		};
         // If both origin and destination have locations, route it
         function check_route(barriers) {
-			console.log(barriers);
+			//console.log(barriers);
             var origin_pt = $('#movementinfo-origin').data('location');
             var destination_pt = $('#movementinfo-destination').data('location');
 
@@ -223,6 +223,8 @@
 							array.forEach(barriers, function(barrier){
 								routeParams.polygonBarriers.features.push(new Graphic(barrier, null, {}));
 							});
+						} else {
+							bridgeUtils.clearBarriers();
 						}
                         routeTask.solve(routeParams).then(function (result) {
                             routeResult = result.routeResults;
@@ -247,7 +249,7 @@
                                 $("#movementinfo-route-description").val(firstRoute.route.attributes['Name']);
                                 $("#movementinfo-total-route-length").val(firstRoute.route.attributes['Total_Miles']);
                             }
-                        });
+                        }, function(err){ alert(err.error.message);});
                     });
                 });
             }
@@ -311,6 +313,32 @@
 		$("#recalc-route").click(function(evt){
 			check_route(bridgeUtils.barriers);
 		});
+		$("#toggle-barriers").click(function (evt) {
+		    bridgeUtils.toggleBarriers();
+		});
+		
+		function UpdateSummaries() { 
+			var h = parseInt($('#truckinfo-height').val(), 10);
+			var w = parseInt($('#truckinfo-width').val(), 10);
+			var l = parseInt($('#truckinfo-length').val(), 10);
+			var of = parseInt($('#truckinfo-front-overhang').val(), 10) / 12;
+			var or = parseInt($('#truckinfo-rear-overhang').val(), 10) / 12;
+			var ol = parseInt($('#truckinfo-left-overhang').val(), 10) / 12;
+			var ort = parseInt($('#truckinfo-right-overhang').val(), 10) / 12;
+
+		   $('#truckinfo-dimension-summary').val(h + ' / ' + w + ' / ' + l);
+		   $('#truckinfo-overall-dimension-description').val('Len: ' + (l + of + or) + ' Wid: ' + (w + ort + ol));
+			check_route();
+		}
+		
+		$('#truckinfo-height').change(UpdateSummaries);
+		$('#truckinfo-width').change(UpdateSummaries);
+		$('#truckinfo-length').change(UpdateSummaries);
+		$('#truckinfo-front-overhang').change(UpdateSummaries);
+		$('#truckinfo-rear-overhang').change(UpdateSummaries);
+		$('#truckinfo-left-overhang').change(UpdateSummaries);
+		$('#truckinfo-right-overhang').change(UpdateSummaries);
+		$('#truckinfo-total-gross-weight').change(function(evt){check_route();});
     });
 
     // Ask the service locator to give us a UPP host that can provide company information.
@@ -452,7 +480,7 @@
                         $('#truckinfo-front-overhang').val(truckData.frontOverhang);
                         $('#truckinfo-rear-overhang').val(truckData.rearOverhang);
                         $('#truckinfo-left-overhang').val(truckData.leftOverhang);
-                        $('#truckinfo-right-overhang').val(truckData.rightOverhang);
+                        $('#truckinfo-right-overhang').val(truckData.rightOverhang).change();  // Fire a change event to update the bridges
                         $('#truckinfo-diagram').val(truckData.diagram);
                     }
 
@@ -460,26 +488,7 @@
             });
         }
     });
-    var UpdateSummaries = function () {
-        var h = parseInt($('#truckinfo-height').val(), 10);
-        var w = parseInt($('#truckinfo-width').val(), 10);
-        var l = parseInt($('#truckinfo-length').val(), 10);
-        var of = parseInt($('#truckinfo-front-overhang').val(), 10);
-        var or = parseInt($('#truckinfo-rear-overhang').val(), 10);
-        var ol = parseInt($('#truckinfo-left-overhang').val(), 10);
-        var ort = parseInt($('#truckinfo-right-overhang').val(), 10);
 
-       $('#truckinfo-dimension-summary').val(h + ' / ' + w + ' / ' + l);
-       $('#truckinfo-overall-dimension-description').val('Len: ' + (l + of + or) + ' Wid: ' + (w + ort + ol));
-
-    }
-    $('#truckinfo-height').change(UpdateSummaries);
-    $('#truckinfo-width').change(UpdateSummaries);
-    $('#truckinfo-length').change(UpdateSummaries);
-    $('#truckinfo-front-overhang').change(UpdateSummaries);
-    $('#truckinfo-rear-overhang').change(UpdateSummaries);
-    $('#truckinfo-left-overhang').change(UpdateSummaries);
-    $('#truckinfo-right-overhang').change(UpdateSummaries);
 
     // Ask the service locator to give us a UPP host that can provide insurance information.
     var trailerSelect = $("#trailer-selector");
