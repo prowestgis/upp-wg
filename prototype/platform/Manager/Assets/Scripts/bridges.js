@@ -48,7 +48,7 @@ define([
                     var url = sdUrl + "api/v1/hosts/" + record.name + "/access";
                     $.get(url, function (service) {
                         if (!service.url) {
-                            alert('No route service access is configured');
+                            alert("No route service access is configured");
 							def.reject('No route service access is configured');
                             return;
                         }
@@ -87,9 +87,9 @@ define([
 			var messages = [];
 			var valid = true;
 			
-			if(bridge.ALTIRMETH === "PED" && bridge.RECORD_TYPE === "ON" && bridge.VERT_CLEAR === 99)
-				return { valid: true, messages: messages};
-			
+			if (bridge.ALTIRMETH === "PED" && bridge.RECORD_TYPE === "ON" && bridge.VERT_CLEAR === 99) {
+			    return { valid: true, messages: messages };
+			}
 			if(bridge.RoadWidth < load.width && bridge.RoadWidth > 0){
 				messages.push("Load width " + load.width + " exceeds the road width " + bridge.RoadWidth);
 				valid = false;
@@ -106,7 +106,7 @@ define([
 			}
 			return { valid: valid, messages: messages};
         },
-        addToMap(bridges) {
+        addToMap: function(bridges) {
 			if (!this.layer) {
 				this.barrierLayer = new GraphicsLayer();
                 this.barrierLayer.setInfoTemplate(new InfoTemplate("Barriers: ${BRKEY}", "${*}"));
