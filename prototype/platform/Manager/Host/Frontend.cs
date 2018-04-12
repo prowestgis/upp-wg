@@ -216,6 +216,15 @@ namespace Manager.Host
             public decimal LeftOverhang { get; set; }
             public decimal RightOverhang { get; set; }
             public string Diagram { get; set; }
+
+            // Refactored axle information
+            public decimal WeightPerAxle { get; set; }
+            public int AxleCount { get; set; }
+            public decimal AxleLength { get; set; }
+            public decimal MaxAxleWidth { get; set; }
+            public decimal MaxAxleWeight { get; set; }
+            public decimal TotalAxleWeight { get; set; }
+            public string AxleGroupTireType { get; set; }
         }
 
         public sealed class AxleInfo
@@ -253,6 +262,15 @@ namespace Manager.Host
             public decimal EmptyWeight { get; set; }
             public decimal RegisteredWeight { get; set; }
             public decimal RegulationWeight { get; set; }
+
+            // Refactored axle information
+            public decimal WeightPerAxle { get; set; }
+            public int AxleCount { get; set; }
+            public decimal AxleLength { get; set; }
+            public decimal MaxAxleWidth { get; set; }
+            public decimal MaxAxleWeight { get; set; }
+            public decimal TotalAxleWeight { get; set; }
+            public string AxleGroupTireType { get; set; }
         }
 
         public sealed class LoadInfo
