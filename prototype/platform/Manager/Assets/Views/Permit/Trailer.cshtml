@@ -23,11 +23,11 @@
     @*@Html.GroupItem(Model.RegisteredWeight, "RegisteredWeight", "Registered Weight")*@
     @*@Html.GroupItem(Model.RegulationWeight, "RegulationWeight", "Regulation Weight")*@
 
-    @Html.GroupItem(Model.WeightPerAxle, new GroupItemProperties("WeightPerAxle") { label = "Weight Per Axle", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 }, suffix = GroupItemProperties.Suffixes.TONS })
+    @Html.GroupItem(Model.WeightPerAxle, new GroupItemProperties("WeightPerAxle") { label = "Weight Per Axle", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 }, suffix = GroupItemProperties.Suffixes.POUNDS })
     @Html.GroupItem(Model.AxleCount, new GroupItemProperties("AxleCount") { label = "Axle Count", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 } })
     @Html.GroupItem(Model.AxleLength, new GroupItemProperties("AxleLength") { label = "Axle Length (axle spacing)", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 }, suffix = GroupItemProperties.Suffixes.INCHES })
     @Html.GroupItem(Model.MaxAxleWidth, new GroupItemProperties("MaxAxleWidth") { label = "Max Axle Width", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 }, suffix = GroupItemProperties.Suffixes.INCHES })
-    @Html.GroupItem(Model.MaxAxleWeight, new GroupItemProperties("MaxAxleWeight") { label = "Max Axle Weight", readOnly = true, suffix = GroupItemProperties.Suffixes.TONS })
-    @Html.GroupItem(Model.TotalAxleWeight, new GroupItemProperties("TotalAxleWeight") { label = "Total Axle Weight", readOnly = true, suffix = GroupItemProperties.Suffixes.TONS })
+    @Html.GroupItem(Model.MaxAxleWeight, new GroupItemProperties("MaxAxleWeight") { label = "Max Axle Weight", readOnly = true, suffix = GroupItemProperties.Suffixes.POUNDS })
+    @Html.GroupItem(Model.TotalAxleWeight, new GroupItemProperties("TotalAxleWeight") { label = "Total Axle Weight", readOnly = true, suffix = GroupItemProperties.Suffixes.POUNDS })
     @Html.GroupItem(Model.AxleGroupTireType, new GroupItemProperties("AxleGroupTireType") { label = "Axle Group Tire Type" })
 </fieldset>
