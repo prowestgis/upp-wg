@@ -13,6 +13,19 @@ namespace Manager.Helpers
     {
         public static IHtmlString GroupItem<TModel, TValue>(this Nancy.ViewEngines.Razor.HtmlHelpers<TModel> htmlHelper, TValue value, GroupItemProperties properties)
         {
+            // Handle certain format restrictions
+            var valueString = String.Format("{0}", value);
+            
+            if (properties.inputType == GroupItemProperties.InputType.DATE && value is DateTime)
+            {
+                valueString = String.Format("{0:yyyy-MM-dd}", value);
+            }
+
+            if (properties.inputType == GroupItemProperties.InputType.DATE_TIME && value is DateTime)
+            {
+                valueString = String.Format("{0:yyyy-MM-ddThh:mm}", value);
+            }
+
             var prefix = typeof(TModel).Name.ToLower();
             var inner = @"<input id=""{2}-{5}"" name=""{2}{3}"" type=""{6}"" class=""form-control"" value=""{1}""  {4} {7}/>";
 
@@ -28,7 +41,7 @@ namespace Manager.Helpers
                       inner +
                     @"</div>
                 </div>
-            ", properties.label, value, prefix, properties.id, properties.readOnly ? "readonly": string.Empty, properties.label.ToLower().Replace(" ","-"), properties.inputType, properties.range.AsInputProperties()));
+            ", properties.label, valueString, prefix, properties.id, properties.readOnly ? "readonly": string.Empty, properties.label.ToLower().Replace(" ","-"), properties.inputType, properties.range.AsInputProperties()));
         }
     }
 
@@ -94,7 +107,7 @@ namespace Manager.Helpers
             // HTML5 Input Types
             public const string COLOR = "color";
             public const string DATE = "date";
-            public const string DATE_TIME = "datetime_local";
+            public const string DATE_TIME = "datetime-local";
             public const string EMAIL = "email";
             public const string MONTH = "month";
             public const string NUMBER = "number";
