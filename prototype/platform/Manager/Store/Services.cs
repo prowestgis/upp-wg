@@ -167,12 +167,20 @@ namespace Manager.Store
                     return null;
                 }
 
+                // Unpack the claims and remove any duplicates
+                var extraClaims = String.Join(" ", (record.ExtraClaims ?? String.Empty)
+                    .Split(' ')
+                    .Select(x => x.Trim())
+                    .Where(x => !String.IsNullOrEmpty(x))
+                    .Distinct()
+                    .ToList());
+
                 // Update the record
                 conn.Execute(@"
                     UPDATE Users
                     SET user_label= @Label, extra_claims = @Claims
                     WHERE user_id = @User
-                    ", new { User = user.UserId, Label = record.UserLabel, Claims = record.ExtraClaims }
+                    ", new { User = user.UserId, Label = record.UserLabel, Claims = extraClaims }
                 );
 
                 // Return the updated claims
@@ -206,7 +214,7 @@ namespace Manager.Store
                 claims.Add(claim);
 
                 // Pack into a string
-                var newClaims = String.Join(" ", claims);
+                var newClaims = String.Join(" ", claims.Distinct());
                     
                 // Update the record
                 conn.Execute(@"
@@ -243,7 +251,7 @@ namespace Manager.Store
                 }
 
                 // Unpack the current claims
-                var extra_claims = (user.ExtraClaims ?? String.Empty).Split(' ').Select(x => x.Trim()).ToList();
+                var extra_claims = (user.ExtraClaims ?? String.Empty).Split(' ').Select(x => x.Trim()).Distinct().ToList();
 
                 foreach (var claim in extra_claims)
                 {
@@ -285,7 +293,7 @@ namespace Manager.Store
                 }
 
                 // Pack into a string
-                var newClaims = String.Join(" ", claims);
+                var newClaims = String.Join(" ", claims.Distinct());
 
                 // Update the record
                 conn.Execute(@"
