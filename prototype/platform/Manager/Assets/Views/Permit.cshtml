@@ -31,6 +31,7 @@
     <link href='//fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
     <link href="css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
 
+    <link rel="stylesheet" href="//js.arcgis.com/3.23/dijit/themes/claro/claro.css">
     <link rel="stylesheet" href="//js.arcgis.com/3.23/esri/css/esri.css">
 </head>
 <body>
@@ -88,7 +89,6 @@
                         @Html.Partial("Permit/Vehicle", Model.Vehicle)
                         @Html.Partial("Permit/Truck", Model.Truck)
                         @Html.Partial("Permit/Trailer", Model.Trailer)
-                        @* @Html.Partial("Permit/Axle", Model.Axle) *@
                         @Html.Partial("Permit/Load", Model.Load)
                         @Html.Partial("Permit/Movement", Model.Movement)
                         <button id="request-permit" type="button">Request Permit</button>
@@ -104,41 +104,6 @@
                     </p>
                 </div>
             </footer>
-        </div>
-    </div>
-
-    <div class="modal fade" tabindex="-1" role="dialog" id="startLocationModal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Location Selection</h4>
-                </div>
-                <div class="modal-body">
-                    <div id="start-map-search"></div>
-                    <div id="start-map"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" tabindex="-1" role="dialog" id="endLocationModal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Location Selection</h4>
-                </div>
-                <div class="modal-body">
-                    <div id="end-map-search"></div>
-                    <div id="end-map"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
         </div>
     </div>
     <script src="js/jquery.3.2.1.min.js"></script>

@@ -12,23 +12,13 @@
     <div class="form-group row">
         <label class="col-sm-2 control-label">Route Origin</label>
         <div class="col-sm-8">
-            <div class="input-group">
-                <input type="text" id="movementinfo-origin" name="movementinfoOrigin" class="form-control" />
-                <div class="input-group-btn">
-                    <button class="btn btn-default" type="button" data-toggle="modal" data-target="#startLocationModal"><span class="glyphicon glyphicon-map-marker"></span></button>
-                </div>
-            </div>
+            <input type="text" id="movementinfo-origin" name="movementinfoOrigin" class="form-control"  readonly />
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-2 control-label">Route Destination</label>
         <div class="col-sm-8">
-            <div class="input-group">
-                <input type="text" id="movementinfo-destination" name="movementinfoDestination" class="form-control" />
-                <div class="input-group-btn">
-                    <button class="btn btn-default" type="button" data-toggle="modal" data-target="#endLocationModal"><span class="glyphicon glyphicon-map-marker"></span></button>
-                </div>
-            </div>
+            <input type="text" id="movementinfo-destination" name="movementinfoDestination" readonly class="form-control" />
         </div>
     </div>
 
@@ -39,7 +29,12 @@
         </div>
     </div>
     <div class="form-group row">
-        <button id="recalc-route" type="button">Recalculate Route</button>
+        <div class="col-sm-8 col-sm-offset-2">
+            <div id="route-directions"></div>
+        </div>
+    </div>
+    <div class="form-group row">
+     <!--   <button id="recalc-route" type="button">Recalculate Route</button>-->
         <button id="toggle-barriers" type="button">Toggle Route Barriers</button>
     </div>
     <div class="form-group row">

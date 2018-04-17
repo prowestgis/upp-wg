@@ -48,8 +48,8 @@ define([
                     var url = sdUrl + "api/v1/hosts/" + record.name + "/access";
                     $.get(url, function (service) {
                         if (!service.url) {
-                            alert("No route service access is configured");
-							def.reject('No route service access is configured');
+                            alert('No bridge service access is configured');
+							def.reject('No bridge service access is configured');
                             return;
                         }
 
@@ -63,7 +63,7 @@ define([
 						// permit authorities
 						var queryTask = new QueryTask(service.url + "/0?token=" + service.token);
 						var query = new Query();
-						query.geometry = GeometryEngine.geodesicBuffer(route.route.geometry, 10, 'feet', true);
+						query.geometry = GeometryEngine.geodesicBuffer(route.directions.mergedGeometry, 10, 'feet', true);
 						query.outFields = ["BRKEY","RoadWidth","VERT_CLEAR","RECORD_TYPE","FEATINT","FACILITY","LOCATION","ALTIRMETH", "LoadRating"];
 						query.returnGeometry = true;
 						query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
@@ -90,6 +90,7 @@ define([
 			if (bridge.ALTIRMETH === "PED" && bridge.RECORD_TYPE === "ON" && bridge.VERT_CLEAR === 99) {
 			    return { valid: true, messages: messages };
 			}
+			
 			if(bridge.RoadWidth < load.width && bridge.RoadWidth > 0){
 				messages.push("Load width " + load.width + " exceeds the road width " + bridge.RoadWidth);
 				valid = false;
@@ -116,14 +117,14 @@ define([
                 this.layer.setInfoTemplate(new InfoTemplate("Bridge: ${BRKEY}", "${*}"));
                 this.map.addLayer(this.layer);
 
-                this.bridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 12,
+                this.bridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
                                             new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
                                             new Color([0, 0, 0]), 1),
                                             new Color([0, 255, 0, 0.75]));
-				this.invalidBridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 12,
+				this.invalidBridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
                                             new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 0, 0]), 1),
                                             new Color([255, 255, 0, 0.75]));
-				this.barrierSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 12,
+				this.barrierSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
 										new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
 										new Color([0,0,0]), 2),new Color([255,0,0,0.75]));
             }
@@ -144,7 +145,7 @@ define([
 					self.layer.add(new Graphic(bridge.geometry, self.bridgeSymbol, bridge.attributes));
 				} else {
 					self.barriers = self.barriers || [];
-					var geo = new Circle(bridge.geometry, { "geodesic": true, "radius": 10, "radiusUnit":Units.FEET});
+					var geo = new Circle(bridge.geometry, { "geodesic": true, "radius": 15, "radiusUnit":Units.FEET});
 					var attribs = lang.clone(bridge.attributes);
 					attribs.Reason = status.messages.toString();
 					self.barriers.push(geo);
@@ -166,6 +167,11 @@ define([
 				this.barrierLayer.clear();
 			}
 			this.barriers = [];
+		},
+		clearBridges: function(){
+			if(this.layer){
+				this.layer.clear();
+			}
 		}
     });
 });

@@ -8,6 +8,7 @@
         }]
     }, [
         "esri/map",
+        "scripts/override/dijit/Directions",
         "esri/dijit/Search",
         "esri/tasks/locator",
         "esri/tasks/query",
@@ -28,7 +29,7 @@
         "dojo/on",
 		"scripts/bridges",
         "dojo/domReady!"
-    ], function (Map, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, Deferred, DeferredList, domConstruct, dojoQuery, on, Bridges) {
+    ], function (Map, Directions, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, Deferred, DeferredList, domConstruct, dojoQuery, on, Bridges) {
         var symbol = new SimpleMarkerSymbol({
             "color": [255, 255, 255, 64],
             "size": 12,
@@ -57,67 +58,12 @@
             }
         });
 
-        function init_map(map_id, map_ref, center) {
-			map_ref = map_ref || {};
-            if (!map_ref.map) {
-                map_ref.map = new Map(map_id, {
-                    basemap: "topo",
-                    center: center || [-94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
-                    zoom: 11
-                });
-				var searchLayer = new GraphicsLayer();
-				map_ref.map.addLayer(searchLayer);
-                var search = new Search({
-                    map: map_ref.map,
-					showInfoWindowOnSelect: false,
-					graphicsLayer: searchLayer
-                }, map_id + "-search");
-                search.startup();
-				search.on('select-result', function(evnt){
-					map_ref.map.graphics.clear();
-					map_ref.selectedLocation = { point: evnt.result.feature.geometry, address: evnt.result.name  };
-				});
-                on(map_ref.map, 'click', function (evt) {
-                    map_ref.map.graphics.clear();
-					searchLayer.clear();
-                    map_ref.map.graphics.add(new Graphic(evt.mapPoint, symbol));
-					map_ref.selectedLocation = { point: evt.mapPoint };
-                });
-            }
-
-            return map_ref;
-        };
-
-        function find_address(map, el) {
-			if(!map.selectedLocation){
-				$(el).val('');
-				$(el).data('location', null);
-				return;
-			}
-            var point = map.selectedLocation.point;
-			
-			if(map.selectedLocation.address){
-			    $(el).val(map.selectedLocation.address);
-                $(el).data('location', point);
-				check_route();
-			} else {
-				webPoint = webMercatorUtils.webMercatorToGeographic(point);
-
-				locator.locationToAddress(webPoint, 100).then(function (result) {
-					$(el).val(result.address.Match_addr);
-					$(el).data('location', point);
-
-					check_route();
-				});
-			}
-        };
-
         // When the user submits the application, one of the first things to do
         // is use the designated geometry service to chop up the route among
         // the designated authorities
         function divide_route(route) {
 
-            if (!route || !route.geometry) {
+            if (!route ) {
                 alert("No route selected.");
                 return;
             }
@@ -149,7 +95,7 @@
                 // permit authorities
                 var queryTask = new QueryTask(data[0].uri);
                 var query = new Query();
-                query.geometry = route.geometry;
+                query.geometry = route;
                 query.outFields = ["*"];
                 query.returnGeometry = true;
                 query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
@@ -179,98 +125,13 @@
 			});
 			return o;
 		};
-        // If both origin and destination have locations, route it
-        function check_route(barriers) {
-			//console.log(barriers);
-            var origin_pt = $('#movementinfo-origin').data('location');
-            var destination_pt = $('#movementinfo-destination').data('location');
 
-            if (origin_pt && destination_pt) {
-
-                // Ask UPP what service we should use for routing.  The UPP services API is responsible for acquiring any
-                // OAuth tokens that are needed for the service
-                var serviceLocator = sdUrl + "api/v1/hosts?type=route";
-                $.get(serviceLocator, function (records) {
-                    // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
-                    if (records.length === 0) {
-                        alert('The service locator did not return any services for routing');
-                        return;
-                    }
-
-                    var record = records[0];
-
-                    // Now ask for credentials
-                    var url = sdUrl + "api/v1/hosts/" + record.name + "/access";
-                    $.get(url, function (service) {
-                        if (!service.url) {
-                            alert('No route service access is configured');
-                            return;
-                        }
-
-                        if (service.url && service.isSecured && !service.token) {
-                            alert('Unable to aquire token to access secured routing service');
-                            return;
-                        }
-
-                        var routeTask = new RouteTask(service.url + "?token=" + service.token);
-                        var routeParams = new RouteParameters();
-                        routeParams.stops = new FeatureSet();
-                        routeParams.stops.features.push(new Graphic(origin_pt, null, {}));
-                        routeParams.stops.features.push(new Graphic(destination_pt, null, {}));
-						
-						if(barriers){
-							routeParams.polygonBarriers = new FeatureSet();
-							array.forEach(barriers, function(barrier){
-								routeParams.polygonBarriers.features.push(new Graphic(barrier, null, {}));
-							});
-						} else {
-							bridgeUtils.clearBarriers();
-						}
-                        routeTask.solve(routeParams).then(function (result) {
-                            routeResult = result.routeResults;
-
-                            // Show the route on the route map
-							route_map.graphics.clear();
-                            var routeSymbol = new SimpleLineSymbol().setColor(new dojo.Color([0, 0, 255, 0.5])).setWidth(5);
-                            array.forEach(result.routeResults, function (result) {
-                                route_map.graphics.add(result.route.setSymbol(routeSymbol));
-                                route_map.setExtent(result.route.geometry.getExtent().expand(1.5));
-                                divide_route(result.route);
-                            });
-                            bridgeUtils.forRoute(result.routeResults[0], sdUrl).then(function (bridges) {
-                                bridgeUtils.addToMap(bridges);
-								//var form = $("#permit-form");
-								bridgeUtils.addToForm(bridges);
-
-							});
-                            // Fill in the total miles traveled and the route description
-                            var firstRoute = result.routeResults[0];
-                            if (firstRoute) {
-                                $("#movementinfo-route-description").val(firstRoute.route.attributes['Name']);
-                                $("#movementinfo-total-route-length").val(firstRoute.route.attributes['Total_Miles']);
-                            }
-                        }, function(err){ alert(err.error.message);});
-                    });
-                });
-            }
-        };
-
-        $('#startLocationModal').on('shown.bs.modal', function () {
-            start_map = init_map('start-map', start_map, [-92.100487, 46.786671]);
-        });
-
-        $('#startLocationModal').on('hidden.bs.modal', function () {
-            find_address(start_map, '#movementinfo-origin');
-        });
-
-        $('#endLocationModal').on('shown.bs.modal', function () {
-            end_map = init_map('end-map', end_map, [-96.60645, 47.77423]);
-        });
-
-        $('#endLocationModal').on('hidden.bs.modal', function () {
-            find_address(end_map, '#movementinfo-destination');
-        });
-
+		function check_directions_route(){
+			directions.routeParams.polygonBarriers = new FeatureSet();
+			bridgeUtils.clearBarriers();
+			$('.esriDirectionsButton.esriStopsGetDirections').click();			
+		};
+		
         route_map = new Map('route-map', {
             basemap: "topo",
             center: [-94.8858, 47.4875],  // Bemidji 47.4875° N, 94.8858° W
@@ -310,9 +171,7 @@
 				form.submit();
 			});
 		}); 
-		$("#recalc-route").click(function(evt){
-			check_route(bridgeUtils.barriers);
-		});
+
 		$("#toggle-barriers").click(function (evt) {
 		    bridgeUtils.toggleBarriers();
 		});
@@ -328,9 +187,10 @@
 
 		   $('#truckinfo-dimension-summary').val(h + ' / ' + w + ' / ' + l);
 		   $('#truckinfo-overall-dimension-description').val('Len: ' + (l + of + or) + ' Wid: ' + (w + ort + ol));
-			check_route();
+
+			check_directions_route();
 		}
-		
+
 		$('#truckinfo-height').change(UpdateSummaries);
 		$('#truckinfo-width').change(UpdateSummaries);
 		$('#truckinfo-length').change(UpdateSummaries);
@@ -338,7 +198,75 @@
 		$('#truckinfo-rear-overhang').change(UpdateSummaries);
 		$('#truckinfo-left-overhang').change(UpdateSummaries);
 		$('#truckinfo-right-overhang').change(UpdateSummaries);
-		$('#truckinfo-total-gross-weight').change(function(evt){check_route();});
+		$('#truckinfo-total-gross-weight').change(function (evt) { check_directions_route(); });
+
+        // Ask UPP what service we should use for routing.  The UPP services API is responsible for acquiring any
+        // OAuth tokens that are needed for the service
+        var serviceLocator = sdUrl + "api/v1/hosts";
+		var directions;
+        $.get(serviceLocator, { type: "route" }, function (records) {
+            // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+            if (records.length === 0) {
+                alert('The service locator did not return any services for routing');
+                return;
+            }
+
+            var record = records[0];
+
+            // Now ask for credentials
+            var url = sdUrl + "api/v1/hosts/" + record.name + "/access";
+            $.get(url, function (service) {
+                if (!service.url) {
+                    alert('No route service access is configured');
+                    return;
+                }
+
+                if (service.url && service.isSecured && !service.token) {
+                    alert('Unable to aquire token to access secured routing service');
+                    return;
+                }
+
+                directions = new Directions({
+                    map: route_map,
+                    routeTaskUrl: service.url + "?token=" + service.token,
+                    showClearButton: true,
+					showTrafficOption: false,
+					showPrintPage: false
+                }, "route-directions");
+                directions.startup();
+				directions.on('directions-finish',function(rr){
+					
+					if(rr.result.routeResults){
+						divide_route(rr.result.routeResults[0].directions.mergedGeometry);
+						bridgeUtils.forRoute(rr.result.routeResults[0], sdUrl).then(function (bridges) {
+							
+							bridgeUtils.addToMap(bridges);
+							bridgeUtils.addToForm(bridges);
+							directions.routeParams.polygonBarriers = new FeatureSet();
+							array.forEach(bridgeUtils.barriers, function(barrier){
+								directions.routeParams.polygonBarriers.features.push(new Graphic(barrier, null, {}));
+							});
+
+						});
+						// Fill in the total miles traveled and the route description
+                        var firstRoute = rr.result.routeResults[0];
+                        if (firstRoute) {
+                            $("#movementinfo-route-description").val(firstRoute.directions.routeName);
+                            $("#movementinfo-total-route-length").val(firstRoute.directions.summary.totalLength);
+							
+							var stops = firstRoute.stops;
+							$("#movementinfo-origin").val(stops[0].attributes["Name"]);
+							$("#movementinfo-destination").val(stops[stops.length - 1].attributes["Name"]);
+                        }
+					}
+				});
+				directions.on('directions-clear',function(cr){
+					bridgeUtils.clearBarriers();
+					bridgeUtils.clearBridges();
+				});
+				directions.setTravelMode('Trucking Time');
+            });
+        });
     });
 
     // Ask the service locator to give us a UPP host that can provide company information.
