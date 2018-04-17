@@ -130,6 +130,9 @@
     <Content Include="Assets\Scripts\bridges.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Scripts\override\dijit\Directions.js" />
+    <Content Include="Assets\Scripts\override\tasks\NAServiceDescription.js" />
+    <Content Include="Assets\Scripts\override\tasks\RouteTask.js" />
     <Content Include="Assets\Scripts\permit.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
