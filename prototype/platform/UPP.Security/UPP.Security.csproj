@@ -63,6 +63,7 @@
     <Compile Include="Https.cs" />
     <Compile Include="IdentityProvider.cs" />
     <Compile Include="JoseNewtonsoftMapper.cs" />
+    <Compile Include="WebToken.cs" />
     <Compile Include="OAuth.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scopes.cs" />

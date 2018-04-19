@@ -51,6 +51,16 @@ namespace UPP.Security
         public string Scopes { get; set; }
     }
 
+    public sealed class TokenProviderConfig
+    {
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public string Url { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string Scopes { get; set; }
+    }
+
     public sealed class OAuthService
     {
         public OAuthService(string url)
