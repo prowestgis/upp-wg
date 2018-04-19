@@ -20,8 +20,9 @@ namespace ServiceDirectory
             base.Initialize();
 
             // Populate the database with initial data
-            ImportTableFromCSV(@"App_Data\MICROSERVICES.csv", "MicroServiceProviders");
             ImportTableFromCSV(@"App_Data\OAUTH.csv", "OAuth2Providers");
+            ImportTableFromCSV(@"App_Data\TOKEN.csv", "TokenProviders");
+            ImportTableFromCSV(@"App_Data\MICROSERVICES.csv", "MicroServiceProviders");
         }
 
         public MicroServiceProviderConfig FindMicroServiceProviderByName(string name)
@@ -38,6 +39,12 @@ namespace ServiceDirectory
         {
             return OAuthProviders.FirstOrDefault(x => x.Name == service.OAuthId);
         }
+
+        public TokenProviderConfig FindTokenProviderForService(MicroServiceProviderConfig service)
+        {
+            return TokenProviders.FirstOrDefault(x => x.Name == service.TokenId);
+        }
+
 
         public object RegisterService(ServiceRegistrationRecord record)
         {
@@ -120,6 +127,28 @@ namespace ServiceDirectory
             }
         }
 
+        private IEnumerable<TokenProviderConfig> TokenProviders
+        {
+            get
+            {
+                using (var conn = SimpleDbConnection())
+                {
+                    return conn.Query<TokenProviderConfig>(@"
+                    SELECT
+                        provider_id AS Name,
+                        display_name AS DisplayName,
+                        token_url AS Url,
+                        token_username AS Username,
+                        token_password AS Password,
+                        scopes AS Scopes
+                    FROM TokenProviders
+                    WHERE Active = 1
+                    "
+                    );
+                }
+            }
+        }
+
         private IEnumerable<OAuthProviderConfig> OAuthProviders
         {
             get
@@ -152,6 +181,7 @@ namespace ServiceDirectory
                             provider_id AS Name,
                             display_name AS DisplayName,
                             oauth_provider_id as OAuthId,
+                            token_provider_id as TokenId,
                             uri AS Uri,
                             service_type AS Type,
                             service_priority AS Priority,
@@ -171,6 +201,7 @@ namespace ServiceDirectory
         public string Name { get; set; }
         public string DisplayName { get; set; }
         public string OAuthId { get; set; }
+        public string TokenId { get; set; }
         public string Uri { get; set; }
         public string Type { get; set; }
         public string Scopes { get; set; }

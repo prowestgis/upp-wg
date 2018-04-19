@@ -88,6 +88,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="App_Data\TOKEN.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App_Data\OAUTH.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

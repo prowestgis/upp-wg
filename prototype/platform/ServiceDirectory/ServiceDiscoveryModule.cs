@@ -98,9 +98,19 @@ namespace ServiceDirectory
             if (oauth != null)
             {
                 logger.Debug("Fetching token for {0}", oauth.Name);
-                var token = UPP.Security.OAuth.GetToken(oauth);
-                logger.Debug("Got token {0}", token);
-                return Response.AsJson(new ServiceAccessRecord(service, token));
+                var oauth_token = UPP.Security.OAuth.GetToken(oauth);
+                logger.Debug("Got token {0}", oauth_token);
+                return Response.AsJson(new ServiceAccessRecord(service, oauth_token));
+            }
+
+            // See if the service is secured with a regular token endpoint
+            var token = database.FindTokenProviderForService(service);
+            if (token != null)
+            {
+                logger.Debug("Fetching token for {0}", token.Name);
+                var web_token = UPP.Security.WebToken.GetToken(token);
+                logger.Debug("Got token {0}", web_token);
+                return Response.AsJson(new ServiceAccessRecord(service, web_token));
             }
 
             return Response.AsJson(new ServiceAccessRecord(service));
