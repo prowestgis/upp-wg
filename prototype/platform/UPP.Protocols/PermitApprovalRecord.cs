@@ -17,14 +17,18 @@ namespace UPP.Protocols
         public string Status { get; set; }
 
         // Identify the source of the approval
-        public string Identifier { get; set; }
+        public string Authority { get; set; }
+
+        // Receipt is an opaque data record returned by the authority.
+        public string Receipt { get; set; }
     }
 
     public static class PermitApprovalStatus
     {
-        public const string APPROVED = "Approved";
-        public const string DENIED = "Denied";
-        public const string NA = "Not Applicable";
+        public const string APPROVED = "approved";
+        public const string DENIED = "denied";
+        public const string NO_AUTHORITY = "no_authority";
+        public const string UNDER_REVIEW = "under_review";
 
         public static string RANDOM
         {
@@ -34,7 +38,8 @@ namespace UPP.Protocols
                 var rnd = RNG.Next(1, 4);
                 if (rnd == 1) return APPROVED;
                 if (rnd == 2) return DENIED;
-                return NA;
+                if (rnd == 3) return UNDER_REVIEW;
+                return NO_AUTHORITY;
             }
         }
     }
