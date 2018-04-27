@@ -1,0 +1,9 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.PermitView.LoadInfo>
+@using Upp.Common.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Load Information</legend>
+    @Html.GroupItem(Model.Description, new GroupItemProperties("Description") { label = "Description" })
+</fieldset>

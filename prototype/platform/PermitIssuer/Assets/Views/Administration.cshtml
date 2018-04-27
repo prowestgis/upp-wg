@@ -1,0 +1,112 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.PermitModule.AdministrativeView>
+
+@{
+    Layout = null;
+}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/images/favicon.ico">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+    <title>UPP Prototype</title>
+
+    <!-- Styling content -->
+    <link href="../css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Animation library for notifications   -->
+    <link href="../css/bootstrap/animate.min.css" rel="stylesheet" />
+
+    <!--  Light Bootstrap Table core CSS    -->
+    <link href="../css/bootstrap/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet" />
+
+    <!--  CSS for Demo Purpose, don't include it in your project     -->
+    <link href="../css/app.css" rel="stylesheet" />
+
+    <!--  Fonts and icons     -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
+
+    <!-- Bootstrap Data Table -->
+    <link href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link href="//cdn.datatables.net/buttons/1.5.1/css/buttons.bootstrap.min.css" rel="stylesheet">
+    <link href="//cdn.datatables.net/select/1.2.5/css/select.bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="sidebar" data-color="blue">
+            <div class="sidebar-wrapper">
+                <div class="logo">
+                    Dashboard
+                </div>
+                <ul class="nav">
+                    <li>
+                        <a href="../">
+                            <i class="pe-7s-config"></i>
+                            <p>Configuration</p>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="admin.html">
+                            <i class="pe-7s-key"></i>
+                            <p>Administration</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-panel">
+            <div class="content">
+                <div class="container-fluid">
+                    <table id="permits" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Permit Id</th>
+                                <th>Application Date</th>
+                                <th>Hauler Email</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var permit in Model.Permits)
+                            {
+                                <tr>
+                                    <td>@permit.PermitId</td>
+                                    <td>@permit.ApplicationDate</td>
+                                    <td>@permit.HaulerEmail</td>
+                                    <td>@permit.PermitStatus</td>
+                                    <td><a href="@(String.Format("{0}/edit", permit.PermitId))"><span class="pe-7s-link"></span></a></td>
+                                </tr>
+                            }
+                        </tbody>                        
+                    </table>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="container-fluid">
+                    <p class="copyright pull-right">
+                        &copy;
+                        <script>document.write(new Date().getFullYear())</script>
+                    </p>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script src="//code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+    <script src="//cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="//cdn.datatables.net/buttons/1.5.1/js/buttons.bootstrap.min.js"></script>
+    <script src="//cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $('#permits').DataTable();
+        });
+    </script>
+</body>
+</html>

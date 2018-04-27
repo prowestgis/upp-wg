@@ -1,0 +1,11 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.PermitView.InsuranceInfo>
+@using Upp.Common.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Insurance Information</legend>
+    @Html.GroupItem(Model.Provider, new GroupItemProperties("Provider") { label = "Insurance Provider" })
+    @Html.GroupItem(Model.AgencyAddress, new GroupItemProperties("AgencyAddress"){ label = "Agency Address" })
+    @Html.GroupItem(Model.PolicyNumber, new GroupItemProperties("PolicyNumber"){ label = "Policy Number" })
+</fieldset>

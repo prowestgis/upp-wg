@@ -1,0 +1,105 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.PermitView>
+
+@using Upp.Common.Helpers
+@{
+    Layout = null;
+}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/images/favicon.ico">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+    <title>UPP Prototype</title>
+
+    <!-- Styling content -->
+    <link href="../../css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Animation library for notifications   -->
+    <link href="../../css/bootstrap/animate.min.css" rel="stylesheet" />
+
+    <!--  Light Bootstrap Table core CSS    -->
+    <link href="../../css/bootstrap/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet" />
+
+    <!--  CSS for Demo Purpose, don't include it in your project     -->
+    <link href="../css/app.css" rel="stylesheet" />
+
+    <!--  Fonts and icons     -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+    <link href="../../css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="//js.arcgis.com/3.23/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="//js.arcgis.com/3.23/esri/css/esri.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="sidebar" data-color="blue">
+            <div class="sidebar-wrapper">
+                <ul class="nav">
+                    <li>
+                        <a href="../../">
+                            <i class="pe-7s-graph"></i>
+                            <p>Configuration</p>
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="../admin.html">
+                            <i class="pe-7s-car"></i>
+                            <p>Permits</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-panel">
+            <nav class="navbar navbar-default navbar-fixed">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation-example-2">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">Permit Review</a>
+                    </div>
+
+                </div>
+            </nav>
+
+            <div class="content">
+                <div class="container-fluid">
+                    <form id="permit-form" target="_blank" action="api/permit" class="form-horizontal" method="post">
+                        @Html.Partial("Permit/Hauler", Model.Hauler)
+                        @Html.Partial("Permit/Company", Model.Company)
+                        @Html.Partial("Permit/Insurance", Model.Insurance)
+                        @Html.Partial("Permit/Vehicle", Model.Vehicle)
+                        @Html.Partial("Permit/Truck", Model.Truck)
+                        @Html.Partial("Permit/Trailer", Model.Trailer)
+                        @Html.Partial("Permit/Load", Model.Load)
+                        @Html.Partial("Permit/Movement", Model.Movement)
+                        <button id="request-permit" type="button">Update Permit</button>
+                    </form>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="container-fluid">
+                    <p class="copyright pull-right">
+                        &copy;
+                        <script>document.write(new Date().getFullYear())</script>
+                    </p>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script src="../../js/jquery.3.2.1.min.js"></script>
+    <script src="../../js/bootstrap/bootstrap.min.js"></script>
+    <script src="//js.arcgis.com/3.23/"></script>
+    <script src="../../js/permit.js"></script>
+</body>
+</html>
