@@ -41,9 +41,46 @@ namespace CompanyInformation
             // Provide a view for configuring the issuer's behavior
             Get["/"] = _ => View["Index", new MainViewModel { Configuration = config }];
             Get["/data/query"] = _ => Response.AsJson(QueryDatabase(database));
+            Get["/users/query"] = _ => Response.AsJson(QueryUsers(database));
+        }
+
+        private object QueryUsers(Database database)
+        {
+            var qs = Context.Request.Query;
+
+            int start = qs.start;
+            int length = qs.length;
+
+            return Query(database, database.Users(start, length).Select(x => new object[]
+                {
+                    x.Email,
+                    x.Companies
+                })
+            );
         }
 
         private object QueryDatabase(Database database)
+        {
+            var qs = Context.Request.Query;
+
+            int start = qs.start;
+            int length = qs.length;
+
+            return Query(database, database.Query(start, length).Select(x => new object[]
+                {
+                    x.CompanyName,
+                    x.Email,
+                    x.Contact,
+                    x.Phone,
+                    x.Fax,
+                    x.Cell,
+                    x.BillTo,
+                    x.BillingAddress
+                })
+            );
+        }
+
+        private object Query(Database database, IEnumerable<object> items)
         {
             // Fetch the passed parameters
             var qs = Context.Request.Query;
@@ -60,18 +97,9 @@ namespace CompanyInformation
                 Draw = draw,
                 RecordsTotal = total,
                 RecordsFiltered = filtered,
-                Data = database.Query(start, length).Select(x => new object[]
-                {
-                    x.CompanyName,
-                    x.Email,
-                    x.Contact,
-                    x.Phone,
-                    x.Fax,
-                    x.Cell,
-                    x.BillTo,
-                    x.BillingAddress
-                })
+                Data = items
             };
         }
+
     }
 }

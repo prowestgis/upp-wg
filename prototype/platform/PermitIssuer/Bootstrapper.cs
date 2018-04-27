@@ -22,11 +22,18 @@ namespace PermitIssuer
         protected override void ConfigureApplicationContainer(TinyIoCContainer container)
         {
             base.ConfigureApplicationContainer(container);
+
+            // Register the database
+            container.Register<Database>();
         }
 
         protected override void ApplicationStartup(TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
         {
             base.ApplicationStartup(container, pipelines);
+
+            // Initialize the database
+            logger.Debug("ApplicationStartup: Initializing the database");
+            container.Resolve<Database>().Initialize();
 
             // Register a callback so we can periodically try to register ourselves with the Service Directory.  This is
             // am improper hijack of the request pipeline, but *much* easier than setting up a real background monitor task

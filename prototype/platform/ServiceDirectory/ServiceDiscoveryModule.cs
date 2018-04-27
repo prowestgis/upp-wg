@@ -71,7 +71,7 @@ namespace ServiceDirectory
             Get["get_service", "/{name}/access"] = _ => AccessHost(database, _.name);
         }
 
-        private Response ListHosts(Database database, string type, string scope)
+        private Response ListHosts(Database database, string type, string scope, string authority)
         {
             return Response.AsJson(database.FindMicroServiceProviderByType(type).Where(x => scope == null || x.Scopes.Contains(scope)).ToList());
         }

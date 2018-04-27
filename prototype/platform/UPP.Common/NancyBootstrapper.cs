@@ -41,6 +41,9 @@ namespace UPP.Common
 
             // Wire up a default claims provider
             container.Register<IAdditionalClaimProvider, DefaultAdditionalClaimProvider>();
+
+            // Perform some basic validation on the configuration
+            container.Resolve<HostConfigurationSection>().Validate();
         }
 
         protected override void ApplicationStartup(TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)

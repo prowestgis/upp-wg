@@ -127,6 +127,38 @@ namespace CompanyInformation
             }
         }
 
+        public IEnumerable<dynamic> Users(int start, int length)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                return conn.Query<dynamic>(@"
+                    SELECT
+                        user_email AS Email,
+                        
+
+                        contact AS Contact,
+                        phone AS Phone,
+                        fax AS Fax,
+                        cell AS Cell,
+                        bill_to AS BillTo,
+                        billing_address AS BillingAddress
+                    FROM Users U
+                    JOIN CompanyInformation CI
+                    ON U.company_id = CI.company_id
+                    WHERE user_email NOT IN (
+                        SELECT user_email
+                        FROM Users
+                        ORDER BY user_email LIMIT @Start
+                    )
+                    ORDER BY user_email
+                    LIMIT @Length
+                    ",
+                    new { Start = start, Length = length }
+                    );
+            }
+        }
+
+
         public IEnumerable<dynamic> FindCompanyInfoForUser(IUserIdentity identity)
         {
             // First, check if this user exists it the database.  If not, this is for prototyping, so

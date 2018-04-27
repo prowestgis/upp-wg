@@ -26,18 +26,40 @@ namespace UPP.Configuration
         
         public sealed class DataStoreOptions
         {
+            public DataStoreOptions(string databaseFile, string schemaFile)
+            {
+                DeleteDatabaseOnStartup = true;
+                CreateDatabaseOnStartup = true;
+                DatabaseFile = databaseFile;
+                SchemaFile = schemaFile;
+            }
+
+            public DataStoreOptions(string databaseFile, string schemaFile, HostConfigurationSection config)
+            {
+                DeleteDatabaseOnStartup = config.Keyword<bool>(Keys.DATABASE__DELETE_ON_STARTUP);
+                CreateDatabaseOnStartup = config.Keyword<bool>(Keys.DATABASE__CREATE_ON_STARTUP);
+                DatabaseFile = config.Keyword(Keys.DATABASE__FILE, () => databaseFile);
+                SchemaFile = config.Keyword(Keys.DATABASE__SCHEMA, () => schemaFile);
+            }
+
             public DataStoreOptions(HostConfigurationSection config)
             {
                 DeleteDatabaseOnStartup = config.Keyword<bool>(Keys.DATABASE__DELETE_ON_STARTUP);
                 CreateDatabaseOnStartup = config.Keyword<bool>(Keys.DATABASE__CREATE_ON_STARTUP);
+                DatabaseFile = config.Keyword(Keys.DATABASE__FILE);
+                SchemaFile = config.Keyword(Keys.DATABASE__SCHEMA);
             }
 
             public DataStoreOptions()
             {
                 DeleteDatabaseOnStartup = true;
                 CreateDatabaseOnStartup = true;
+                DatabaseFile = null;
+                SchemaFile = null;
             }
 
+            public string DatabaseFile { get; set; }
+            public string SchemaFile { get; set; }
             public bool DeleteDatabaseOnStartup { get; set; }
             public bool CreateDatabaseOnStartup { get; set; }
         }
@@ -53,20 +75,28 @@ namespace UPP.Configuration
         }
 
         public DataStore(string databaseFile, string schemaFile, HostConfigurationSection config)
-            : this(databaseFile, schemaFile, new DataStoreOptions(config))
+            : this(new DataStoreOptions(databaseFile, schemaFile, config))
         {            
         }
 
-        public DataStore(string databaseFile, string schemaFile, DataStoreOptions options = null)
+        public DataStore(string databaseFile, string schemaFile)
+            : this(new DataStoreOptions(databaseFile, schemaFile))
         {
+        }
+
+        public DataStore(DataStoreOptions options)
+        {
+            var databaseFile = options.DatabaseFile;
+            var schemaFile = options.SchemaFile;
+
             if (String.IsNullOrEmpty(databaseFile))
             {
-                throw new ArgumentException("Database name is not specified", "databaseName");
+                throw new ArgumentException("Database name is not specified");
             }
 
             if (String.IsNullOrEmpty(schemaFile))
             {
-                throw new ArgumentException("Schema file is not specified", "schemaFile");
+                throw new ArgumentException("Schema file is not specified");
             }
 
             if (options == null)

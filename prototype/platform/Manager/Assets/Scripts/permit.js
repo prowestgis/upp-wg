@@ -123,6 +123,10 @@
 					o[this.name] = this.value || '';
 				}
 			});
+
+		    // Add in the barriers and stops from the map
+
+            // Add in any extra datasets that have been queried, e.g. bridges, restrictions, etc.
 			return o;
 		};
 

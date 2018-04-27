@@ -1,4 +1,4 @@
-﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.WebModule.WebModuleViewModel>
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.WebModule.ActivePermitView>
 @{
     Layout = null;
 }
@@ -34,14 +34,14 @@
                     Permit Issuer Setup
                 </div>
                 <ul class="nav">
-                    <li class="active">
-                        <a href="#">
+                    <li>
+                        <a href="">
                             <i class="pe-7s-config"></i>
                             <p>Configuration</p>
                         </a>
                     </li>
-                    <li>
-                        <a href="permits">
+                    <li class="active">
+                        <a href="#">
                             <i class="pe-7s-folder"></i>
                             <p>Permits</p>
                         </a>
@@ -62,52 +62,31 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-12">
-                            <h4>Fixed Configuration Parameters</h4>
-                            <table class="table">
+                            <h4>Permits</h4>
+                            <table id="data" class="table table-full-width">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Status</th>
+                                        <th>Applicant</th>
+                                        <th>Hauling Date</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Scope</td>
-                                        <td>@Model.Configuration.Keyword(UPP.Configuration.Keys.SERVICE_DIRECTORY__SCOPES)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Self URI</td>
-                                        <td>@Model.Configuration.Keyword(UPP.Configuration.Keys.SERVICE_DIRECTORY__HOST_URI)</td>
-                                    </tr>
+                                    @foreach (var container in Model.Permits)
+                                    {
+                                        <tr>
+                                            <td>@container.Id</td>
+                                            <td>@container.Status</td>
+                                            <td>@container.Permit.Hauler.Name</td>
+                                            <td>@container.Permit.Movement.StartDate</td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12">
-                            <h4>Service Behavior</h4>
-                            <form role="form" method="post" action="">
-                                <div class="form-group">
-                                    <label>
-                                        <input type="radio" name="behavior" value="always" @(Model.ModuleConfiguration.Behavior == "always" ? "checked" : "")>
-                                        Always Approve
-                                    </label>
-                                </div>
-                                <div class="form-group">
-                                    <label>
-                                        <input type="radio" name="behavior" value="never" @(Model.ModuleConfiguration.Behavior == "never" ? "checked" : "")>
-                                        Always Deny
-                                    </label>
-                                </div>
-                                <div class="form-group">
-                                    <label>
-                                        <input type="radio" name="behavior" value="na" @(Model.ModuleConfiguration.Behavior == "na" ? "checked" : "")>
-                                        Always N/A
-                                    </label>
-                                </div>
-                                <div class="form-group">
-                                    <label>
-                                        <input type="radio" name="behavior" value="random" @(Model.ModuleConfiguration.Behavior == "random" ? "checked" : "")>
-                                        Randomly Choose
-                                    </label>
-                                </div>
-                                <button type="submit" class="btn btn-default">Update</button>
-                            </form>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -123,6 +102,6 @@
         </div>
     </div>
     <script src="js/jquery.3.2.1.min.js"></script>
-    <script src="js/bootstrap/bootstrap.min.js"></script>    
+    <script src="js/bootstrap/bootstrap.min.js"></script>
 </body>
 </html>

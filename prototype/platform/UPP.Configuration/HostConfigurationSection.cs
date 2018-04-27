@@ -1,5 +1,6 @@
 ﻿namespace UPP.Configuration
 {
+    using NLog;
     using System;
     using System.Collections.Generic;
     using System.Configuration;
@@ -16,6 +17,8 @@
         public const string SERVICE_DIRECTORY__SCOPES = "ServiceDirectory:Scopes";
         public const string UPP__ADMINISTRATORS = "UPP:Administrators";
 
+        public const string DATABASE__FILE = "Database:File";
+        public const string DATABASE__SCHEMA = "Database:Schema";
         public const string DATABASE__DELETE_ON_STARTUP = "Database:DeleteOnStartup";
         public const string DATABASE__CREATE_ON_STARTUP = "Database:CreateOnStartup";
 
@@ -30,7 +33,9 @@
             { SELF__IDENTIFIER, null },
             { UPP__ADMINISTRATORS, "" },
             { DATABASE__DELETE_ON_STARTUP, "true" },
-            { DATABASE__CREATE_ON_STARTUP, "true" }
+            { DATABASE__CREATE_ON_STARTUP, "true" },
+            { DATABASE__FILE, null },
+            { DATABASE__SCHEMA, null }
         };
 
         // Get a command line argument.
@@ -48,6 +53,18 @@
     public class HostConfigurationSection : ConfigurationSection
     {
         private static IDictionary<string, Func<string>> UserDefaultValues = new Dictionary<string, Func<string>>();
+        protected static Logger logger = LogManager.GetCurrentClassLogger();
+
+        public void Validate()
+        {
+            foreach (var keyword in Keywords)
+            {
+                if (!Keys.DefaultValues.ContainsKey(keyword.Key))
+                {
+                    logger.Warn("Configuration keyword '{0}' has no internal default value", keyword.Key);
+                }
+            }
+        }
 
         public void SetDefaultValue(string key, Func<string> defaultValue)
         {

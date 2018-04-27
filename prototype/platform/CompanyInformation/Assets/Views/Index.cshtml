@@ -30,6 +30,7 @@
         <link href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" rel="stylesheet">
         <link href="//cdn.datatables.net/buttons/1.5.1/css/buttons.bootstrap.min.css" rel="stylesheet">
         <link href="//cdn.datatables.net/select/1.2.5/css/select.bootstrap.min.css" rel="stylesheet">
+        <link href="//editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css" rel="stylesheet">
     </head>
 <body>
     <div class="wrapper">
@@ -78,25 +79,39 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <table id="data" class="table table-full-width">
+                            <h4>Company Information</h4>
+                            <table id="users" class="table table-full-width">
                                 <thead>
                                     <tr>
-                                        <th>Company Name</th>
                                         <th>Email</th>
-                                        <th>Contact</th>
-                                        <th>Phone</th>
-                                        <th>Fax</th>
-                                        <th>Cell</th>
-                                        <th>Bill To</th>
-                                        <th>Billing Address</th>
+                                        <th>Companies</th>
                                     </tr>
                                 </thead>
                             </table>
                         </div>
                     </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4>Company Information</h4>
+                                <table id="data" class="table table-full-width">
+                                    <thead>
+                                        <tr>
+                                            <th>Company Name</th>
+                                            <th>Email</th>
+                                            <th>Contact</th>
+                                            <th>Phone</th>
+                                            <th>Fax</th>
+                                            <th>Cell</th>
+                                            <th>Bill To</th>
+                                            <th>Billing Address</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
                 </div>
             </div>
-                                
+
             <footer class="footer">
                 <div class="container-fluid">
                     <p class="copyright pull-right">
@@ -114,12 +129,58 @@
     <script src="//cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
     <script src="//cdn.datatables.net/buttons/1.5.1/js/buttons.bootstrap.min.js"></script>
     <script src="//cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js"></script>
+    <script src="//editor.datatables.net/extensions/Editor/js/dataTables.editor.min.js"></script>
     <script>
         $(document).ready(function () {
+            var editor = editor = new $.fn.dataTable.Editor({
+                ajax: "data/query",
+                table: "#data",
+                fields: [{
+                    label: "First name:",
+                    name: "first_name"
+                }, {
+                    label: "Last name:",
+                    name: "last_name"
+                }, {
+                    label: "Position:",
+                    name: "position"
+                }, {
+                    label: "Office:",
+                    name: "office"
+                }, {
+                    label: "Extension:",
+                    name: "extn"
+                }, {
+                    label: "Start date:",
+                    name: "start_date",
+                    type: "datetime"
+                }, {
+                    label: "Salary:",
+                    name: "salary"
+                }
+                ]
+            });
+
             var table = $('#data').DataTable({
                 "processing": true,
                 "serverSide": true,
-                "ajax": "data/query"
+                "ajax": "data/query",
+                "columns": [
+                    { data: "companyName" },
+                    { data: "email" },
+                    { data: "contact" },
+                    { data: "phone" },
+                    { data: "fax" },
+                    { data: "cell" },
+                    { data: "billTo" },
+                    { data: "billingAddress" }
+                ],
+                "select": true,
+                buttons: [
+                    { extend: "create", editor: editor },
+                    { extend: "edit", editor: editor },
+                    { extend: "remove", editor: editor }
+                ]
             });
         });
     </script>

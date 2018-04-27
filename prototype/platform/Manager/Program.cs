@@ -30,6 +30,14 @@ namespace Manager
             // Prevent .Net 4.6 from trying to use SSLv3
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
+            // Hack for testing.
+            if (args.Length > 0)
+            {
+                var publicKey = UPP.Security.Https.GetPublicKeyFromUrl(args[0]);
+                Console.WriteLine(String.Concat(Array.ConvertAll(publicKey, x => x.ToString("X2"))));
+                return;
+            }
+
             // Load the configuration
             var config = ConfigurationManager.GetSection("upp") as HostConfigurationSection;
             StartServer(config);
