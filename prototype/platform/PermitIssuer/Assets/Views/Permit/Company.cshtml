@@ -1,0 +1,14 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.PermitView.CompanyInfo>
+@using Upp.Common.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Company Information</legend>
+    @Html.GroupItem(Model.Name, new GroupItemProperties("Name") { label = "Name" })
+    @Html.GroupItem(Model.Address, new GroupItemProperties("Address") { label = "Address" })
+    @Html.GroupItem(Model.Email, new GroupItemProperties("Email") { label = "Email", inputType = GroupItemProperties.InputType.EMAIL})
+    @Html.GroupItem(Model.Contact, new GroupItemProperties("Contact") { label = "Contact" })
+    @Html.GroupItem(Model.Phone, new GroupItemProperties("Phone") { label = "Phone" })
+    @Html.GroupItem(Model.Fax, new GroupItemProperties("Fax") { label = "Fax" })
+</fieldset>

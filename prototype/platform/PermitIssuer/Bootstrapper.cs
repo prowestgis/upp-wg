@@ -24,6 +24,7 @@ namespace PermitIssuer
             base.ConfigureApplicationContainer(container);
 
             // Register the database
+            logger.Debug("Registering database singleton");
             container.Register<Database>();
         }
 

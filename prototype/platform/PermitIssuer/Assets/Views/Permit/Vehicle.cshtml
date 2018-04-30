@@ -1,0 +1,15 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.PermitView.VehicleInfo>
+@using Upp.Common.Helpers
+@{
+    Layout = null;
+}
+<fieldset>
+    <legend>Vehicle Information</legend>
+    @Html.GroupItem(Model.Make, new GroupItemProperties("Make") { label = "Make" })
+    @Html.GroupItem(Model.Type, new GroupItemProperties("Type") { label = "Type" })
+    @Html.GroupItem(Model.License, new GroupItemProperties("License") { label = "License Number" })
+    @Html.GroupItem(Model.State, new GroupItemProperties("State") { label = "State" })
+    @Html.GroupItem(Model.SerialNumber, new GroupItemProperties("SerialNumber") { label = "Truck Serial Number" })
+    @Html.GroupItem(Model.USDOTNumber, new GroupItemProperties("USDOTNumber") { label = "USDOT Number" })
+    @Html.GroupItem(Model.EmptyWeight, new GroupItemProperties("EmptyWeight") { label = "Empty Weight", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0 }, suffix = GroupItemProperties.Suffixes.POUNDS })
+</fieldset>
