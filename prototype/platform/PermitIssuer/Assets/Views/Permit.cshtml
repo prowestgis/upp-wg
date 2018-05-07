@@ -1,5 +1,5 @@
-﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.PermitView>
-
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<PermitIssuer.PermitApplication>
+@using UPP.Protocols
 @using Upp.Common.Helpers
 @{
     Layout = null;
@@ -46,7 +46,7 @@
                         </a>
                     </li>
                     <li class="">
-                        <a href="../admin.html">
+                        <a href="../">
                             <i class="pe-7s-car"></i>
                             <p>Permits</p>
                         </a>
@@ -73,15 +73,25 @@
 
             <div class="content">
                 <div class="container-fluid">
-                    <form id="permit-form" target="_blank" action="api/permit" class="form-horizontal" method="post">
-                        @Html.Partial("Permit/Hauler", Model.Hauler)
-                        @Html.Partial("Permit/Company", Model.Company)
-                        @Html.Partial("Permit/Insurance", Model.Insurance)
-                        @Html.Partial("Permit/Vehicle", Model.Vehicle)
-                        @Html.Partial("Permit/Truck", Model.Truck)
-                        @Html.Partial("Permit/Trailer", Model.Trailer)
-                        @Html.Partial("Permit/Load", Model.Load)
-                        @Html.Partial("Permit/Movement", Model.Movement)
+                    <form id="permit-form" class="form-horizontal" method="post">
+                        @Html.Partial("Permit/Hauler", Model.Application.Hauler)
+                        @Html.Partial("Permit/Company", Model.Application.Company)
+                        @Html.Partial("Permit/Insurance", Model.Application.Insurance)
+                        @Html.Partial("Permit/Vehicle", Model.Application.Vehicle)
+                        @Html.Partial("Permit/Truck", Model.Application.Truck)
+                        @Html.Partial("Permit/Trailer", Model.Application.Trailer)
+                        @Html.Partial("Permit/Load", Model.Application.Load)
+                        @Html.Partial("Permit/Movement", Model.Application.Movement)
+                        <input type="hidden" name="route" id="saved-route" class="form-control" value="@Model.Application.Route" />
+                        <div class="form-group row">
+                            <div class="col-sm-offset-2 col-sm-8">
+                                <select class="form-control" name="status">
+                                    <option value="@PermitIssuer.PermitStatus.APPROVED">APPROVED</option>
+                                    <option value="@PermitIssuer.PermitStatus.REJECTED">REJECTED</option>
+                                    <option value="@PermitIssuer.PermitStatus.UNDER_REVIEW">UNDER REVIEW</option>
+                                </select>
+                            </div>
+                        </div>
                         <button id="request-permit" type="button">Update Permit</button>
                     </form>
                 </div>

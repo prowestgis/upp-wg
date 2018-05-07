@@ -58,10 +58,14 @@ define([
 							def.reject('Unable to aquire token to access secured service');
                             return;
                         }
-						
+
 						// Intersect the route geometry with the service layer and get a collection of
 						// permit authorities
-						var queryTask = new QueryTask(service.url + "/0?token=" + service.token);
+						var queryUrl = service.url + "/0";
+						if(service.isSecured){
+							queryUrl += "?token=" + service.token;
+						}
+						var queryTask = new QueryTask(queryUrl);
 						var query = new Query();
 						query.geometry = GeometryEngine.geodesicBuffer(route.directions.mergedGeometry, 10, 'feet', true);
 						query.outFields = ["BRKEY","RoadWidth","VERT_CLEAR","RECORD_TYPE","FEATINT","FACILITY","LOCATION","ALTIRMETH", "LoadRating"];
@@ -133,12 +137,13 @@ define([
 			
             var self = this;
 			
+			var load = {
+				weight: Number(document.getElementById("truckInfo.grossWeight").value),
+				width: Number(document.getElementById("truckInfo.width").value) + Number(document.getElementById("truckInfo.rightOverhang").value)  / 12 + Number(document.getElementById("truckInfo.leftOverhang").value) / 12,
+				height: Number(document.getElementById("truckInfo.height").value)
+			};
+			
             array.forEach(bridges, function (bridge) {
-				var load = {
-					weight: Number(document.getElementById("truckinfo-total-gross-weight").value),
-					width: Number(document.getElementById("truckinfo-width").value) + Number(document.getElementById("truckinfo-right-overhang").value)  / 12 + Number(document.getElementById("truckinfo-left-overhang").value) / 12,
-					height: Number(document.getElementById("truckinfo-height").value)
-				};
 				//console.log(load);
 				var status = self.validForLoad(bridge.attributes, load);
 				if(status.valid){

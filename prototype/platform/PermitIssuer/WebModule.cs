@@ -66,7 +66,7 @@ namespace PermitIssuer
                     .Select(x => new PermitApplicationContainer
                     {
                         Id = x.Id,
-                        Status = x.Status.ToString(),
+                        Status = PermitStatus.Text((int)x.Status),
                         Permit = (PermitApplicationRecord)Serializer.Deserialize(new StringReader(x.Data), typeof(PermitApplicationRecord))
                     })
                     .ToList();

@@ -43,6 +43,8 @@ namespace UPP.Protocols
         public TrailerInfo Trailer { get; set; }
         public LoadInfo Load { get; set; }
         public MovementInfo Movement { get; set; }
+
+        public string Route { get; set; }
     }
 
     // All of the fields from the UPP working group

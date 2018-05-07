@@ -72,7 +72,7 @@
             // Set the value of "Destination is within the applying County"
             // based on how many county authorities are returned.
             countyDef.then(function (result) {
-                $("input[name='movementinfoDestinationWithinApplyingCounty'").prop('checked', result.length === 1);
+                $("input[name='movementInfo.destinationWithinApplyingCounty'").prop('checked', result.length === 1);
             });
             var dl = new DeferredList([countyDef, getAuthorities("city.boundaries", "Name", route)]);
             dl.then(function (result) {
@@ -125,7 +125,7 @@
 			});
 
 		    // Add in the barriers and stops from the map
-
+			o.route = JSON.stringify({ "stops": directions.stops, "barriers": bridgeUtils.barriers });
             // Add in any extra datasets that have been queried, e.g. bridges, restrictions, etc.
 			return o;
 		};
@@ -146,7 +146,7 @@
 		
 		function submit_permit(authorityId){
 			var def = new Deferred();
-			$.get(serviceLocator, { type : "upp", scope: "permit.approval." + authorityId.replace(/\s+/g, '')}, function (data) { 
+			$.get(serviceLocator, { type : "upp", scope: "permit.approval." + authorityId.replace(/\s+/g, '').toLowerCase()}, function (data) { 
 				var form = $("#permit-form");
 				if(!data || data.length === 0){
 					// The service directory did not return a service for the permit authority
@@ -181,28 +181,28 @@
 		});
 		
 		function UpdateSummaries() { 
-			var h = parseInt($('#truckinfo-height').val(), 10);
-			var w = parseInt($('#truckinfo-width').val(), 10);
-			var l = parseInt($('#truckinfo-length').val(), 10);
-			var of = parseInt($('#truckinfo-front-overhang').val(), 10) / 12;
-			var or = parseInt($('#truckinfo-rear-overhang').val(), 10) / 12;
-			var ol = parseInt($('#truckinfo-left-overhang').val(), 10) / 12;
-			var ort = parseInt($('#truckinfo-right-overhang').val(), 10) / 12;
+			var h = parseInt($('#truckInfo\\.height').val(), 10);
+			var w = parseInt($('#truckInfo\\.width').val(), 10);
+			var l = parseInt($('#truckInfo\\.length').val(), 10);
+			var of = parseInt($('#truckInfo\\.frontOverhang').val(), 10) / 12;
+			var or = parseInt($('#truckInfo\\.rearOverhang').val(), 10) / 12;
+			var ol = parseInt($('#truckInfo\\.leftOverhang').val(), 10) / 12;
+			var ort = parseInt($('#truckInfo\\.rightOverhang').val(), 10) / 12;
 
-		   $('#truckinfo-dimension-summary').val(h + ' / ' + w + ' / ' + l);
-		   $('#truckinfo-overall-dimension-description').val('Len: ' + (l + of + or) + ' Wid: ' + (w + ort + ol));
+		   $('#truckInfo\\.dimensionSummary').val(h + ' / ' + w + ' / ' + l);
+		   $('#truckInfo\\.dimensionDescription').val('Len: ' + (l + of + or) + ' Wid: ' + (w + ort + ol));
 
 			check_directions_route();
 		}
 
-		$('#truckinfo-height').change(UpdateSummaries);
-		$('#truckinfo-width').change(UpdateSummaries);
-		$('#truckinfo-length').change(UpdateSummaries);
-		$('#truckinfo-front-overhang').change(UpdateSummaries);
-		$('#truckinfo-rear-overhang').change(UpdateSummaries);
-		$('#truckinfo-left-overhang').change(UpdateSummaries);
-		$('#truckinfo-right-overhang').change(UpdateSummaries);
-		$('#truckinfo-total-gross-weight').change(function (evt) { check_directions_route(); });
+		$('#truckInfo\\.height').change(UpdateSummaries);
+		$('#truckInfo\\.width').change(UpdateSummaries);
+		$('#truckInfo\\.length').change(UpdateSummaries);
+		//$('#truckinfo-front-overhang').change(UpdateSummaries);
+		//$('#truckinfo-rear-overhang').change(UpdateSummaries);
+		$('#truckInfo\\.leftOverhang').change(UpdateSummaries);
+		$('#truckinfo\\.rightOverhang').change(UpdateSummaries);
+		$('#truckInfo\\.grossWeight').change(function (evt) { check_directions_route(); });
 
         // Ask UPP what service we should use for routing.  The UPP services API is responsible for acquiring any
         // OAuth tokens that are needed for the service
@@ -255,12 +255,12 @@
 						// Fill in the total miles traveled and the route description
                         var firstRoute = rr.result.routeResults[0];
                         if (firstRoute) {
-                            $("#movementinfo-route-description").val(firstRoute.directions.routeName);
-                            $("#movementinfo-total-route-length").val(firstRoute.directions.summary.totalLength);
+                            $("#movementInfo\\.routeDescription").val(firstRoute.directions.routeName);
+                            $("#movementInfo\\.routeLength").val(firstRoute.directions.summary.totalLength);
 							
 							var stops = firstRoute.stops;
-							$("#movementinfo-origin").val(stops[0].attributes["Name"]);
-							$("#movementinfo-destination").val(stops[stops.length - 1].attributes["Name"]);
+							$("#movementInfo\\.origin").val(stops[0].attributes["Name"]);
+							$("#movementInfo\\.destination").val(stops[stops.length - 1].attributes["Name"]);
                         }
 					}
 				});
@@ -287,10 +287,9 @@
         // Got at least one provider, so use them to populate the company information drop-down
         var service = data[0];
         $.get(service.uri, function (companies) {
-            $.each(companies, function (index, company) {
+            $.each(companies, function (index, company) { 
                 var opt = $('<option>' + company.companyName + '</option>');
                 opt.data("company", company);
-
                 select.append(opt);
             });
         });
@@ -300,15 +299,14 @@
     select.change(function (evt) {
         var opt = select.find(":selected");
         var data = opt.data("company");
+
         if (data) {
-            $('#companyinfo-name').val(data.companyName);
-            $('#companyinfo-email').val(data.email);
-            $('#companyinfo-contact').val(data.contact);
-            $('#companyinfo-phone').val(data.phone);
-            $('#companyinfo-fax').val(data.fax);
-            $('#companyinfo-cell').val(data.cell);
-            $('#companyinfo-bill-to').val(data.billTo);
-            $('#companyinfo-billing-address').val(data.billingAddress);
+            $('#companyInfo\\.name').val(data.companyName);
+            $('#companyInfo\\.email').val(data.email);
+            $('#companyInfo\\.contact').val(data.contact);
+            $('#companyInfo\\.phone').val(data.phone);
+            $('#companyInfo\\.fax').val(data.fax);
+            $('#companyInfo\\.address').val(data.billingAddress);
         }
     });
 
@@ -340,9 +338,9 @@
         var data = opt.data("company");
         
         if (data) {
-            $('#insuranceinfo-insurance-provider').val(data.providerName);
-            $('#insuranceinfo-agency-address').val(data.agencyAddress);
-            $('#insuranceinfo-policy-number').val(data.policyNumber);
+            $('#insuranceInfo\\.provider').val(data.providerName);
+            $('#insuranceInfo\\.agencyAddress').val(data.agencyAddress);
+            $('#insuranceInfo\\.policyNumber').val(data.policyNumber);
         }
     });
 
@@ -374,16 +372,13 @@
         var data = opt.data("vehicle");
         
         if (data) {
-            $('#vehicleinfo-year').val(data.year);
-            $('#vehicleinfo-make').val(data.make);
-            $('#vehicleinfo-model').val(data.model);
-            $('#vehicleinfo-type').val(data.type);
-            $('#vehicleinfo-license-number').val(data.license);
-            $('#vehicleinfo-state').val(data.state);
-            $('#vehicleinfo-truck-serial-number').val(data.serialNumber);
-            $('#vehicleinfo-usdot-number').val(data.usdotNumber);
-            $('#vehicleinfo-empty-weight').val(data.emptyWeight);
-            $('#vehicleinfo-registered-weight').val(data.registedWeight);
+            $('#vehicleInfo\\.make').val(data.make);
+            $('#vehicleInfo\\.type').val(data.type);
+            $('#vehicleInfo\\.license').val(data.license);
+            $('#vehicleInfo\\.state').val(data.state);
+            $('#vehicleInfo\\.serialNumber').val(data.serialNumber);
+            $('#vehicleInfo\\.USDOTNumber').val(data.usdotNumber);
+            $('#vehicleInfo\\.emptyWeight').val(data.emptyWeight);
 
             // Ask the service locator to give us a UPP host that can provide truck information.
             var truckSelect = $("#truck-selector");
@@ -400,20 +395,17 @@
                     var index = $("#vehicle-selector").children('option:selected').index() -1;
                     if (trucks && trucks[index]) {
                         var truckData = trucks[index];
-                        $('#truckinfo-total-gross-weight').val(truckData.grossWeight);
-                        $('#truckinfo-empty-weight').val(truckData.emptyWeight);
-                        $('#truckinfo-registered-weight').val(truckData.registedWeight);
-                        $('#truckinfo-regulation-weight').val(truckData.regulationWeight);
-                        $('#truckinfo-dimension-summary').val(truckData.height + ' / ' + truckData.width + ' / ' + truckData.length);
-                        $('#truckinfo-overall-dimension-description').val('Len: ' + (truckData.length + truckData.frontOverhang + truckData.rearOverhang) + ' Wid: ' + (truckData.width + truckData.rightOverhang + truckData.leftOverhang));
-                        $('#truckinfo-height').val(truckData.height);
-                        $('#truckinfo-width').val(truckData.width);
-                        $('#truckinfo-length').val(truckData.length);
-                        $('#truckinfo-front-overhang').val(truckData.frontOverhang);
-                        $('#truckinfo-rear-overhang').val(truckData.rearOverhang);
-                        $('#truckinfo-left-overhang').val(truckData.leftOverhang);
-                        $('#truckinfo-right-overhang').val(truckData.rightOverhang).change();  // Fire a change event to update the bridges
-                        $('#truckinfo-diagram').val(truckData.diagram);
+                        $('#truckInfo\\.grossWeight').val(truckData.grossWeight);
+                        $('#truckInfo\\.dimensionSummary').val(truckData.height + ' / ' + truckData.width + ' / ' + truckData.length);
+                        $('#truckInfo\\.dimensionDescription').val('Len: ' + (truckData.length + truckData.frontOverhang + truckData.rearOverhang) + ' Wid: ' + (truckData.width + truckData.rightOverhang + truckData.leftOverhang));
+                        $('#truckInfo\\.height').val(truckData.height);
+                        $('#truckInfo\\.width').val(truckData.width);
+                        $('#truckInfo\\.length').val(truckData.length);
+                        $('#truckInfo\\.frontOverhang').val(truckData.frontOverhang);
+                        $('#truckInfo\\.rearOverhang').val(truckData.rearOverhang);
+                        $('#truckInfo\\.leftOverhang').val(truckData.leftOverhang);
+                        $('#truckInfo\\.rightOverhang').val(truckData.rightOverhang).change();  // Fire a change event to update the bridges
+                        $('#truckInfo\\.diagram').val(truckData.diagram);
                     }
 
                 });
@@ -450,16 +442,15 @@
         var data = opt.data("trailer");
         
         if (data) {
-            $('#trailerinfo-description').val(data.description);
-            $('#trailerinfo-make').val(data.make);
-            $('#trailerinfo-model').val(data.model);
-            $('#trailerinfo-trailer-type').val(data.type);
-            $('#trailerinfo-serial-number').val(data.serialNumber);
-            $('#trailerinfo-license-number').val(data.license);
-            $('#trailerinfo-state').val(data.state);
-            $('#trailerinfo-empty-weight').val(data.emptyWeight);
-            $('#trailerinfo-registered-weight').val(data.registedWeight);
-            $('#trailerinfo-regulation-weight').val(data.registedWeight);
+            $('#trailerInfo\\.description').val(data.description);
+            $('#trailerInfo\\.make').val(data.make);
+            
+            $('#trailerInfo\\.type').val(data.type);
+            $('#trailerInfo\\.serialNumber').val(data.serialNumber);
+            $('#trailerInfo\\.licenseNumber').val(data.license);
+            $('#trailerInfo\\.state').val(data.state);
+            $('#trailerInfo\\.emptyWeight').val(data.emptyWeight);
+            
         }
     });
 

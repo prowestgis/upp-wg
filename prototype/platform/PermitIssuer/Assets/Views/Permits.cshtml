@@ -13,10 +13,10 @@
         <title>UPP Prototype</title>
 
         <!-- Styling content -->
-        <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+        <link href="../css/bootstrap/bootstrap.min.css" rel="stylesheet" />
 
         <!--  Light Bootstrap Table core CSS    -->
-        <link href="css/bootstrap/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet" />
+        <link href="../css/bootstrap/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet" />
 
         <!--  CSS for Demo Purpose, don't include it in your project     -->
         <!-- <link href="css/app.css" rel="stylesheet" /> -->
@@ -24,7 +24,12 @@
         <!--  Fonts and icons     -->
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <link href='//fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
-        <link href="css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
+        <link href="../css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
+
+        <!-- Bootstrap Data Table -->
+        <link href="//cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" rel="stylesheet">
+        <link href="//cdn.datatables.net/buttons/1.5.1/css/buttons.bootstrap.min.css" rel="stylesheet">
+        <link href="//cdn.datatables.net/select/1.2.5/css/select.bootstrap.min.css" rel="stylesheet">
     </head>
 <body>
     <div class="wrapper">
@@ -35,7 +40,7 @@
                 </div>
                 <ul class="nav">
                     <li>
-                        <a href="">
+                        <a href="../">
                             <i class="pe-7s-config"></i>
                             <p>Configuration</p>
                         </a>
@@ -63,13 +68,14 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Permits</h4>
-                            <table id="data" class="table table-full-width">
+                            <table id="data" class="table table-full-width table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th>Id</th>
                                         <th>Status</th>
                                         <th>Applicant</th>
                                         <th>Hauling Date</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -80,6 +86,7 @@
                                             <td>@container.Status</td>
                                             <td>@container.Permit.Hauler.Name</td>
                                             <td>@container.Permit.Movement.StartDate</td>
+                                            <td><a href="@(String.Format("{0}/edit", container.Id))"><span class="pe-7s-link"></span></a></td>
                                         </tr>
                                     }
                                 </tbody>
@@ -101,7 +108,17 @@
             </footer>
         </div>
     </div>
-    <script src="js/jquery.3.2.1.min.js"></script>
-    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="../js/jquery.3.2.1.min.js"></script>
+    <script src="../js/bootstrap/bootstrap.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+    <script src="//cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="//cdn.datatables.net/buttons/1.5.1/js/buttons.bootstrap.min.js"></script>
+    <script src="//cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $('#data').DataTable();
+        });
+    </script>
 </body>
 </html>

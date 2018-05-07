@@ -67,7 +67,7 @@ namespace ServiceDirectory
             this.RequiresAuthentication();
             // this.RequiresClaims(new[] { });
 
-            Get["default", "/"] = _ => ListHosts(database, Request.Query["type"], Request.Query["scope"]);
+            Get["default", "/"] = _ => ListHosts(database, Request.Query["type"], Request.Query["scope"], Request.Query["authority"]);
             Get["get_service", "/{name}/access"] = _ => AccessHost(database, _.name);
         }
 

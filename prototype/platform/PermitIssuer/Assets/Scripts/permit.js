@@ -16,12 +16,15 @@
         "esri/tasks/RouteTask",
         "esri/tasks/RouteParameters",
         "esri/tasks/FeatureSet",
+		"esri/geometry/Point",
+		"esri/geometry/Polygon",
         "esri/geometry/webMercatorUtils",
         "esri/symbols/SimpleMarkerSymbol",
         "esri/symbols/SimpleLineSymbol",
         "esri/graphic",
 		"esri/layers/GraphicsLayer",
         "dojo/_base/array",
+		"dojo/_base/lang",
 		"dojo/_base/Deferred",
 		"dojo/DeferredList",
 		"dojo/dom-construct", 
@@ -29,7 +32,7 @@
         "dojo/on",
 		"scripts/bridges",
         "dojo/domReady!"
-    ], function (Map, Directions, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, Deferred, DeferredList, domConstruct, dojoQuery, on, Bridges) {
+    ], function (Map, Directions, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, Point, Polygon, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, lang, Deferred, DeferredList, domConstruct, dojoQuery, on, Bridges) {
         var symbol = new SimpleMarkerSymbol({
             "color": [255, 255, 255, 64],
             "size": 12,
@@ -233,7 +236,22 @@
 					showTrafficOption: false,
 					showPrintPage: false
                 }, "route-directions");
-                directions.startup();
+                
+				var savedRoute = JSON.parse($("#saved-route").val());
+				directions.startup();
+				directions.on('load', function(loadEvt){
+					bridgeUtils.loadBarriers(savedRoute.barriers);
+					directions.routeParams.polygonBarriers = new FeatureSet();
+					array.forEach(savedRoute.barriers, function(barrier){
+						directions.routeParams.polygonBarriers.features.push(new Graphic(new Polygon(barrier.geometry), null, {}));
+					});
+					array.forEach(savedRoute.stops, function(stop){
+						directions.addStop(new Point(stop.feature.geometry));
+					});
+
+				});
+				
+				
 				directions.on('directions-finish',function(rr){
 					
 					if(rr.result.routeResults){
@@ -244,7 +262,7 @@
 							bridgeUtils.addToForm(bridges);
 							directions.routeParams.polygonBarriers = new FeatureSet();
 							array.forEach(bridgeUtils.barriers, function(barrier){
-								directions.routeParams.polygonBarriers.features.push(new Graphic(barrier, null, {}));
+								directions.routeParams.polygonBarriers.features.push(new Graphic(barrier.geometry, null, {}));
 							});
 
 						});

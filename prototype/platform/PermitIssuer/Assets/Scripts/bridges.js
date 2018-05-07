@@ -9,6 +9,7 @@ define([
     "esri/Color",
     "esri/InfoTemplate",
 	"esri/geometry/Circle",
+	"esri/geometry/Polygon",
     "esri/graphic",
     "esri/layers/GraphicsLayer",
 	"esri/symbols/SimpleFillSymbol",
@@ -20,7 +21,7 @@ define([
 	"esri/units"
 	
 ], function (declare, lang, array, Deferred, domConstruct, dojoQuery,
-        Color, InfoTemplate, Circle, Graphic, GraphicsLayer, SimpleFillSymbol, SimpleLineSymbol, SimpleMarkerSymbol, Query, QueryTask, GeometryEngine, Units) {
+        Color, InfoTemplate, Circle, Polygon, Graphic, GraphicsLayer, SimpleFillSymbol, SimpleLineSymbol, SimpleMarkerSymbol, Query, QueryTask, GeometryEngine, Units) {
 
     return declare(null,{
         layer: null,
@@ -30,6 +31,26 @@ define([
 		constructor: function(map, form){
 			this.map = map;
 			this.form = form;
+			if (!this.layer) {
+				this.barrierLayer = new GraphicsLayer();
+                this.barrierLayer.setInfoTemplate(new InfoTemplate("Barriers: ${BRKEY}", "${*}"));
+				this.map.addLayer(this.barrierLayer);
+
+				this.layer = new GraphicsLayer();
+                this.layer.setInfoTemplate(new InfoTemplate("Bridge: ${BRKEY}", "${*}"));
+                this.map.addLayer(this.layer);
+
+                this.bridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
+                                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                                            new Color([0, 0, 0]), 1),
+                                            new Color([0, 255, 0, 0.75]));
+				this.invalidBridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
+                                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 0, 0]), 1),
+                                            new Color([255, 255, 0, 0.75]));
+				this.barrierSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
+										new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+										new Color([0,0,0]), 2),new Color([255,0,0,0.75]));
+            }
 		},
         forRoute: function (route, sdUrl) {
 			
@@ -58,10 +79,14 @@ define([
 							def.reject('Unable to aquire token to access secured service');
                             return;
                         }
-						
+
 						// Intersect the route geometry with the service layer and get a collection of
 						// permit authorities
-						var queryTask = new QueryTask(service.url + "/0?token=" + service.token);
+						var queryUrl = service.url + "/0";
+						if(service.isSecured){
+							queryUrl += "?token=" + service.token;
+						}
+						var queryTask = new QueryTask(queryUrl);
 						var query = new Query();
 						query.geometry = GeometryEngine.geodesicBuffer(route.directions.mergedGeometry, 10, 'feet', true);
 						query.outFields = ["BRKEY","RoadWidth","VERT_CLEAR","RECORD_TYPE","FEATINT","FACILITY","LOCATION","ALTIRMETH", "LoadRating"];
@@ -108,37 +133,18 @@ define([
 			return { valid: valid, messages: messages};
         },
         addToMap: function(bridges) {
-			if (!this.layer) {
-				this.barrierLayer = new GraphicsLayer();
-                this.barrierLayer.setInfoTemplate(new InfoTemplate("Barriers: ${BRKEY}", "${*}"));
-				this.map.addLayer(this.barrierLayer);
-
-				this.layer = new GraphicsLayer();
-                this.layer.setInfoTemplate(new InfoTemplate("Bridge: ${BRKEY}", "${*}"));
-                this.map.addLayer(this.layer);
-
-                this.bridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
-                                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-                                            new Color([0, 0, 0]), 1),
-                                            new Color([0, 255, 0, 0.75]));
-				this.invalidBridgeSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
-                                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 0, 0]), 1),
-                                            new Color([255, 255, 0, 0.75]));
-				this.barrierSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 15,
-										new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-										new Color([0,0,0]), 2),new Color([255,0,0,0.75]));
-            }
 			
 			this.layer.clear();
 			
             var self = this;
 			
+			var load = {
+				weight: Number(document.getElementById("truckInfo.grossWeight").value),
+				width: Number(document.getElementById("truckInfo.width").value) + Number(document.getElementById("truckInfo.rightOverhang").value)  / 12 + Number(document.getElementById("truckInfo.leftOverhang").value) / 12,
+				height: Number(document.getElementById("truckInfo.height").value)
+			};
+			
             array.forEach(bridges, function (bridge) {
-				var load = {
-					weight: Number(document.getElementById("truckinfo-total-gross-weight").value),
-					width: Number(document.getElementById("truckinfo-width").value) + Number(document.getElementById("truckinfo-right-overhang").value)  / 12 + Number(document.getElementById("truckinfo-left-overhang").value) / 12,
-					height: Number(document.getElementById("truckinfo-height").value)
-				};
 				//console.log(load);
 				var status = self.validForLoad(bridge.attributes, load);
 				if(status.valid){
@@ -148,13 +154,20 @@ define([
 					var geo = new Circle(bridge.geometry, { "geodesic": true, "radius": 15, "radiusUnit":Units.FEET});
 					var attribs = lang.clone(bridge.attributes);
 					attribs.Reason = status.messages.toString();
-					self.barriers.push(geo);
+					self.barriers.push({ "geometry": geo, "attributes": attribs });
 					
 					self.barrierLayer.add(new Graphic(geo, self.barrierSymbol, attribs));
 					self.layer.add(new Graphic(bridge.geometry, self.invalidBridgeSymbol, attribs));
 				}
             });
         },
+		loadBarriers: function(barriers){
+			var self = this;
+			this.barriers = barriers;
+			array.forEach(barriers, function(barrier){
+				self.barrierLayer.add(new Graphic(new Polygon(barrier.geometry), self.barrierSymbol, barrier.attributes));
+			});
+		},
 		toggleBarriers: function(){
 			if(this.barrierLayer.visible){
 				this.barrierLayer.hide();
