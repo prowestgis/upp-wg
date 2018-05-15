@@ -1,0 +1,62 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A collection of metadata that represents a Unified Permitting Project service",
+    "type": "object",
+    "required": [    
+    ],
+    "properties": {
+        "kind": {
+            "type": "string",
+            "const": "Service"
+        },
+        "apiVersion": {
+            "type": "string",
+            "const": "v1"
+        },
+        "metadata": {
+            "type": "object",
+            "required": ["name", "namespace", "uid"],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "object",
+                    "description": "Labels can be set by the registering system, but have no meaning to the Service Directory itself. Labels may be queried.",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotation are static key/value pairs that are passe along with the service information, but cannot be queried.",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "spec": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "const": "ExternalName"
+                },
+                "externalName": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
