@@ -37,6 +37,8 @@ Given the limited number of authories, the UPP system defines an exhaustive list
 
 ### Representation
 
+**_NOTE TO WORKING GOURP:_ Consider the merits of using X.509 [Standard Attribute Types](https://tools.ietf.org/html/rfc4211#appendix-A.2) (C, L, ST, O, OU, CN) to Identify authorities. May be able to leverage against already-issued SSL certificates to verify.**
+
 An authority is identified by a string representation with the format
 
    `<name>_<org>_<state>`
@@ -64,9 +66,9 @@ All city, county, township, village, ward or other mulciple corporation names ma
 
 Currently, only `mn` is considered a valid state identitfier for UPP Authorities
 
-### Examples
+### Authority Examples
 
-The following is a non-exhaustive list of valid UPP Authrotiy identifiers.
+The following is a non-exhaustive list of valid UPP Authority identifiers.
 
 | Authority Identifier | Authority Name |
 | - | - |
@@ -83,11 +85,38 @@ The following is a non-exhaustive list of valid UPP Authrotiy identifiers.
 
 A defined above, a claim is a piece of information that is attatched to an Identity. UPP uses a [Json Web Token](https://tools.ietf.org/html/rfc7519#section-4) (JWT) for its representation of the current claims for a given identity. In addition to the claims defined in [RFC 7519](https://tools.ietf.org/html/rfc7519), UPP defines the following claims
 
+### Defined Claims
+
 | Claim | Description |
 | - | - |
-| `email` | One or more email addresses
+| `upp` | An opaque data token that MUST be preserved across all UPP requests
+| `email` | One or more email addresses as defined in [RFC 5322](https://tools.ietf.org/html/rfc5322).  Multiple email addresses are separated by spaces.
+| `phone` | One or more telephone URIs. Multiple telephone numbers are separated by spaces. Telephone numbers MUST follow the formatting rules defined in [RFC 3966](https://tools.ietf.org/html/rfc3966).<br>A mobile phone number that has been approved for messaging from UPP MUST include a `mobile` parameter with an optional parameter value that defines the type of content that may be sent to this device. Valid values are `sms` and `mms` with `sms` being the default value.<br>UPP also defined two additional parameters that define the interaction model to be used with a telephone number. `fax` indetifies a phone number as a FAX machine numbr  and may be used as a target. `ivr` designates a phone number that should be used for interations via an Interactive Voice Response system.
 | `hauler` | User is a hauler and generally entitled to interact with the systems in pursuit of obtaining a OSOW permit.
+| `dispatcher` | User is a dispatcher
+| `law.enforcement` | USer is a member of law enforcement
 | `dps` | Department of Public Safety Claim.  Value MAY be a list of specific roles the users holds within DPS, e.g. 'hwp'
+
+Any UPP system is allowed to define its own claims, however claims can only be set by an Identity Provider.
+
+### Claims Examples
+
+A series of email claims
+
+| Claim | Description
+| - | - |
+| `email: user@example.com` | A simple email address
+| `email: user@example.com user@county.gov` | Two email addresses associated with an identity
+| `email: user+tag@example.com` | An email address for `user@example.com` that includes a tag, which is ignored (but preserved) by email servers during transport.
+A series of telephone claims
+
+| Claim | Description
+| - | - |
+| `phone: tel:+18888675309` | A global telephone number for an identity
+| `phone: tel:867-5309` | A local telephone number for a user that includes optional (but allowed) visual separators
+| `phone: tel:8675309 tel:8005551212` | A pair of phone numbers, one in local format and one in global format, that are associated with the identity
+| `phone: tel:+18888675309;mobile` | A global phone number with a mobile parameter.  UPP will use this number to sent SMS messages only
+| `phone: tel:+18888675309;mobile=mms;ivr tel:+1-800-555-1212;fax` | A global phone number with a mobile parameter that marks it as accepting MMS messages.  This phone number may also be used to call the user and walk them through an IVR workflow. A second number is provided for FAX documents and contains visual separators
 
 ## Interoperability Profiles
 
