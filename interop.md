@@ -109,6 +109,7 @@ A series of email claims
 | `email: user@example.com` | A simple email address
 | `email: user@example.com user@county.gov` | Two email addresses associated with an identity
 | `email: user+tag@example.com` | An email address for `user@example.com` that includes a tag, which is ignored (but preserved) by email servers during transport.
+
 A series of telephone claims
 
 | Claim | Description
@@ -275,8 +276,6 @@ None
 ```
 
 ## Permit API
-
-
 
 ### `permit.issuer.<authority>`
 
