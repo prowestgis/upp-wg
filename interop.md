@@ -94,8 +94,9 @@ A defined above, a claim is a piece of information that is attatched to an Ident
 | `phone` | One or more telephone URIs. Multiple telephone numbers are separated by spaces. Telephone numbers MUST follow the formatting rules defined in [RFC 3966](https://tools.ietf.org/html/rfc3966).<br>A mobile phone number that has been approved for messaging from UPP MUST include a `mobile` parameter with an optional parameter value that defines the type of content that may be sent to this device. Valid values are `sms` and `mms` with `sms` being the default value.<br>UPP also defined two additional parameters that define the interaction model to be used with a telephone number. `fax` indetifies a phone number as a FAX machine numbr  and may be used as a target. `ivr` designates a phone number that should be used for interations via an Interactive Voice Response system.
 | `hauler` | User is a hauler and generally entitled to interact with the systems in pursuit of obtaining a OSOW permit.
 | `dispatcher` | User is a dispatcher
-| `law.enforcement` | USer is a member of law enforcement
+| `law.enforcement` | User is a member of law enforcement
 | `dps` | Department of Public Safety Claim.  Value MAY be a list of specific roles the users holds within DPS, e.g. 'hwp'
+| `scopes` | A list of scopes attached to this identity.
 
 Any UPP system is allowed to define its own claims, however claims can only be set by an Identity Provider.
 
@@ -117,6 +118,169 @@ A series of telephone claims
 | `phone: tel:8675309 tel:8005551212` | A pair of phone numbers, one in local format and one in global format, that are associated with the identity
 | `phone: tel:+18888675309;mobile` | A global phone number with a mobile parameter.  UPP will use this number to sent SMS messages only
 | `phone: tel:+18888675309;mobile=mms;ivr tel:+1-800-555-1212;fax` | A global phone number with a mobile parameter that marks it as accepting MMS messages.  This phone number may also be used to call the user and walk them through an IVR workflow. A second number is provided for FAX documents and contains visual separators
+
+## Scopes
+
+A scope define the specific access that a user needs. Each API MAY require specific scopes to access functional endpoints.
+
+| Scope | Description |
+| - | - |
+| `permit:request` | Grants read/write access to permit requests, read access to permit reviews, and read access to the Support API.
+| `permit:review` | Grants read access to permit requests and permit reviews.
+| `permit:enforcement` | Grants unrestricted read access to approved permits.
+
+# APIs
+
+This describes the resource servers that comprise the UPP platform. If a system chooses to implement any of the APIs, all of the API methods MUST be implemented.
+
+## Discovery API
+
+The Discovery API allows systems to:
+
+1. Register and describe themselves,
+2. Looked up other services based on function
+
+### List services
+
+List the registered services.
+
+```http
+GET /services
+```
+
+#### Required scopes
+
+None
+
+#### Parameters
+
+| Name | Type | Description |
+| - | - | -
+| `type` | `string` | Can be `all` or any of the defined service types. Default: `all`
+| `scope` | `string` | Can be `all` or any defined UPP scopes. Default: `all`
+| `authority` | `string` | Indicates which authority's services should be returned
+| `sort` | `string` | Can be one of `name`, `display_name` or `type`. Default: `name`
+| `direction` | `string` | Can be one of `asc` or `desc`. Default: `desc`
+
+#### Response
+
+```json
+[
+    {
+    "name": "esri.routing",
+    "authority": "upp",
+    "display_name": "Esri Premium Routing Service",
+    "oauth_id": "agol",
+    "url": "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
+    "type": "route",
+    "scopes": "utility:route",
+    "priority": 1
+  },
+  {
+    "name": "esri.geometry",
+    "authority": "upp",
+    "display_name": "Esri Geometry Service",
+    "oauth_id": "",
+    "url": "https://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer",
+    "type": "geometry",
+    "scopes": "utility:geometry",
+    "priority": 1
+  },
+  {
+    "name": "_upp_permit.approval.Clearwater",
+    "authority": "clearwater_cou_mn",
+    "display_name": "UPP Trusted Service Endpoint",
+    "oauth_id": null,
+    "url": "/clearwater-permits/api/v1/issue",
+    "type": "upp",
+    "scopes": "permit.approval.Clearwater",
+    "priority": 1
+  }
+]
+```
+
+### Get service token
+
+For secured services, this will acquire a short-lived token on behalf of the authenticated user. A list of scopes must be passed as a claim on the current user. Each registered service takes a set of scopes that it recognizes as valid and will only issue a token to users with the appropriate claims.
+
+If a user has a `upp.admin` claim, they are allowed to acquire a token via a GET request.
+
+```http
+GET /services/:name/token (Admin Only)
+POST /service/:name/token
+```
+
+#### Required scopes
+
+None
+
+#### Parameters
+
+None
+
+#### Response
+
+```json
+{
+  "name": "esri.routing",
+  "url": "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
+  "token": "sY9VnvLH8MX9clpyMMecwC8uHT6Oa2FFurNG06ozoXPIiZ1M8OYlV5oZ02FIZAmDZNNYxstewQLjzjFg8qHzTHSUHkIgbTGUJjVNV2Uv8Sf322VZzCTdIa6jGh-wkJ2yuECjaNP8p-Q3lZxiwT5Csg..",
+  "isSecured": true
+}
+```
+
+## Data API
+
+The Data API provides a generic source of supporting data relevant to the UPP workflows.  This is an intentionally generic interface which is typically used to provide a gateway into existing data sources.
+
+### List data sources
+
+List the data sources that the user has permission to access
+
+```http
+GET /data/sources
+```
+
+#### Required scopes
+
+None
+
+#### Parameters
+
+| Name | Type | Description |
+| - | - | -
+| `type` | `string` | Can be `all` or any user-defined type. Default: `all`
+| `sort` | `string` | Can be one of `name`, `display_name` or `type`. Default: `name`
+| `direction` | `string` | Can be one of `asc` or `desc`. Default: `desc`
+
+#### Response
+
+```json
+[
+    {
+        "name": "My-Data-Source",
+        "display_name": "My data Source",
+        "description": "This contains information about vehicle ownership",
+        "url": "https://upp.org/data/sources/My-Data-Source",
+        "type": "vehicle-registration"
+    },
+    {
+        "name": "Trailer-Inventory",
+        "display_name": "OTR Trucking Trailer Inventory",
+        "description": "This contains information about all of the trailers registers to OTR Trucking",
+        "url": "https://otr.com/inventory/data/sources/Trailer-Inventory",
+        "type": "trailer-info"
+    }
+]
+```
+
+## Permit API
+
+
+
+### `permit.issuer.<authority>`
+
+This scope defines the API that a permit authority must implement in order to provide permits through its jurisdiction to UPP clients.
 
 ## Interoperability Profiles
 
@@ -183,19 +347,11 @@ Content-Type: application/vnd.upp.service-access-record
 
 A permit issues has the authority to approve or deny OSOW permits.
 
-### Scopes
+### Required Scopes
 
 A Permit Issuer MUST implment the following scopes
 
 * `permit.issuer.<authority>` where `<authority>` is the unique UPP-defined authority string.
-
-## UPP Scopes
-
-A scope defines am API that CAN be implemented independently of any other scope and provide a complete Unit of Service to UPP client applications.
-
-### `permit.issuer.<authority>`
-
-This scope defines the API that a permit authority must implement in order to provide permits through its jurisdiction to UPP clients.
 
 #### GET `{base}/info`
 
@@ -229,7 +385,7 @@ The `receipt` field is an opaque string generated by the permitting system.  The
 
 #### GET `{base}/reviews/{receipt}`
 
-Returns the status of a permit that is under review.  
+Returns the status of a permit that is under review.
 
 ##### 303 See Other
 
