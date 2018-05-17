@@ -1,18 +1,21 @@
-# Interoperability Specification
+# UPP Interoperability Specification
 
-The Unified Permitting Project (UPP) Interoprability Specificaion is intended to define the behavior and interfaces of systems that wish to participate as
-peers within the distributed UPP platform.  This document contains a technical, but not a formal, definition and  description of the the specification's
-components.  A separate validation suite is provided in order to test the compliance of implemnting systems agais the specification.
+The Unified Permitting Project (UPP) Interoprability Specificaion is intended to define the behavior and interfaces of systems that wish to participate as peers within the distributed UPP platform.  This document contains a technical, but not a formal, definition and  description of the the specification's components.  A separate validation suite is provided in order to test the compliance of implemnting systems agais the specification.
 
-# Overview
+## Overview
 
+Today, in order to apply for an oversize/overweight permit, members of the hauling industry need toapply for these types of permits for large loads through each individual roadway authority they will be traveling through. MnDOT, counties and cities all administer permits for their own roadways. This requires several different permit applications and processes from each roadway authority for an individual hauler. 
 
-# Definitions
+Local government agencies and MnDOT each use different software or paper/FAX systems to issue
+permits. The process of setting requirements to issue a permit is a common element between the various systems whether digital or paper. Each agency has set information requirements for issuing permits, some include vehicle registration details, weight, axle details, dimensions (width, height, length, overhang), trailer details, route description, other permits, and hauling dates.
 
-The goal of the UPP specification is to define correct communication and coordination among a heterogeneous collection of independedn systems.  As such,
-there are many UPP domain-specific concepts that are heavily used through the specification that are defined in this section.
+The purpose of this specification is to define a feasible implementation of a unified permitting process for oversize/overweight vehicle permit applications across all roadway authorities.
 
-## General Terms
+## Definitions
+
+The goal of the UPP specification is to define correct communication and coordination among a heterogeneous collection of independent systems.  As such, there are many UPP domain-specific concepts that are heavily used through the specification that are defined in this section.
+
+### General Terms
 
 Authority
 : A UPP Authority is an independent, trusted entity that provides one or more UPP platform services.
@@ -29,13 +32,13 @@ MIME Type
 OAuth
 :  An open standard for token-based authentication and authorization on the Internet.
 
-## Authorities
+### Authorities
 
 Within the initial design of UPP, authorities may be cities, counties, or state agencies.  Private companies will not be authorities themselves, but may exposed services that implement specific API scopes on behalf of authorities.
 
 Given the limited number of authories, the UPP system defines an exhaustive list of authorities.  In the case of private parties providing services, their trust must be delegated by one of the defined authorities.
 
-### Representation
+#### Representation
 
 **_NOTE TO WORKING GOURP:_ Consider the merits of using X.509 [Standard Attribute Types](https://tools.ietf.org/html/rfc4211#appendix-A.2) (C, L, ST, O, OU, CN) to Identify authorities. May be able to leverage against already-issued SSL certificates to verify.**
 
@@ -47,11 +50,11 @@ Where the `name` is a lowercase version of the legal name of the entity with spa
 
 It is important to note that a single legal entity may have multiple UPP Authority names.  The authority is means to designate _operating_ authority; that is, who has ownership of some UPP action within a designated area.
 
-#### Valid Names
+##### Valid Names
 
 All city, county, township, village, ward or other mulciple corporation names may be used as a valid name. If there are naming conflicts such as multiple cities or townships with the same name, the defined convention is to use a forward slash (`/`) to provide extra information to disambiguate the name.
 
-#### Valid Organizational Designations
+##### Valid Organizational Designations
 
 | Org | Code |
 | - | - |
@@ -62,11 +65,11 @@ All city, county, township, village, ward or other mulciple corporation names ma
 | Multi-Jurisdictional Authority | `mja` |
 | State Agency | `agy`
 
-#### Valid States
+##### Valid States
 
 Currently, only `mn` is considered a valid state identitfier for UPP Authorities
 
-### Authority Examples
+#### Authority Examples
 
 The following is a non-exhaustive list of valid UPP Authority identifiers.
 
@@ -81,11 +84,11 @@ The following is a non-exhaustive list of valid UPP Authority identifiers.
 | `akron/wi_twn_mn` | Akron Township in Wilkin County |
 | `akron/bs_twn_mn` | Akron Township in Big Stone County |
 
-## Claims
+### Claims
 
 A defined above, a claim is a piece of information that is attatched to an Identity. UPP uses a [Json Web Token](https://tools.ietf.org/html/rfc7519#section-4) (JWT) for its representation of the current claims for a given identity. In addition to the claims defined in [RFC 7519](https://tools.ietf.org/html/rfc7519), UPP defines the following claims
 
-### Defined Claims
+#### Defined Claims
 
 | Claim | Description |
 | - | - |
@@ -100,7 +103,7 @@ A defined above, a claim is a piece of information that is attatched to an Ident
 
 Any UPP system is allowed to define its own claims, however claims can only be set by an Identity Provider.
 
-### Claims Examples
+#### Claims Examples
 
 A series of email claims
 
@@ -117,10 +120,10 @@ A series of telephone claims
 | `phone: tel:+18888675309` | A global telephone number for an identity
 | `phone: tel:867-5309` | A local telephone number for a user that includes optional (but allowed) visual separators
 | `phone: tel:8675309 tel:8005551212` | A pair of phone numbers, one in local format and one in global format, that are associated with the identity
-| `phone: tel:+18888675309;mobile` | A global phone number with a mobile parameter.  UPP will use this number to sent SMS messages only
+| `phone: tel:+18888675309;mobile` | A global phone number with a mobile parameter.  UPP will use this number to send SMS messages only
 | `phone: tel:+18888675309;mobile=mms;ivr tel:+1-800-555-1212;fax` | A global phone number with a mobile parameter that marks it as accepting MMS messages.  This phone number may also be used to call the user and walk them through an IVR workflow. A second number is provided for FAX documents and contains visual separators
 
-## Scopes
+### Scopes
 
 A scope define the specific access that a user needs. Each API MAY require specific scopes to access functional endpoints.
 
@@ -130,18 +133,18 @@ A scope define the specific access that a user needs. Each API MAY require speci
 | `permit:review` | Grants read access to permit requests and permit reviews.
 | `permit:enforcement` | Grants unrestricted read access to approved permits.
 
-# APIs
+## APIs
 
 This describes the resource servers that comprise the UPP platform. If a system chooses to implement any of the APIs, all of the API methods MUST be implemented.
 
-## Discovery API
+### Discovery API
 
 The Discovery API allows systems to:
 
 1. Register and describe themselves,
 2. Looked up other services based on function
 
-### List services
+#### List services
 
 List the registered services.
 
@@ -149,11 +152,11 @@ List the registered services.
 GET /services
 ```
 
-#### Required scopes
+##### Required scopes
 
 None
 
-#### Parameters
+##### Parameters
 
 | Name | Type | Description |
 | - | - | -
@@ -163,7 +166,7 @@ None
 | `sort` | `string` | Can be one of `name`, `display_name` or `type`. Default: `name`
 | `direction` | `string` | Can be one of `asc` or `desc`. Default: `desc`
 
-#### Response
+##### Response
 
 ```json
 [
@@ -200,7 +203,7 @@ None
 ]
 ```
 
-### Get service token
+#### Get service token
 
 For secured services, this will acquire a short-lived token on behalf of the authenticated user. A list of scopes must be passed as a claim on the current user. Each registered service takes a set of scopes that it recognizes as valid and will only issue a token to users with the appropriate claims.
 
@@ -211,15 +214,15 @@ GET /services/:name/token (Admin Only)
 POST /service/:name/token
 ```
 
-#### Required scopes
+##### Required scopes
 
 None
 
-#### Parameters
+##### Parameters
 
 None
 
-#### Response
+##### Response
 
 ```json
 {
@@ -230,11 +233,11 @@ None
 }
 ```
 
-## Data API
+### Data API
 
 The Data API provides a generic source of supporting data relevant to the UPP workflows.  This is an intentionally generic interface which is typically used to provide a gateway into existing data sources.
 
-### List data sources
+#### List data sources
 
 List the data sources that the user has permission to access
 
@@ -242,11 +245,11 @@ List the data sources that the user has permission to access
 GET /data/sources
 ```
 
-#### Required scopes
+##### Required scopes
 
 None
 
-#### Parameters
+##### Parameters
 
 | Name | Type | Description |
 | - | - | -
@@ -254,7 +257,7 @@ None
 | `sort` | `string` | Can be one of `name`, `display_name` or `type`. Default: `name`
 | `direction` | `string` | Can be one of `asc` or `desc`. Default: `desc`
 
-#### Response
+##### Response
 
 ```json
 [
@@ -275,9 +278,9 @@ None
 ]
 ```
 
-## Permit API
+### Permit API
 
-### `permit.issuer.<authority>`
+#### `permit.issuer.<authority>`
 
 This scope defines the API that a permit authority must implement in order to provide permits through its jurisdiction to UPP clients.
 
@@ -397,8 +400,6 @@ Return a single [Permit Record](#Permit-Record) identified by the `receipt`. Thi
 #### POST `{base}/permits/{receipt}`
 
 Allows a user to submit updates to an existing permit that has already been issued.
-
-
 
 ## UPP Records
 
