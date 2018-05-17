@@ -4,7 +4,7 @@ The Unified Permitting Project (UPP) Interoprability Specificaion is intended to
 
 ## Overview
 
-Today, in order to apply for an oversize/overweight permit, members of the hauling industry need toapply for these types of permits for large loads through each individual roadway authority they will be traveling through. MnDOT, counties and cities all administer permits for their own roadways. This requires several different permit applications and processes from each roadway authority for an individual hauler. 
+Today, in order to apply for an oversize/overweight permit, members of the hauling industry need toapply for these types of permits for large loads through each individual roadway authority they will be traveling through. MnDOT, counties and cities all administer permits for their own roadways. This requires several different permit applications and processes from each roadway authority for an individual hauler.
 
 Local government agencies and MnDOT each use different software or paper/FAX systems to issue
 permits. The process of setting requirements to issue a permit is a common element between the various systems whether digital or paper. Each agency has set information requirements for issuing permits, some include vehicle registration details, weight, axle details, dimensions (width, height, length, overhang), trailer details, route description, other permits, and hauling dates.
@@ -17,11 +17,23 @@ The goal of the UPP specification is to define correct communication and coordin
 
 ### General Terms
 
+Authentication
+: The act of confirming the identity of a principal through a validation mechanism
+
+Authorization
+: The function of evaluating and enforcing a set of access rights of a principal to resources
+
 Authority
 : A UPP Authority is an independent, trusted entity that provides one or more UPP platform services.
 
 Claim
 : A claim is a piece of information that is bound to an identity.  Common claims are first and last names, email address and other contact information.  However a claim can be anything and is oftern used to hold system-specific information.
+
+Identity
+: A collection of information (attributes) that represent an external agent. An identity typically refers to information about an individual person, such as their name and contact information.
+
+Identity Provider (IdP)
+: A system entity that creates, maintains, and manages identity information for principals while providing authentication services to relying party applications within a federation or distributed network.
 
 Microservice
 :  A microservice is a unit of software that is deployed as a service and provides an independent and complete business capability.
@@ -31,6 +43,15 @@ MIME Type
 
 OAuth
 :  An open standard for token-based authentication and authorization on the Internet.
+
+Pricipal
+: An entity that can be authenticated by a computer system or network. This is typically a individual person, but devices and other systems may also be principals.
+
+Resource
+: A resource can be anything that has identity and is addressable by a Uniform Resource Locator (URL).  A resource can remain constant even when its content changes over time
+
+Scope
+: A way for a priciple to expressthe desired level of access to a resource during the authorization process. Scopes are allowed or rejected based on the Identity of the principal and allow for granular access to resources.
 
 ### Authorities
 
@@ -109,19 +130,19 @@ A series of email claims
 
 | Claim | Description
 | - | - |
-| `email: user@example.com` | A simple email address
-| `email: user@example.com user@county.gov` | Two email addresses associated with an identity
-| `email: user+tag@example.com` | An email address for `user@example.com` that includes a tag, which is ignored (but preserved) by email servers during transport.
+| `user@example.com` | A simple email address
+| `user@example.com user@county.gov` | Two email addresses associated with an identity
+| `user+tag@example.com` | An email address for `user@example.com` that includes a tag, which is ignored (but preserved) by email servers during transport.
 
 A series of telephone claims
 
 | Claim | Description
 | - | - |
-| `phone: tel:+18888675309` | A global telephone number for an identity
-| `phone: tel:867-5309` | A local telephone number for a user that includes optional (but allowed) visual separators
-| `phone: tel:8675309 tel:8005551212` | A pair of phone numbers, one in local format and one in global format, that are associated with the identity
-| `phone: tel:+18888675309;mobile` | A global phone number with a mobile parameter.  UPP will use this number to send SMS messages only
-| `phone: tel:+18888675309;mobile=mms;ivr tel:+1-800-555-1212;fax` | A global phone number with a mobile parameter that marks it as accepting MMS messages.  This phone number may also be used to call the user and walk them through an IVR workflow. A second number is provided for FAX documents and contains visual separators
+| `tel:+18888675309` | A global telephone number for an identity
+| `tel:867-5309` | A local telephone number for a user that includes optional (but allowed) visual separators
+| `tel:8675309 tel:8005551212` | A pair of phone numbers, one in local format and one in global format, that are associated with the identity
+| `tel:+18888675309;mobile` | A global phone number with a mobile parameter.  UPP will use this number to send SMS messages only
+| `tel:+18888675309;mobile=mms;ivr tel:+1-800-555-1212;fax` | A global phone number with a mobile parameter that marks it as accepting MMS messages.  This phone number may also be used to call the user and walk them through an IVR workflow. A second number is provided for FAX documents and contains visual separators
 
 ### Scopes
 
@@ -132,6 +153,8 @@ A scope define the specific access that a user needs. Each API MAY require speci
 | `permit:request` | Grants read/write access to permit requests, read access to permit reviews, and read access to the Support API.
 | `permit:review` | Grants read access to permit requests and permit reviews.
 | `permit:enforcement` | Grants unrestricted read access to approved permits.
+| `services:write` | Grants the ability to add/remove/update service registrations.
+| `upp.admin` | Grants federated administrative authority to _any_ UPP system.<br><br>This is not an unchecked authority, however. Each UPP system is able to define for itself what resources fall under the authority of the `upp.admin` claim and can reserve sensitive, internal administrative access to other scopes which may be set only by Identity Providers trusted by that specific UPP system
 
 ## APIs
 
@@ -142,7 +165,7 @@ This describes the resource servers that comprise the UPP platform. If a system 
 The Discovery API allows systems to:
 
 1. Register and describe themselves,
-2. Looked up other services based on function
+2. Look up other services based on function
 
 #### List services
 
@@ -203,6 +226,48 @@ None
 ]
 ```
 
+#### Register service
+
+Add a new service to the services directory.
+
+_The service directory implementation is influenced by Kobernetes but retricted. In Kubernetes terminology, the UPP services are closer to a Pod_
+
+```http
+POST /services
+```
+
+##### Required scopes
+
+```text
+services:write
+```
+
+##### Parameters
+
+Registration MUST be passed in as a JSON-encoded service access record
+
+```json
+POST /api/v1/agent/register
+Content-Type: application/vnd.upp.service
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "",
+        "namespace": "",
+        "uid": "<RFC 4122>",
+
+        "labels": { "key": "value" },
+        "annotations": { "key": "value" }
+    },
+    "spec": {
+        "type": "ExternalName",
+        "externalName": "hostname",
+        "path": "/root"
+    }
+}
+```
+
 #### Get service token
 
 For secured services, this will acquire a short-lived token on behalf of the authenticated user. A list of scopes must be passed as a claim on the current user. Each registered service takes a set of scopes that it recognizes as valid and will only issue a token to users with the appropriate claims.
@@ -229,7 +294,7 @@ None
   "name": "esri.routing",
   "url": "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
   "token": "sY9VnvLH8MX9clpyMMecwC8uHT6Oa2FFurNG06ozoXPIiZ1M8OYlV5oZ02FIZAmDZNNYxstewQLjzjFg8qHzTHSUHkIgbTGUJjVNV2Uv8Sf322VZzCTdIa6jGh-wkJ2yuECjaNP8p-Q3lZxiwT5Csg..",
-  "isSecured": true
+  "is_secured": true
 }
 ```
 
@@ -289,35 +354,6 @@ This scope defines the API that a permit authority must implement in order to pr
 Each UPP-compliance application need only implement the profiles that it needs to support.  Each profile represents a distinct service unit that acts as a building block of the peer-based, distributed UPP system.
 
 ## Service Directory
-
-The Service Directory is responsible for
-
-1. Allowing UPP services to register and describe themselves,
-2. Allowing UPP services to be looked up based on function
-
-_The service directory implementation is influenced by Kobernetes but retricted. In Kubernetes terminology, the UPP services are closer to a Pod_
-
-```JSON
-POST /api/v1/agent/register
-Content-Type: application/vnd.upp.service
-{
-    "kind": "Service",
-    "apiVersion": "v1",
-    "metadata": {
-        "name": "",
-        "namespace": "",
-        "uid": <RFC 4122>,
-
-        "labels": { key: value },
-        "annotations": { key: value }
-    },
-    "spec": {
-        "type": "ExternalName",
-        "externalName": "hostname",
-        "path": "/root"
-    }
-}
-```
 
 ```JSON
 GET /api/v1/hosts?type=<service_type>&scope=<api_scope>
