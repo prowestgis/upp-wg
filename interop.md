@@ -310,6 +310,14 @@ List the data sources that the user has permission to access
 GET /data/sources
 ```
 
+The `format` parameter identifies the exact underlying protocol that the data service uses. Valid values are:
+
+* `esri_map_service`
+* `esri_feature_service`
+* `json_api` (as defined in the [jSON API](http://jsonapi.org) specification)
+
+Unlike the Discovery API, the Data API does not provide any predefined support for secured services. A UPP client is responsible for supporting the ability to access secured versions of the data sources. The `meta` property may be used to defined client-specific information.
+
 ##### Required scopes
 
 None
@@ -331,14 +339,22 @@ None
         "display_name": "My data Source",
         "description": "This contains information about vehicle ownership",
         "url": "https://upp.org/data/sources/My-Data-Source",
-        "type": "vehicle-registration"
+        "format": "esri_feature_service",
+        "type": "vehicle-registration",
+        "meta": {
+        }
     },
     {
         "name": "Trailer-Inventory",
         "display_name": "OTR Trucking Trailer Inventory",
         "description": "This contains information about all of the trailers registers to OTR Trucking",
         "url": "https://otr.com/inventory/data/sources/Trailer-Inventory",
-        "type": "trailer-info"
+        "format": "json_api",
+        "type": "trailer-info",
+        "meta": {
+            "auth": "SAML",
+            "idp": "https://login.example.com/saml/"
+        }
     }
 ]
 ```
@@ -366,7 +382,7 @@ Content-Type: application/vnd.upp.service-description
     "uri": "",
     "type": "",
     "scopes": "",
-    "priority": 
+    "priority": 1
 }
 ```
 
