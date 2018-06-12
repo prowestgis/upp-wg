@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace UPP.Protocols
 {
@@ -50,10 +52,19 @@ namespace UPP.Protocols
     // All of the fields from the UPP working group
     public sealed class HaulerInfo
     {
+        [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
         public DateTime Date { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
         public string Email { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
         public string Phone { get; set; }
+
+        [JsonProperty(Required = Required.DisallowNull)]
         public string Fax { get; set; }
     }
 

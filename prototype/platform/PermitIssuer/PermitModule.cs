@@ -2,6 +2,8 @@
 using Nancy.ModelBinding;
 using Nancy.Security;
 using Nancy.Serialization;
+using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Schema.Generation;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -140,12 +142,22 @@ namespace PermitIssuer
         {
             // Need a valid JWT to access
             //this.RequiresAuthentication();
-
+            Get["/schema"] = _ => GetSchema();
             // Accept a new application from the user
             Post["/"] = _ => ProcessApplication(database, config);
 
             Get["/{id}/edit"] = _ => View["Permit", database.ApplicationById(_.id)];
             Post["/{id}/edit"] = _ => UpdateApplication(database, _.id);
+        }
+        private Response GetSchema()
+        {
+            JSchemaGenerator jsonSchemaGenerator = new JSchemaGenerator();
+            JSchema schema = jsonSchemaGenerator.Generate(typeof(PermitRequestResponse));
+            schema.Title = "PermitApplicationRecord";
+            schema.ContentMediaType = "application/vnd.upp.permit-issuer.response";
+
+            //return schema
+            return Response.AsJson(schema);
         }
         private Response UpdateApplication(Database database, int id)
         {

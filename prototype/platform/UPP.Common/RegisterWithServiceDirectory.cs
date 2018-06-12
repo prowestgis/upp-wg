@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UPP.Configuration;
+using UPP.Protocols;
 
 namespace UPP.Common
 {
@@ -107,18 +108,34 @@ namespace UPP.Common
             // Try to POST our registration information to the service directory
             var client = new RestClient(baseUrl);
             var request = new RestRequest("api/v1/agent/register", Method.POST);
-
+            var body = new ServiceRegistrationRequest();
+            body.Kind = "Service";
+            body.apiVersion = "v1";
+            
             // This is the URI that should be used to access the services
-            request.AddParameter("uri", config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI));
-
-            // These are the UPP scopes that this implementation provides access to
-            request.AddParameter("scopes", config.Keyword(Keys.SERVICE_DIRECTORY__SCOPES));
+            body.MetaData.Uri = config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI);
 
             // Certificate / Key that identifies us as a whitelisted entity
-            request.AddParameter("whoami", hostIdentity);
+            body.MetaData.Whoami = hostIdentity;
+
+            // These are the UPP scopes that this implementation provides access to
+            body.MetaData.Scopes = config.Keyword(Keys.SERVICE_DIRECTORY__SCOPES);
 
             // We provide UPP services
-            request.AddParameter("type", "upp");
+            body.MetaData.Type = "upp";
+
+            request.AddJsonBody(body);
+            // This is the URI that should be used to access the services
+            //request.AddParameter("uri", config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI));
+
+            // These are the UPP scopes that this implementation provides access to
+            //request.AddParameter("scopes", config.Keyword(Keys.SERVICE_DIRECTORY__SCOPES));
+
+            // Certificate / Key that identifies us as a whitelisted entity
+            //request.AddParameter("whoami", hostIdentity);
+
+            // We provide UPP services
+            //request.AddParameter("type", "upp");
 
             logger.Debug("Attempting to register with service directory at {0}", request.Resource);
             logger.Debug("  POST {0}", request.Resource);

@@ -196,15 +196,4 @@ namespace ServiceDirectory
         }
     }
 
-    public sealed class MicroServiceProviderConfig
-    {
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
-        public string OAuthId { get; set; }
-        public string TokenId { get; set; }
-        public string Uri { get; set; }
-        public string Type { get; set; }
-        public string Scopes { get; set; }
-        public int Priority { get; set; }
-    }    
 }

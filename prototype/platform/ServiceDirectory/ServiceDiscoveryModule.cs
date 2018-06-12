@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UPP.Protocols;
+using Newtonsoft.Json.Schema;
 
 namespace ServiceDirectory
 {
@@ -24,6 +25,8 @@ namespace ServiceDirectory
 
             // Registers service metadata from a trusted source
             Post["/register"] = _ => RegisterService(database);
+
+            Get["register/schema"] = _ => Response.AsJson(ServiceRegistrationRequest.JsonSchema());
         }
 
         private Response RegisterService(Database database)
@@ -31,17 +34,17 @@ namespace ServiceDirectory
             logger.Debug("Registering a new service");
 
             // Bind the request to the ServiceRegistrationRecord
-            var record = this.Bind<ServiceRegistrationRecord>();
+            var record = this.Bind<ServiceRegistrationRequest>();
 
             // Attempt to register with the services table
-            logger.Debug("  Uri    = {0}", record.Uri);
-            logger.Debug("  Type   = {0}", record.Type);
-            logger.Debug("  Whoami = {0}", record.Whoami);
-            logger.Debug("  Scopes = {0}", record.Scopes);
+            logger.Debug("  Uri    = {0}", record.MetaData.Uri);
+            logger.Debug("  Type   = {0}", record.MetaData.Type);
+            logger.Debug("  Whoami = {0}", record.MetaData.Whoami);
+            logger.Debug("  Scopes = {0}", record.MetaData.Scopes);
 
             try
             {
-                var response = database.RegisterService(record);
+                var response = database.RegisterService(record.MetaData);
 
                 // Return the response as a payload
                 return Response.AsJson(response);
@@ -69,6 +72,7 @@ namespace ServiceDirectory
 
             Get["default", "/"] = _ => ListHosts(database, Request.Query["type"], Request.Query["scope"], Request.Query["authority"]);
             Get["get_service", "/{name}/access"] = _ => AccessHost(database, _.name);
+            Get["schema/access"] = _ => Response.AsJson(ServiceAccessRecord.JsonSchema());
         }
 
         private Response ListHosts(Database database, string type, string scope, string authority)
@@ -117,29 +121,29 @@ namespace ServiceDirectory
         }
     }
 
-    public sealed class ServiceAccessRecord
-    {
-        public ServiceAccessRecord(MicroServiceProviderConfig service)
-            : this(service, null, false)
-        {
-        }
+    //public sealed class ServiceAccessRecord
+    //{
+    //    public ServiceAccessRecord(MicroServiceProviderConfig service)
+    //        : this(service, null, false)
+    //    {
+    //    }
 
-        public ServiceAccessRecord(MicroServiceProviderConfig service, string token)
-            : this(service, token, true)
-        {
-        }
+    //    public ServiceAccessRecord(MicroServiceProviderConfig service, string token)
+    //        : this(service, token, true)
+    //    {
+    //    }
 
-        private ServiceAccessRecord(MicroServiceProviderConfig service, string token, bool secured)
-        {
-            Name = service.Name;
-            Url = service.Uri;
-            Token = token;
-            IsSecured = secured;
-        }
+    //    private ServiceAccessRecord(MicroServiceProviderConfig service, string token, bool secured)
+    //    {
+    //        Name = service.Name;
+    //        Url = service.Uri;
+    //        Token = token;
+    //        IsSecured = secured;
+    //    }
 
-        public string Name { get; private set; }
-        public string Url { get; private set; }
-        public string Token { get; private set; }
-        public bool IsSecured { get; private set; }
-    }
+    //    public string Name { get; private set; }
+    //    public string Url { get; private set; }
+    //    public string Token { get; private set; }
+    //    public bool IsSecured { get; private set; }
+    //}
 }
