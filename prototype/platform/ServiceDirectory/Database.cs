@@ -46,18 +46,18 @@ namespace ServiceDirectory
         }
 
 
-        public object RegisterService(ServiceRegistrationRecord record)
+        public object RegisterService(ServiceRegistrationRequest record)
         {
             using (var conn = SimpleDbConnection())
             {
                 // Cast the type to a registered value
-                var type = (ServiceRegistrationType)record.Type;
+                var type = (ServiceRegistrationType)record.MetaData.Labels.Type;
 
                 // Create a unique ID from the type and whoami
-                var identifier = String.Format("{0}_{1}", record.Whoami, type.Key).ToLower();
+                var identifier = String.Format("{0}_{1}", record.MetaData.Whoami, type.Key).ToLower();
 
                 // Build up a list of scoped identifiers and check to see if any of them are currently registered
-                var scopedIdentifiers = record.Scopes.FromCSV().Select(scope => identifier + "_" + scope).ToList();
+                var scopedIdentifiers = record.MetaData.Labels.Scopes.FromCSV().Select(scope => identifier + "_" + scope).ToList();
 
                 // Find any existing records
                 logger.Debug("Checking for existing services");
@@ -82,11 +82,11 @@ namespace ServiceDirectory
                     {
                         Id = id,
                         Name = type.DisplayText,
-                        Uri = record.Uri,
+                        Uri = record.Spec.Path,
                         Type = type.Key,
                         Priority = 1,
                         Active = 1,
-                        Scopes = record.Scopes
+                        Scopes = record.MetaData.Labels.Scopes
                     })
                 );
 
@@ -108,11 +108,11 @@ namespace ServiceDirectory
                     {
                         Id = id,
                         Name = type.DisplayText,
-                        Uri = record.Uri,
+                        Uri = record.Spec.Path,
                         Type = type.Key,
                         Priority = 1,
                         Active = 1,
-                        Scopes = record.Scopes
+                        Scopes = record.MetaData.Labels.Scopes
                     })
                 );
 

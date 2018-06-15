@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
+using Newtonsoft.Json.Schema.Generation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,5 +22,14 @@ namespace UPP.Protocols
 
         [JsonProperty(Required = Required.DisallowNull)]
         public Dictionary<string,string> Links { get; set; }
+
+        public static JSchema JsonSchema()
+        {
+            JSchemaGenerator generator = new JSchemaGenerator();
+            JSchema schema = generator.Generate(typeof(PermitRequestResponse));
+            schema.Title = UPPContentType.PERMIT_ISSUER_RESPONSE.DisplayText;
+            schema.ContentMediaType = UPPContentType.PERMIT_ISSUER_RESPONSE.Key;
+            return schema;
+        }
     }
 }

@@ -20,23 +20,17 @@ namespace UPP.Protocols
     /// </summary>
     public sealed class ServiceRegistrationRecord
     {
-        // Type of service being registered
-        [JsonProperty(Required = Required.Always, PropertyName = "type")]
-        public string Type { get; set; }
+        public ServiceRegistrationRecord()
+        {
+            Labels = new ServiceRegistrationLabels();
+        }
 
         // Source of the service. Must be whitelisted.
-        [JsonProperty(Required = Required.Always, PropertyName = "whoami")]
+        [JsonProperty(Required = Required.Always, PropertyName = "name")]
         public string Whoami { get; set; }
 
-        // URI of the service endpoint
-        [Url]
-        [JsonProperty(Required = Required.Always, PropertyName = "uri")]
-        public string Uri { get; set; }
-
-        // Scopes of a service that are supported. MUST be
-        // supplied.  Can pass '*' to support all scopes.
-        [JsonProperty(Required = Required.Always, PropertyName = "scopes")]
-        public string Scopes { get; set; }
+        [JsonProperty(PropertyName = "labels")]
+        public ServiceRegistrationLabels Labels { get; set; }
     }
 
     public sealed class ServiceRegistrationRequest
@@ -44,6 +38,7 @@ namespace UPP.Protocols
         public ServiceRegistrationRequest()
         {
             MetaData = new ServiceRegistrationRecord();
+            Spec = new ServiceRegistrationSpec();
         }
 
         [JsonProperty(Required = Required.Always, PropertyName = "kind")]
@@ -55,6 +50,9 @@ namespace UPP.Protocols
         [JsonProperty(Required = Required.Always, PropertyName = "metadata")]
         public ServiceRegistrationRecord MetaData { get; set; }
 
+        [JsonProperty(Required = Required.Always, PropertyName = "spec")]
+        public ServiceRegistrationSpec Spec { get; set; }
+
         public static JSchema JsonSchema ()
         {
             JSchemaGenerator generator = new JSchemaGenerator();
@@ -62,5 +60,33 @@ namespace UPP.Protocols
             schema.ContentMediaType = UPPContentType.SERVICE.Key;
             return schema;
         }
+    }
+    public sealed class ServiceRegistrationSpec
+    {
+        [JsonProperty(Required = Required.Always, PropertyName = "type")]
+        public const string Type = "ExternalName";
+
+        [JsonProperty(Required = Required.Always, PropertyName = "externalName")]
+        public string ExternalName { get; set; }
+
+        // URI of the service endpoint
+        [Url]
+        [JsonProperty(Required = Required.Always, PropertyName = "path")]
+        public string Path { get; set; }
+    }
+
+    public sealed class ServiceRegistrationLabels
+    {
+        // Type of service being registered
+        [JsonProperty(Required = Required.Always, PropertyName = "type")]
+        public string Type { get; set; }
+
+        // Scopes of a service that are supported. MUST be
+        // supplied.  Can pass '*' to support all scopes.
+        [JsonProperty(Required = Required.Always, PropertyName = "scopes")]
+        public string Scopes { get; set; }
+
+        [JsonProperty(Required = Required.Always, PropertyName = "authority")]
+        public string Authority { get; set; }
     }
 }

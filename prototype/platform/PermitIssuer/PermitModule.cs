@@ -151,13 +151,8 @@ namespace PermitIssuer
         }
         private Response GetSchema()
         {
-            JSchemaGenerator jsonSchemaGenerator = new JSchemaGenerator();
-            JSchema schema = jsonSchemaGenerator.Generate(typeof(PermitRequestResponse));
-            schema.Title = "PermitApplicationRecord";
-            schema.ContentMediaType = "application/vnd.upp.permit-issuer.response";
-
             //return schema
-            return Response.AsJson(schema);
+            return Response.AsJson(PermitRequestResponse.JsonSchema());
         }
         private Response UpdateApplication(Database database, int id)
         {

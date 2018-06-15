@@ -37,14 +37,14 @@ namespace ServiceDirectory
             var record = this.Bind<ServiceRegistrationRequest>();
 
             // Attempt to register with the services table
-            logger.Debug("  Uri    = {0}", record.MetaData.Uri);
-            logger.Debug("  Type   = {0}", record.MetaData.Type);
+            logger.Debug("  Uri    = {0}", record.Spec.Path);
+            logger.Debug("  Type   = {0}", record.MetaData.Labels.Type);
             logger.Debug("  Whoami = {0}", record.MetaData.Whoami);
-            logger.Debug("  Scopes = {0}", record.MetaData.Scopes);
+            logger.Debug("  Scopes = {0}", record.MetaData.Labels.Scopes);
 
             try
             {
-                var response = database.RegisterService(record.MetaData);
+                var response = database.RegisterService(record);
 
                 // Return the response as a payload
                 return Response.AsJson(response);
@@ -120,30 +120,4 @@ namespace ServiceDirectory
             return Response.AsJson(new ServiceAccessRecord(service));
         }
     }
-
-    //public sealed class ServiceAccessRecord
-    //{
-    //    public ServiceAccessRecord(MicroServiceProviderConfig service)
-    //        : this(service, null, false)
-    //    {
-    //    }
-
-    //    public ServiceAccessRecord(MicroServiceProviderConfig service, string token)
-    //        : this(service, token, true)
-    //    {
-    //    }
-
-    //    private ServiceAccessRecord(MicroServiceProviderConfig service, string token, bool secured)
-    //    {
-    //        Name = service.Name;
-    //        Url = service.Uri;
-    //        Token = token;
-    //        IsSecured = secured;
-    //    }
-
-    //    public string Name { get; private set; }
-    //    public string Url { get; private set; }
-    //    public string Token { get; private set; }
-    //    public bool IsSecured { get; private set; }
-    //}
 }

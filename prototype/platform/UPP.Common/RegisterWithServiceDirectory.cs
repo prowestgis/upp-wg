@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UPP.Common.Utilities;
 using UPP.Configuration;
 using UPP.Protocols;
 
@@ -110,32 +111,24 @@ namespace UPP.Common
             var request = new RestRequest("api/v1/agent/register", Method.POST);
             var body = new ServiceRegistrationRequest();
             body.Kind = "Service";
-            body.apiVersion = "v1";
+            body.ApiVersion = "v1";
             
             // This is the URI that should be used to access the services
-            body.MetaData.Uri = config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI);
+            body.Spec.Path = config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI);
 
             // Certificate / Key that identifies us as a whitelisted entity
             body.MetaData.Whoami = hostIdentity;
 
             // These are the UPP scopes that this implementation provides access to
-            body.MetaData.Scopes = config.Keyword(Keys.SERVICE_DIRECTORY__SCOPES);
+            body.MetaData.Labels.Scopes = config.Keyword(Keys.SERVICE_DIRECTORY__SCOPES);
 
             // We provide UPP services
-            body.MetaData.Type = "upp";
+            body.MetaData.Labels.Type = "upp";
+
+            // Use the Newtonsoft serialize so that we get the data annotations
+            request.JsonSerializer = new RestSharpJsonNetSerializer();
 
             request.AddJsonBody(body);
-            // This is the URI that should be used to access the services
-            //request.AddParameter("uri", config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI));
-
-            // These are the UPP scopes that this implementation provides access to
-            //request.AddParameter("scopes", config.Keyword(Keys.SERVICE_DIRECTORY__SCOPES));
-
-            // Certificate / Key that identifies us as a whitelisted entity
-            //request.AddParameter("whoami", hostIdentity);
-
-            // We provide UPP services
-            //request.AddParameter("type", "upp");
 
             logger.Debug("Attempting to register with service directory at {0}", request.Resource);
             logger.Debug("  POST {0}", request.Resource);
