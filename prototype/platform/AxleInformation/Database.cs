@@ -90,7 +90,7 @@ namespace AxleInformation
             }
         }
 
-        public IEnumerable<dynamic> FindAxlesInfoForUser(IUserIdentity identity)
+        public IEnumerable<AxleInformationRecord> FindAxlesInfoForUser(IUserIdentity identity)
         {
             // First, check if this user exists it the database.  If not, this is for prototyping, so
             // we randomly assign the user to have a few records per email address
@@ -103,8 +103,9 @@ namespace AxleInformation
             // The email claim can be a string or an array of email addresses
             using (var conn = SimpleDbConnection())
             {
-                return conn.Query<dynamic>(@"
+                return conn.Query<AxleInformationRecord>(@"
                     SELECT
+                        AxleInformation.axle_id as Id,
 	                    axle_description as Description,
                         weight_per_axle as WeightPerAxle,
                         description_summary as DescriptionSummary,
@@ -130,6 +131,30 @@ namespace AxleInformation
                     new { Emails = identity.EmailAddresses() }
                     );
             }
+        }
+
+        public sealed class AxleInformationRecord : IResourceObject
+        {
+            public string Description { get; set; }
+            public string DescriptionSummary { get; set; }
+            public int WeightPerAxle { get; set; }
+            public int AxleCount { get; set; }
+            public int GroupCount { get; set; }
+            public int ApproxAxleLength { get; set; }
+            public int AxleLength { get; set; }
+            public int MaxAxleWidth { get; set; }
+            public string AxleGroupSummary { get; set; }
+            public int AxlesPerGroup { get; set; }
+            public string GroupTireType { get; set; }
+            public int GroupWidth { get; set; }
+            public int OperatingWeights { get; set; }
+            public int GroupWeight { get; set; }
+            public int GroupMaxWidth { get; set; }
+            public int GroupTotalWeight { get; set; }
+            public int GroupDistance { get; set; }
+
+            public object Id { get; set; }
+            public string Type { get { return "axle-information"; } }
         }
     }
 }

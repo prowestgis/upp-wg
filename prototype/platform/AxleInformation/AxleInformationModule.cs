@@ -12,18 +12,18 @@ namespace AxleInformation
 {
     public static class SecurityHooks
     {
-        public static void AllowFromLocalHost(this INancyModule module)
+        public static void AllowFromLocalHost(this INancyModule module, IUserIdentity user)
         {
-            module.AddBeforeHookOrExecute(SecurityHooks.CheckIsLocal(), "Allow from localhost");
+            module.AddBeforeHookOrExecute(SecurityHooks.CheckIsLocal(user), "Allow from localhost");
         }
 
-        private static Func<NancyContext, Response> CheckIsLocal()
+        private static Func<NancyContext, Response> CheckIsLocal(IUserIdentity user)
         {
             return (ctx) =>
             {
                 if (ctx.Request.IsLocal() && !ctx.CurrentUser.IsAuthenticated())
                 {
-                    ctx.CurrentUser = new NancyAuthUser(new AuthToken() { Sub = "local", Email = "nobody@example.com" });
+                    ctx.CurrentUser = user;
                 }
 
                 return null;
@@ -35,16 +35,18 @@ namespace AxleInformation
     /// </summary>
     public sealed class AxleInformationModule : NancyModule
     {
+        private static IUserIdentity localUser = new NancyAuthUser(new AuthToken() { Sub = "local", Email = "nobody@example.com" });
+
         public AxleInformationModule(Database database) : base("/api/v1/axles")
         {
             // Allow from localhost unconditionally
-            this.AllowFromLocalHost();
+            this.AllowFromLocalHost(localUser);
 
             // Need a valid JWT to access
             this.RequiresAuthentication();
 
             // Registers service metadata from a trusted source
-            Get["/"] = _ => Response.AsJson(database.FindAxlesInfoForUser(Context.CurrentUser));
+            Get["/"] = _ => Response.AsJsonAPI(database.FindAxlesInfoForUser(Context.CurrentUser));
         }
     }
 }
