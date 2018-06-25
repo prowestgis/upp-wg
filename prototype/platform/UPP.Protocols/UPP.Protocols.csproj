@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Json404.cs" />
     <Compile Include="PermitApplicationRecord.cs" />
+    <Compile Include="CompanyInformationRecord.cs" />
     <Compile Include="PermitApprovalRecord.cs" />
     <Compile Include="PermitRequestResponse.cs" />
     <Compile Include="ServiceAccessRecord.cs" />

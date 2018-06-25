@@ -115,6 +115,7 @@ namespace UPP.Common
             
             // This is the URI that should be used to access the services
             body.Spec.Path = config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI);
+            body.Spec.ExternalName = config.Keyword(Keys.SERVICE_DIRECTORY__HOST_URI);
 
             // Certificate / Key that identifies us as a whitelisted entity
             body.MetaData.Whoami = hostIdentity;
@@ -124,6 +125,8 @@ namespace UPP.Common
 
             // We provide UPP services
             body.MetaData.Labels.Type = "upp";
+
+            body.MetaData.Labels.Authority = hostIdentity;
 
             // Use the Newtonsoft serialize so that we get the data annotations
             request.JsonSerializer = new RestSharpJsonNetSerializer();

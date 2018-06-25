@@ -94,6 +94,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisterWithServiceDirectory.cs" />
     <Compile Include="Server.cs" />
+    <Compile Include="Utilities\RestSharpJsonNetSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

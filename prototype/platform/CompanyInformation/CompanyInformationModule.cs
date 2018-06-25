@@ -6,7 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UPP.Configuration;
+using UPP.Protocols;
 using UPP.Security;
+using Nancy.Serialization.JsonNet;
 
 namespace CompanyInformation
 {
@@ -26,7 +28,24 @@ namespace CompanyInformation
             this.RequiresAuthentication();
 
             // Registers service metadata from a trusted source
-            Get["/"] = _ => Response.AsJson(database.FindCompanyInfoForUser(Context.CurrentUser));
+            Get["/"] = _ => CompanyList(database);
+        }
+
+        private Response CompanyList(Database database)
+        {
+
+            var companies = database.FindCompanyInfoForUser(Context.CurrentUser);
+
+            var companyResponse = new CompanyResponse();
+
+            foreach(CompanyDatabaseRecord co in companies)
+            {
+
+                companyResponse.Data.Add(new CompanyInformationRecord() { Id = co.Id, CompanyInfo = new Attributes() { Name = co.CompanyName, Address = co.BillingAddress, Contact = co.Contact, Email = co.Email, Fax = co.Fax, Phone = co.Phone} });
+            }
+
+            return Response.AsJson(companyResponse);
+
         }
     }
 

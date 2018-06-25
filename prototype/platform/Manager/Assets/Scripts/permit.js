@@ -287,9 +287,9 @@
         // Got at least one provider, so use them to populate the company information drop-down
         var service = data[0];
         $.get(service.uri, function (companies) {
-            $.each(companies, function (index, company) { 
-                var opt = $('<option>' + company.companyName + '</option>');
-                opt.data("company", company);
+            $.each(companies.data, function (index, company) { 
+                var opt = $('<option>' + company.attributes.name + '</option>');
+                opt.data("company", company.attributes);
                 select.append(opt);
             });
         });
@@ -301,12 +301,12 @@
         var data = opt.data("company");
 
         if (data) {
-            $('#companyInfo\\.name').val(data.companyName);
+            $('#companyInfo\\.name').val(data.name);
             $('#companyInfo\\.email').val(data.email);
             $('#companyInfo\\.contact').val(data.contact);
             $('#companyInfo\\.phone').val(data.phone);
             $('#companyInfo\\.fax').val(data.fax);
-            $('#companyInfo\\.address').val(data.billingAddress);
+            $('#companyInfo\\.address').val(data.address);
         }
     });
 
