@@ -17,3 +17,12 @@ create table ExternalLogins
 	provider_user_id                   varchar(100) not null   -- Identity of the user on the external system
 );
 
+-- The Manager application is a permit request source, so we need to track the permits created by the UPP users
+create table PermitRepositories
+(
+    permit_id                          varchar(200) not null,  -- GUID that provides a globaly unique permit identity    
+	user_id                            varchar(200) not null,  -- UPP GUID of the user that created this permit; may not exist in this database
+	permit_label                       varchar(200),           -- Something for a human to know who this is....
+	created_at                         integer                 -- UTC timestamp in seconds
+)
+

@@ -163,13 +163,27 @@
 			});
 			return def;
 		}
+
+		function create_permit() {
+		    var def = new Deferred();
+		    $.post("api/create", {}, function (result) {
+		        console.log(result);
+		        def.resolve(result);
+		    });
+
+		    return def;
+		}
+
 		$("#request-permit").click(function (evt) {
 			dojoQuery("input[name=Authority]").forEach(domConstruct.destroy);
 			var auths = $("#permit-authorities").val().split(',');
 			var form = $("#permit-form");
 			
-			var dl = new DeferredList(array.map(auths, function(auth){
-				return submit_permit(auth);
+			create_permit();
+			return;
+
+			var dl = new DeferredList(array.map(auths, function (auth) {
+			    return submit_permit(auth);
 			}));
 			dl.then(function(result){
 				form.submit();

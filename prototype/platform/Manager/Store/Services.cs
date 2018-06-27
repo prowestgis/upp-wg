@@ -62,6 +62,66 @@ namespace Manager.Store
         {            
         }
 
+        public PermitBundle FetchPermitBundle(string uppIdentity, string urlTemplate, string permitIdentity)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                var bundle =
+                    conn.Query<PermitBundle>(@"
+                       SELECT
+                         permit_id as PermitId,
+                         permit_id as RepositoryName,
+                         NULL as RepositoryUrl
+                       FROM PermitRepositories
+                       WHERE user_id = @User AND permit_id = @Permit
+                       ",
+                       new { User = uppIdentity, Permit = permitIdentity }
+                    )                    
+                    .FirstOrDefault();
+
+                // Fill in the Url
+                bundle.RepositoryUrl = String.Format(urlTemplate, permitIdentity);
+
+                // Return the result
+                return bundle;
+            }
+        }
+
+        public PermitBundle CreatePermitBundle(string uppIdentity, string urlTemplate, string label = null)
+        {
+            // Generate a new GUID to use for the permit/repository id
+            var repoId = Guid.NewGuid().ToString();
+            var epochSeconds = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
+
+            // Create a new database record for this repository
+            using (var conn = SimpleDbConnection())
+            {
+                // Create a new External Login tied to this user
+                conn.Execute(@"
+                    INSERT INTO PermitRepositories (permit_id, user_id, permit_label, created_at)
+                    VALUES (@Permit, @User, @Label, @CreatedAt)
+                    ", new { Permit = repoId, User = uppIdentity, Label = label, CreatedAt = epochSeconds }
+                );
+
+                // Create a new repository name that is the same as its GUID
+                var name = String.Format("{0}", repoId);
+
+                return new PermitBundle
+                {
+                    PermitId = repoId,
+                    RepositoryName = name,
+                    RepositoryUrl = String.Format(urlTemplate, name)
+                };
+            }
+        }
+
+        public sealed class PermitBundle
+        {
+            public string PermitId { get; set; }
+            public string RepositoryName { get; set; }
+            public string RepositoryUrl { get; set; }
+        }
+
         public void RegisterOAuthProviders()
         {
             // Add in all of our registered authorization providers (Google, RT Vision, etc.)

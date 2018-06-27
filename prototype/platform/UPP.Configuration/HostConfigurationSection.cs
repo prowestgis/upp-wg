@@ -16,6 +16,9 @@
         public const string SERVICE_DIRECTORY__HOST_URI = "ServiceDirectory:HostUri";
         public const string SERVICE_DIRECTORY__SCOPES = "ServiceDirectory:Scopes";
         public const string UPP__ADMINISTRATORS = "UPP:Administrators";
+        public const string UPP__PERMIT_ROOT_PATH = "UPP:PermitRootPath";
+        public const string UPP__PERMIT_WORKSPACE = "UPP:PermitWorkspace";
+        public const string UPP__PERMIT_REPOSITORY_URL_TEMPLATE = "UPP:PermitRepositoryUrlTemplate";
 
         public const string DATABASE__FILE = "Database:File";
         public const string DATABASE__SCHEMA = "Database:Schema";
@@ -32,6 +35,9 @@
             { SERVICE_DIRECTORY__SCOPES, "" },
             { SELF__IDENTIFIER, null },
             { UPP__ADMINISTRATORS, "" },
+            { UPP__PERMIT_ROOT_PATH, null },
+            { UPP__PERMIT_WORKSPACE, null },
+            { UPP__PERMIT_REPOSITORY_URL_TEMPLATE, null },
             { DATABASE__DELETE_ON_STARTUP, "true" },
             { DATABASE__CREATE_ON_STARTUP, "true" },
             { DATABASE__FILE, null },

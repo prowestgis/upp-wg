@@ -16,6 +16,8 @@ using iTextSharp.text.pdf;
 using iTextSharp.text.factories;
 using static Manager.Host.PermitView;
 using Newtonsoft.Json.Linq;
+using UPP.Configuration;
+using LibGit2Sharp;
 
 namespace Manager.Host
 {
@@ -25,13 +27,102 @@ namespace Manager.Host
     /// </summary>
     public sealed class ApiModule : NancyModule
     {
-        public ApiModule(Services services) : base("/api")
+        public ApiModule(Services services, HostConfigurationSection config) : base("/api")
         {
             //this.RequiresAuthentication();
             Get["/"] = _ => Response.AsJson(new { Message = "Hello", User = Context.CurrentUser });
 
             // Generate a PDF permit
-            Post["/permit"] = _ => GeneratePermit();
+            Post["/permit"] = _ => CreatePermitRepository(services, config, Context.CurrentUser as AuthUser);
+            Get["/permit/{guid}"] = _ => FetchPermit(services, config, Context.CurrentUser as AuthUser, _.guid);
+
+            Post["/create"] = _ => CreatePermitRepository(services, config, Context.CurrentUser as AuthUser);
+
+        }
+
+        private Response FetchPermit(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
+        {
+            // Configuration parameters
+            var workspace = config.Keyword(Keys.UPP__PERMIT_WORKSPACE);
+            var repoUrlTemplate = config.Keyword(Keys.UPP__PERMIT_REPOSITORY_URL_TEMPLATE);
+
+            // Find the record
+            var bundle = services.FetchPermitBundle(user.ExtendedClaims["upp"] as string, repoUrlTemplate, permitIdentifier);
+
+            // Generate the repository path
+            var repoPath = Path.Combine(workspace, bundle.RepositoryName);
+
+            // If the repository does not already exists, clone it
+            if (!Directory.Exists(repoPath))
+            {
+                Repository.Clone(bundle.RepositoryUrl, repoPath);
+            }
+
+            using (var repo = new Repository(repoPath))
+            {
+                // Update the checkout
+                var author = new Signature(user.UserName, user.Email, DateTime.Now);
+                var mergeResult = Commands.Pull(repo, author, new PullOptions());
+
+                // Read the current permit file and return
+                var permit = Path.Combine(repo.Info.WorkingDirectory, "permit.json");
+                return Response.AsText(File.ReadAllText(permit), "application/json");
+            }
+        }
+
+        private Response CreatePermitRepository(Services services, HostConfigurationSection config, AuthUser user)
+        {
+            // Get the location for storing the bare git repositories
+            var folder = config.Keyword(Keys.UPP__PERMIT_ROOT_PATH);
+            var workspace = config.Keyword(Keys.UPP__PERMIT_WORKSPACE);
+            var repoUrlTemplate = config.Keyword(Keys.UPP__PERMIT_REPOSITORY_URL_TEMPLATE);
+
+            // Assign a repository (folder) name for this user's request
+            var bundle = services.CreatePermitBundle(user.ExtendedClaims["upp"] as string, repoUrlTemplate);
+            var path = Path.Combine(folder, bundle.RepositoryName);
+
+            // Initialize a bare repository
+            var rootedPath = Repository.Init(path, true);
+
+            // Clone the bare repository into a working space. In a real system, the git server will be tied into the UPP security model
+            var repoPath = Path.Combine(workspace, bundle.RepositoryName);
+
+            //var co = new CloneOptions();
+            //co.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = "admin", Password = "admin" };
+            Repository.Clone(bundle.RepositoryUrl, repoPath);
+
+            // Load the skeleton permit file
+            var permitRecord = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText("App_Data/templates/permit.json"));
+
+            // Fill in the required information
+            permitRecord.links.origin = bundle.RepositoryUrl;
+            permitRecord.data.id = bundle.PermitId;
+
+            // Serialize to an actualy file
+            var emptyPermit = JsonConvert.SerializeObject(permitRecord, Formatting.Indented);
+
+            using (var repo = new Repository(repoPath))
+            {
+                var permit = Path.Combine(repo.Info.WorkingDirectory, "permit.json");
+                var attachments = Path.Combine(repo.Info.WorkingDirectory, "attachments");
+
+                File.WriteAllText(permit, emptyPermit);
+                Directory.CreateDirectory(attachments);
+
+                Commands.Stage(repo, permit);
+                Commands.Stage(repo, attachments);
+
+                var author = new Signature(user.UserName, user.Email, DateTime.Now);
+                var committer = author;
+
+                // Commit the files to the and push to the origin
+                var commit = repo.Commit("Create new permit application", author, committer);
+
+                var options = new PushOptions();
+                repo.Network.Push(repo.Branches["master"], options);
+            }
+
+            return Response.AsJson(bundle);
         }
 
         private Response GeneratePermit()

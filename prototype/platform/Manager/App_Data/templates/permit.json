@@ -1,0 +1,24 @@
+﻿{
+  "meta": {
+    "upp": {
+      "version": "1.0.0"
+    }
+  },
+  "links": {
+    "origin": ""
+  },
+  "data": {
+    "type": "permit-application",
+    "id": null,
+    "meta": {
+    },
+    "attributes": {
+      "form-data": {
+      },
+      "route": {
+      },
+      "authorities": {
+      }
+    }
+  }
+}
