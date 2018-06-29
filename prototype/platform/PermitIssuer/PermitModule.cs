@@ -136,7 +136,7 @@ namespace PermitIssuer
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private Func<NancyContext, Database, HostConfigurationSection, string> EvaluatePermit = MockPermitEvaluation;
 
-        public PermitModule(Database database, HostConfigurationSection config) : base("/permits")
+        public PermitModule(Database database, HostConfigurationSection config) : base("/api/v1/issue")
         {
             // Need a valid JWT to access
             //this.RequiresAuthentication();
@@ -144,9 +144,11 @@ namespace PermitIssuer
             // Accept a new application from the user
             Post["/"] = _ => ProcessApplication(database, config);
 
+            Get["/{id}"] = _ => View["Permit", database.ApplicationById(_.id)];
             Get["/{id}/edit"] = _ => View["Permit", database.ApplicationById(_.id)];
             Post["/{id}/edit"] = _ => UpdateApplication(database, _.id);
         }
+
         private Response UpdateApplication(Database database, int id)
         {
             // Convert the form into a PermitApplicationRecord
