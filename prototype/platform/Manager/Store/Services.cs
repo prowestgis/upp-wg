@@ -15,6 +15,7 @@ using SimpleAuthentication.Core.Providers;
 using SimpleAuthentication.ExtraProviders;
 using UPP.SimpleAuthentication.Providers;
 using UPP.Configuration;
+using UPP.Common;
 
 namespace Manager.Store
 {
@@ -60,6 +61,26 @@ namespace Manager.Store
         public Services(HostConfigurationSection config)
             : base("SimpleDb.sqlite", @"App_Data\Schema.sql", config)
         {            
+        }
+
+        public IEnumerable<PermitBundle> FindPermitBundles(string uppIdentity, string urlTemplate)
+        {
+            using (var conn = SimpleDbConnection())
+            {
+                return conn.Query<PermitBundle>(@"
+                       SELECT
+                         permit_id as PermitId,
+                         permit_id as RepositoryName,
+                         NULL as RepositoryUrl
+                       FROM PermitRepositories
+                       WHERE user_id = @User
+                       ",
+                       new { User = uppIdentity }
+                    )
+                    .Select(x => { x.RepositoryUrl = String.Format(urlTemplate, x.PermitId); return x; })
+                    .ToList()
+                    ;
+            }
         }
 
         public PermitBundle FetchPermitBundle(string uppIdentity, string urlTemplate, string permitIdentity)

@@ -175,27 +175,56 @@
                         </div>
 
                         <div class="col-md-6">
-                            <div class="card">
-                                <div class="header">
-                                    <h4 class="title">OAuth2 Login Providers</h4>
-                                    <p class="category">Security</p>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="header">
+                                            <h4 class="title">OAuth2 Login Providers</h4>
+                                            <p class="category">Security</p>
+                                        </div>
+                                        <div class="content">
+                                            <table class="table">
+                                                <tbody>
+                                                    @foreach (var oauth in Model.Auths)
+                                                    {
+                                                        <tr>
+                                                            <td>@oauth.DisplayName</td>
+                                                            <td class="is-breakable">@oauth.Key</td>
+                                                            <td class="is-breakable">@oauth.Scopes</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="footer">
+                                            <hr />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="content">
-                                    <table class="table">
-                                        <tbody>
-                                            @foreach (var oauth in Model.Auths)
-                                            {
-                                                <tr>
-                                                    <td>@oauth.DisplayName</td>
-                                                    <td class="is-breakable">@oauth.Key</td>
-                                                    <td class="is-breakable">@oauth.Scopes</td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="footer">
-                                    <hr />
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="header">
+                                            <h4 class="title">User Applications</h4>
+                                            <p class="category">Permits</p>
+                                        </div>
+                                        <div class="content">
+                                            <table class="table">
+                                                <tbody>
+                                                    @foreach (var permit in Model.Permits)
+                                                    {
+                                                        <tr>
+                                                            <td><a href="@permit.RepositoryName">@permit.PermitId</a></td>
+                                                            <td><pre>git clone @permit.RepositoryUrl</pre></td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="footer">
+                                            <hr />
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

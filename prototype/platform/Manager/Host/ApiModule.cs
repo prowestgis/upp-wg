@@ -5,6 +5,7 @@ using Nancy.ModelBinding;
 using System;
 using System.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Manager.Store;
 using RestSharp;
 using NLog;
@@ -18,6 +19,7 @@ using static Manager.Host.PermitView;
 using Newtonsoft.Json.Linq;
 using UPP.Configuration;
 using LibGit2Sharp;
+using UPP.Common;
 
 namespace Manager.Host
 {
@@ -32,12 +34,185 @@ namespace Manager.Host
             //this.RequiresAuthentication();
             Get["/"] = _ => Response.AsJson(new { Message = "Hello", User = Context.CurrentUser });
 
-            // Generate a PDF permit
-            Post["/permit"] = _ => CreatePermitRepository(services, config, Context.CurrentUser as AuthUser);
-            Get["/permit/{guid}"] = _ => FetchPermit(services, config, Context.CurrentUser as AuthUser, _.guid);
+            // Create a new permit application
+            Post["/permits"] = _ => CreatePermitRepository(services, config, Context.CurrentUser as AuthUser);
 
-            Post["/create"] = _ => CreatePermitRepository(services, config, Context.CurrentUser as AuthUser);
+            // Return a list of permits available to the current user. This returns a list of Resource Identifier Objects
+            Get["/permits"] = _ => FindPermits(services, config, Context.CurrentUser as AuthUser);
 
+            // Retrieve a specific permit
+            Get["/permits/{guid}"] = _ => FetchPermit(services, config, Context.CurrentUser as AuthUser, _.guid);
+
+            // Modify a permit
+            Post["/permits/{guid}/patch"] = _ => UpdatePermit(services, config, Context.CurrentUser as AuthUser, _.guid);
+
+            // Create the current digital permit package
+            Post["/permits/{guid}/package"] = _ => GeneratePermit(services, config, Context.CurrentUser as AuthUser);
+
+            // Show the route data for a permit. Route data can only be updated -- it's not a collection
+            Get["/permits/{guid}/route"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Put["/permits/{guid}/route"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+
+            // Show the authorities for a permit. Allow new authorities to be dynamically added (as a batch)
+            Get["/permits/{guid}/authorities"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Post["/permits/{guid}/authorities"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+
+            // Show an authority for a permit. Allow the authority's data to be updated
+            Get["/permits/{guid}/authorities/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Put["/permits/{guid}/authorities/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Delete["/permits/{guid}/authorities/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+
+            // Get the route approved by this authority --- maybe???
+            Get["/permits/{guid}/authorities/{name}/route"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+
+            // Show extra data for a permit, such as bridges, weather data, etc.  Simple get/put API.
+            Get["/permits/{guid}/extra"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Post["/permits/{guid}/extra"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Get["/permits/{guid}/extra/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Put["/permits/{guid}/extra/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Delete["/permits/{guid}/extra/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+
+            // Files can be uploaded and attached to the permit
+            Get["/permits/{guid}/attachments"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Post["/permits/{guid}/attachments"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Get["/permits/{guid}/attachments/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Put["/permits/{guid}/attachments/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Delete["/permits/{guid}/attachments/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+        }
+
+        private Response FindPermits(Services services, HostConfigurationSection config, AuthUser user)
+        {
+            // Configuration parameters
+            var workspace = config.Keyword(Keys.UPP__PERMIT_WORKSPACE);
+            var repoUrlTemplate = config.Keyword(Keys.UPP__PERMIT_REPOSITORY_URL_TEMPLATE);
+
+            // Find the bundles
+            var permitList = services.FindPermitBundles(user.ExtendedClaims["upp"] as string, repoUrlTemplate);
+
+            // Convert to a JSON API object
+            var baseUrl = config.Keyword(Keys.NANCY__HOST_BASE_URI);
+
+            var model = new
+            {
+                Data = permitList.Select(x => new
+                {
+                    Type = "permit-application",
+                    Id = x.PermitId,
+                    Links = new
+                    {
+                        Self = String.Format("{0}api/permits/{1}", baseUrl, x.PermitId),
+                        Origin = x.RepositoryUrl
+                    }
+                })
+            };
+
+            return Response.AsJson(model);
+        }
+
+        private JObject UpdatePermitSection(Stream source, JObject permit, string jpath)
+        {
+            using (var sr = new StreamReader(source))
+            using (var reader = new JsonTextReader(sr))
+            {
+                var serializer = new Newtonsoft.Json.JsonSerializer();
+
+                // read the json from a stream
+                var formData = JObject.ReadFrom(reader);
+
+                // Replace the target property with this content
+                permit.SelectToken(jpath).Replace(formData);
+
+                return permit;
+            }
+        }
+
+        private Response UpdatePermit(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
+        {
+            // Configuration parameters
+            var workspace = config.Keyword(Keys.UPP__PERMIT_WORKSPACE);
+            var repoUrlTemplate = config.Keyword(Keys.UPP__PERMIT_REPOSITORY_URL_TEMPLATE);
+
+            // Find the record
+            var bundle = services.FetchPermitBundle(user.ExtendedClaims["upp"] as string, repoUrlTemplate, permitIdentifier);
+
+            // Generate the repository path
+            var repoPath = Path.Combine(workspace, bundle.RepositoryName);
+
+            // If the repository does not already exists, clone it
+            if (!Directory.Exists(repoPath))
+            {
+                Repository.Clone(bundle.RepositoryUrl, repoPath);
+            }
+
+            JObject permit = null;
+            string path;
+            using (var repo = new Repository(repoPath))
+            {
+                // Update the checkout
+                var author = new Signature(user.UserName, user.Email, DateTime.Now);
+                var mergeResult = Commands.Pull(repo, author, new PullOptions());
+
+                // Read the current permit file and return
+                path = Path.Combine(repo.Info.WorkingDirectory, "permit.json");
+                permit = JObject.Parse(File.ReadAllText(path));
+            }
+
+            // What document are we updating?
+            var section = Request.Query.section.Value as string ?? String.Empty;
+            switch(section.ToLower())
+            {
+                // Form data goes under the main "data" property
+                case "form-data":
+                    permit = UpdatePermitSection(Request.Body, permit, "data.attributes.form-data");
+                    break;
+
+                // Bridges go under the top-level "relationships" property.
+                case "bridges":
+                    permit = UpdatePermitSection(Request.Body, permit, "relationships.bridge.data");
+                    break;
+
+                // The route is a "data" property.
+                case "route":
+                    permit = UpdatePermitSection(Request.Body, permit, "data.attributes.route");
+                    break;
+
+                // Update all authorities
+                case "authorities":
+                    permit = UpdatePermitSection(Request.Body, permit, "data.attributes.authorities");
+                    break;
+
+                // Update one authority
+                case "authority":
+                    var authority = Request.Query.authority.Value as string;
+                    permit = UpdatePermitSection(Request.Body, permit, String.Format("data.attributes.authorities.{0}", authority));
+                    break;
+
+                default:
+                    return new Response { StatusCode = HttpStatusCode.BadRequest };
+            }
+
+            // Serialize the json content back to the file
+            File.WriteAllText(path, JsonConvert.SerializeObject(permit, Formatting.Indented));
+
+            // Commit the changes
+            using (var repo = new Repository(repoPath))
+            {
+                Commands.Stage(repo, path);
+
+                var author = new Signature(user.UserName, user.Email, DateTime.Now);
+                var committer = author;
+
+                // Commit the files to the and push to the origin
+                var commit = repo.Commit("Update the permit form data", author, committer);
+
+                var options = new PushOptions();
+                repo.Network.Push(repo.Branches["master"], options);
+            }
+
+            return new Response
+            {
+                StatusCode = HttpStatusCode.OK
+            };
         }
 
         private Response FetchPermit(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
@@ -122,10 +297,27 @@ namespace Manager.Host
                 repo.Network.Push(repo.Branches["master"], options);
             }
 
-            return Response.AsJson(bundle);
+            // Return a JSON API object
+            var baseUrl = config.Keyword(Keys.NANCY__HOST_BASE_URI);
+
+            var model = new
+            {
+                Data = new
+                {
+                    Type = "permit-application",
+                    Id = bundle.PermitId,
+                    Links = new
+                    {
+                        Self = String.Format("{0}api/permits/{1}", baseUrl, bundle.PermitId),
+                        Origin = bundle.RepositoryUrl
+                    }
+                }
+            };
+
+            return Response.AsJson(model);
         }
 
-        private Response GeneratePermit()
+        private Response GeneratePermit(Services services, HostConfigurationSection config, AuthUser user)
         {
             var frm = Request.Form;
             // Raw response

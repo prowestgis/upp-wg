@@ -15,6 +15,7 @@ using NLog;
 using UPP.Security;
 using UPP.Configuration;
 using UPP.Protocols;
+using static Manager.Store.Services;
 
 namespace Manager.Host
 {
@@ -97,12 +98,27 @@ namespace Manager.Host
             // List the active OAuth credentials and registered microservices
             Auths = services.AuthenticationProviders.ToList();
             //MicroServices = services.MicroServices.ToList();
+
+            var baseUrl = config.Keyword(Keys.NANCY__HOST_BASE_URI);
+            if (User == null)
+            {
+                Permits = Enumerable.Empty<PermitBundle>().ToList();
+            }
+            else
+            {
+                Permits = services
+                    .FindPermitBundles(User.ExtendedClaims["upp"] as string, config.Keyword(Keys.UPP__PERMIT_REPOSITORY_URL_TEMPLATE))
+                    .Select(x => { x.RepositoryName = String.Format("{0}api/permits/{1}", baseUrl, x.PermitId); return x; })
+                    .ToList();
+            }
         }
 
         public string ServiceDirectoryUrl { get; set; }
         public AuthUser User { get; set; }
         public List<PrimaryLogin> Logins { get; }
         public List<Services.OAuthProvider> Auths { get; }
+        public List<PermitBundle> Permits { get; }
+
         //public List<Services.MicroServiceProviderConfig> MicroServices { get; }
 
         public sealed class PrimaryLogin
