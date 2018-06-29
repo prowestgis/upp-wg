@@ -36,7 +36,7 @@ namespace AxleInformation
             container.Resolve<Database>().Initialize();
 
             // Register a callback so we can periodically try to register ourselves with the Service Directory.  This is
-            // am improper hijack of the request pipeline, but *much* easier than setting up a real background monitor task
+            // an improper hijack of the request pipeline, but *much* easier than setting up a real background monitor task
             // for prototype development.
             var config = container.Resolve<HostConfigurationSection>();
             pipelines.BeforeRequest.AddItemToStartOfPipeline(RegisterWithServiceDirectory.GetPipelineHook(UPP_IDENTITY, config));
