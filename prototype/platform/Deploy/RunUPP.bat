@@ -6,3 +6,5 @@ start "Trailer Info" /D "..\TrailerInformation\bin\Debug\" TrailerInformation.ex
 start "Truck Info" /D "..\TruckInformation\bin\Debug\" TruckInformation.exe
 start "Insurance Info" /D "..\InsuranceInformation\bin\Debug\" InsuranceInformation.exe
 start "Axle Info" /D "..\AxleInformation\bin\Debug\" AxleInformation.exe
+start "City of Duluth" /D "..\PermitIssuer\bin\Debug\" PermitIssuer.exe Self:Identifier=duluth_ci_mn Nancy:BaseUri=http://localhost:56492
+start "St Louis County" /D "..\PermitIssuer\bin\Debug\" PermitIssuer.exe Self:Identifier=stlouis_co_mn Nancy:BaseUri=http://localhost:56493
