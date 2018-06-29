@@ -113,7 +113,7 @@ namespace TrailerInformation
 	                    license_number as License,
 	                    trailer_state as State,
 	                    empty_weight as EmptyWeight,
-	                    registered_weight as RegistedWeight,
+	                    registered_weight as RegisteredWeight,
                         regulation_weight as RegulationWeight
                     FROM TrailerInformation
                     INNER JOIN Users
