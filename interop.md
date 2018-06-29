@@ -230,7 +230,7 @@ None
 
 Add a new service to the services directory.
 
-_The service directory implementation is influenced by Kobernetes but retricted. In Kubernetes terminology, the UPP services are closer to a Pod_
+_The service directory implementation is influenced by Kubernetes but restricted. In Kubernetes terminology, the UPP services are closer to a Pod_
 
 ```http
 POST /services
@@ -367,7 +367,7 @@ This scope defines the API that a permit authority must implement in order to pr
 
 ## Interoperability Profiles
 
-Each UPP-compliance application need only implement the profiles that it needs to support.  Each profile represents a distinct service unit that acts as a building block of the peer-based, distributed UPP system.
+Each UPP-compliant application need only implement the profiles that it needs to support.  Each profile represents a distinct service unit that acts as a building block of the peer-based, distributed UPP system.
 
 ## Service Directory
 
@@ -453,6 +453,17 @@ Return a single [Permit Record](#Permit-Record) identified by the `receipt`. Thi
 
 Allows a user to submit updates to an existing permit that has already been issued.
 
+## Provisions
+
+## GET `{base}/provisions/catalog`
+
+Returns a collection of all provisions that the UPP authority may apply.
+
+## POST `{base}/provisions/apply`
+
+Apply the provisiont to the permit record.
+
+
 ## UPP Records
 
 The UPP records define the types that can be received and sent among UPP-compliant systems.  Each record is assigned it's own MIME type and the payload follow [jsonapi](http://jsonapi.org) conventions.
@@ -472,6 +483,8 @@ The UPP records define the types that can be received and sent among UPP-complia
 
 ### Permit Request Response (application/vnd.upp.permit-issuer.response)
 
+Any [link object](http://jsonapi.org/format/#document-links) that contains an `include-in-packet` meta property that is `true` references content that should be included in the final digital permit packet.
+
 ```text
 {
     "type": "upp.permit-response",
@@ -482,5 +495,11 @@ The UPP records define the types that can be received and sent among UPP-complia
         "status": "approved" | "denied" | "no_authority" | "under_review",
     },
     "links": {
+        "provisions": {
+            "href": "https://hostname/resources/provisions.pdf",
+            "meta": {
+                "include-in-packet": true | false
+            }
+        }
     }
 }
