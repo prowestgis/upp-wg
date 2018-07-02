@@ -16,17 +16,41 @@ namespace UPP.Protocols
     /// </summary>
     public sealed class ServiceRegistrationRecord
     {
-        // Type of service being registered
+        public string Kind { get; set; }
+        public string ApiVersion { get; set; }
+        public ServiceRegistrationMetadata Metadata { get; set; }
+        public ServiceRegistrationSpec Spec { get; set; }
+    }
+
+    public sealed class ServiceRegistrationMetadata
+    {
+        public string Name { get; set; }
+        public string Uid { get; set; }
+        public ServiceRegistrationLabels Labels { get; set; }
+        public ServiceRegistrationAnnotations Annotations { get; set; }
+    }
+
+    public sealed class ServiceRegistrationSpec
+    {
         public string Type { get; set; }
+        public string ExternalName { get; set; }
+        public string Path { get; set; }
+    }
 
-        // Source of the service. Must be whitelisted.
-        public string Whoami { get; set; }
-
-        // URI of the service endpoint
-        public string Uri { get; set; }
-
-        // Scopes of a service that are supported. MUST be
-        // supplied.  Can pass '*' to support all scopes.
+    public sealed class ServiceRegistrationLabels
+    {
+        public string FriendlyName { get; set; }
         public string Scopes { get; set; }
+        public string Authority { get; set; }
+        public string Type { get; set; }
+        public string Format { get; set; }
+    }
+
+    public sealed class ServiceRegistrationAnnotations
+    {
+        public string Description { get; set; }
+        public int Priority { get; set; }
+        public string OAuthId { get; set; }
+        public string TokenId { get; set; }
     }
 }

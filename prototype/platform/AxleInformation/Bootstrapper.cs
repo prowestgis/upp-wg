@@ -12,6 +12,7 @@ namespace AxleInformation
     public class Bootstrapper : UPP.Common.NancyBootstrapper
     {
         private static string UPP_IDENTITY = ConfigurationManager.AppSettings[AppKeys.UPP_IDENTITY];
+        private static string UPP_AUTHORITY = ConfigurationManager.AppSettings[AppKeys.UPP_AUTHORITY];
 
         protected override void ConfigureConventions(NancyConventions conventions)
         {

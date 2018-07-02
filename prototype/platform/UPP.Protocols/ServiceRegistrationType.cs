@@ -12,13 +12,15 @@ namespace UPP.Protocols
         public static readonly ServiceRegistrationType GEOMETRY = new ServiceRegistrationType(Domain.GEOMETRY, "geometry", "Low-Level Geometry Operations");
         public static readonly ServiceRegistrationType COUNTY_BOUNDARIES = new ServiceRegistrationType(Domain.COUNTY_BOUNDARIES, "boundaries.county", "Official County Boundaries");
         public static readonly ServiceRegistrationType UPP = new ServiceRegistrationType(Domain.UPP, "upp", "UPP Trusted Service Endpoint");
+        public static readonly ServiceRegistrationType UPP_INFORMATION_AXLE = new ServiceRegistrationType(Domain.UPP_INFORMATION_AXLE, "upp.information.axle", "UPP Axle Information");
 
         public enum Domain
         {
             ROUTE,
             GEOMETRY,
             COUNTY_BOUNDARIES,
-            UPP
+            UPP,
+            UPP_INFORMATION_AXLE
         };
 
         private static readonly List<ServiceRegistrationType> domain = new List<ServiceRegistrationType>
@@ -26,7 +28,8 @@ namespace UPP.Protocols
             ROUTE,
             GEOMETRY,
             COUNTY_BOUNDARIES,
-            UPP
+            UPP,
+            UPP_INFORMATION_AXLE
         };
 
         public static IEnumerable<ServiceRegistrationType> AsEnumerable()

@@ -8,52 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UPP.Protocols;
+using UPP.Common;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace ServiceDirectory
 {
-    /// <summary>
-    /// The agent API allows trusted hosts to manage their metadata
-    /// </summary>
-    public sealed class ServiceDiscoveryAgent : NancyModule
-    {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        public ServiceDiscoveryAgent(Database database) : base("/api/v1/agent")
-        {
-            //this.RequiresAuthentication();
-
-            // Registers service metadata from a trusted source
-            Post["/register"] = _ => RegisterService(database);
-        }
-
-        private Response RegisterService(Database database)
-        {
-            logger.Debug("Registering a new service");
-
-            // Bind the request to the ServiceRegistrationRecord
-            var record = this.Bind<ServiceRegistrationRecord>();
-
-            // Attempt to register with the services table
-            logger.Debug("  Uri    = {0}", record.Uri);
-            logger.Debug("  Type   = {0}", record.Type);
-            logger.Debug("  Whoami = {0}", record.Whoami);
-            logger.Debug("  Scopes = {0}", record.Scopes);
-
-            try
-            {
-                var response = database.RegisterService(record);
-
-                // Return the response as a payload
-                return Response.AsJson(response);
-            }
-            catch (Exception e)
-            {
-                logger.Error(e);
-                return Response.AsJson(new { Success = false });
-            }
-        }
-    }
-
     /// <summary>
     /// The basic service discovery API allows trusted clients to query for hosts that
     /// provide core UPP services
@@ -62,18 +22,84 @@ namespace ServiceDirectory
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public ServiceDiscoveryHosts(Database database) : base("/api/v1/hosts")
+        public ServiceDiscoveryHosts(Database database) : base("/api/v1/services")
         {
-            this.RequiresAuthentication();
+            // this.RequiresAuthentication();
             // this.RequiresClaims(new[] { });
 
-            Get["default", "/"] = _ => ListHosts(database, Request.Query["type"], Request.Query["scope"], Request.Query["authority"]);
-            Get["get_service", "/{name}/access"] = _ => AccessHost(database, _.name);
+            Get["/"] = _ => ListHosts(database);
+            Post["/"] = _ => RegisterService(database);
+
+            // Get service token API
+            Get["/{name}/token"] = _ => AccessHost(database, _.name);
+            Post["/{name}/token"] = _ => AccessHost(database, _.name);
         }
 
-        private Response ListHosts(Database database, string type, string scope, string authority)
+        private Response ListHosts(Database database)
         {
-            return Response.AsJson(database.FindMicroServiceProviderByType(type).Where(x => scope == null || x.Scopes.Contains(scope)).ToList());
+            // Get the parameters from the query string
+            var type = ((string) Request.Query["type"]) ?? "all";
+            var scope = ((string) Request.Query["scope"]) ?? "all";
+            var authority = ((string) Request.Query["authority"]) ?? "all";
+            string sort = ((string)Request.Query["sort"]) ?? "name";
+            var direction = ((string) Request.Query["direction"]) ?? "desc";
+
+            // Map the sort direction onto a real property name
+            switch (sort.ToLower())
+            {
+                default:
+                case "name":
+                    sort = Helpers.GetMemberInfo((MicroServiceProviderConfig _) => _.Name).Name;
+                    break;
+
+                case "type":
+                    sort = Helpers.GetMemberInfo((MicroServiceProviderConfig _) => _.Type).Name;
+                    break;
+
+                case "display_name":
+                    sort = Helpers.GetMemberInfo((MicroServiceProviderConfig _) => _.DisplayName).Name;
+                    break;
+            }
+
+            // Perform the query
+            var filter = database.FindMicroServiceProviderByType(type)
+                .AsQueryable()
+                .Where(x => scope == "all" || x.Scopes.Contains(scope))
+                .Where(x => authority == "all" || x.Authority == authority)
+                .OrderBy(sort, direction == "asc")
+                ;
+
+            return Response.AsJson(filter);
+        }
+
+        private Response RegisterService(Database database)
+        {
+            logger.Debug("Registering a new service");
+
+            // Deserialize from the body
+            using (var sr = new StreamReader(Request.Body))
+            using (var reader = new JsonTextReader(sr))
+            {
+                try
+                {
+                    // Create our own serializer
+                    var serializer = new Newtonsoft.Json.JsonSerializer();
+
+                    // read the json from a stream
+                    var record = serializer.Deserialize<ServiceRegistrationRecord>(reader);
+
+                    // Register with the database
+                    var response = database.RegisterService(record);
+
+                    // Return the response as a payload
+                    return Response.AsJson(response);
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e);
+                    return Response.AsJson(new { Success = false });
+                }
+            }
         }
 
         private Response AccessHost(Database database, string name)

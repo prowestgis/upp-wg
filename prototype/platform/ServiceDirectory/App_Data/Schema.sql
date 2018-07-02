@@ -21,13 +21,19 @@ create table TokenProviders
 
 create table MicroServiceProviders
 (
-    provider_id                        varchar(100) not null,
-	oauth_provider_id                  varchar(100),
-	token_provider_id                  varchar(100),
-	display_name                       varchar(100) not null,
-	uri                                varchar(1024) not null,
-	service_type                       varchar(100) not null,  -- alias for an OAuth scope
-	service_priority                   integer not null,
-    active                             integer not null,
-	scopes                             varchar(256)
+    id                         integer primary key,    
+    name                       varchar(100) not null,  -- user-defined name; should be a slug -- no spaces
+	type                       varchar(100) not null,  -- type of the service as defines in ServiceRegistrationTypes
+	authority                  varchar(100) not null,  -- who is the owner of this service
+	format                     varchar(100) not null,  -- what format is this data in? feature_service, json_api
+	display_name               varchar(100) not null,  -- friendly name
+	description                varchar(1024),
+	uri                        varchar(1024) not null,
+	priority                   integer not null,
+    active                     integer not null,
+	scopes                     varchar(256),          -- what scopes does this service implement, if any?
+	oauth_provider_id          varchar(100),
+	token_provider_id          varchar(100),
+
+	UNIQUE(type, authority) ON CONFLICT REPLACE
 );

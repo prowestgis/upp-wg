@@ -32,7 +32,7 @@ namespace Manager.Host
         public ApiModule(Services services, HostConfigurationSection config) : base("/api")
         {
             //this.RequiresAuthentication();
-            Get["/"] = _ => Response.AsJson(new { Message = "Hello", User = Context.CurrentUser });
+            Get["/info"] = _ => Response.AsJson(new { Message = "Hello", User = Context.CurrentUser });
 
             // Create a new permit application
             Post["/permits"] = _ => CreatePermitRepository(services, config, Context.CurrentUser as AuthUser);
@@ -52,6 +52,12 @@ namespace Manager.Host
             // Show the route data for a permit. Route data can only be updated -- it's not a collection
             Get["/permits/{guid}/route"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
             Put["/permits/{guid}/route"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+
+            // Show all of the reviews for a permit.
+            Get["/permits/{guid}/reviews"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Post["/permits/{guid}/reviews"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Get["/permits/{guid}/reviews/{receipt}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Put["/permits/{guid}/reviews/{receipt}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
 
             // Show the authorities for a permit. Allow new authorities to be dynamically added (as a batch)
             Get["/permits/{guid}/authorities"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };

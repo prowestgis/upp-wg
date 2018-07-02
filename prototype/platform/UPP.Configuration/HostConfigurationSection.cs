@@ -12,9 +12,19 @@
         public const string NANCY__BASE_URI = "Nancy:BaseUri";
         public const string NANCY__HOST_URI = "Nancy:HostUri";
         public const string NANCY__HOST_BASE_URI = "Nancy:HostBaseUri";
+
         public const string SERVICE_DIRECTORY__BASE_URI = "ServiceDirectory:BaseUri";
         public const string SERVICE_DIRECTORY__HOST_URI = "ServiceDirectory:HostUri";
         public const string SERVICE_DIRECTORY__SCOPES = "ServiceDirectory:Scopes";
+        public const string SERVICE_DIRECTORY__NAME = "ServiceDirectory:Name";
+        public const string SERVICE_DIRECTORY__TYPE = "ServiceDirectory:Type";
+        public const string SERVICE_DIRECTORY__PRIORITY = "ServiceDirectory:Priority";
+        public const string SERVICE_DIRECTORY__LABEL = "ServiceDirectory:Label";
+        public const string SERVICE_DIRECTORY__FORMAT = "ServiceDirectory:Format";
+        public const string SERVICE_DIRECTORY__DESCRIPTION = "ServiceDirectory:Description";
+        public const string SERVICE_DIRECTORY__OAUTH = "ServiceDirectory:OAuth";
+        public const string SERVICE_DIRECTORY__TOKEN = "ServiceDirectory:Token";
+
         public const string UPP__ADMINISTRATORS = "UPP:Administrators";
         public const string UPP__PERMIT_ROOT_PATH = "UPP:PermitRootPath";
         public const string UPP__PERMIT_WORKSPACE = "UPP:PermitWorkspace";
@@ -32,7 +42,15 @@
             { NANCY__HOST_BASE_URI, "/" },
             { SERVICE_DIRECTORY__BASE_URI, null },
             { SERVICE_DIRECTORY__HOST_URI, null },
+
+            { SERVICE_DIRECTORY__NAME, null },
             { SERVICE_DIRECTORY__SCOPES, "" },
+            { SERVICE_DIRECTORY__LABEL, null },
+            { SERVICE_DIRECTORY__TYPE, null },
+            { SERVICE_DIRECTORY__PRIORITY, "1" },
+            { SERVICE_DIRECTORY__OAUTH, null },
+            { SERVICE_DIRECTORY__TOKEN, null },
+
             { SELF__IDENTIFIER, null },
             { UPP__ADMINISTRATORS, "" },
             { UPP__PERMIT_ROOT_PATH, null },
@@ -90,11 +108,25 @@
             return Keyword(key, () => null);
         }
 
+        /// <summary>
+        /// Returns a configuration value from multiple sources in the following priority
+        /// 
+        /// 1. A value provided on the command-line
+        /// 2. A value the appears in the upp/keywords section of the configuration file
+        /// 3. A value that appears in the AppSettings collection
+        /// 4. A value provided by the passed deafult value function
+        /// 5. A value provided in the User Default Values collection
+        /// 6. A value provided by the built-in default value collection
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         public string Keyword(string key, Func<string> defaultValue)
         {
             return
                 Keys.CommandLineValue(key) ??
                 Keywords.Where(x => x.Key.Equals(key)).Select(x => x.Value).FirstOrDefault() ??
+                ConfigurationManager.AppSettings[key] ??
                 defaultValue() ??
                 (UserDefaultValues.ContainsKey(key) ? UserDefaultValues[key]() : Keys.DefaultValues[key])
                 ;
@@ -102,7 +134,7 @@
 
         public T Keyword<T>(string key)
         {
-            var strValue = Keywords.Where(x => x.Key.Equals(key)).Select(x => x.Value).FirstOrDefault() ?? Keys.DefaultValues[key];
+            var strValue = Keyword(key);
             return (T)Convert.ChangeType(strValue, typeof(T));
         }
     }

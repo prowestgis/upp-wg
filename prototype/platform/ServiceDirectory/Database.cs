@@ -32,7 +32,7 @@ namespace ServiceDirectory
 
         public IEnumerable<MicroServiceProviderConfig> FindMicroServiceProviderByType(string type)
         {
-            return MicroServiceProviders.Where(x => type == null || x.Type == type);
+            return MicroServiceProviders.Where(x => type == null || type == "all" || x.Type == type);
         }
 
         public OAuthProviderConfig FindOAuthProviderForService(MicroServiceProviderConfig service)
@@ -50,77 +50,78 @@ namespace ServiceDirectory
         {
             using (var conn = SimpleDbConnection())
             {
+                // Get a reference to the metadata labels
+                var labels = record.Metadata.Labels;
+                var annotations = record.Metadata.Annotations;
+              
                 // Cast the type to a registered value
-                var type = (ServiceRegistrationType)record.Type;
+                var type = (ServiceRegistrationType)labels.Type;
 
-                // Create a unique ID from the type and whoami
-                var identifier = String.Format("{0}_{1}", record.Whoami, type.Key).ToLower();
+                // Extract the table values from the record
+                var name = record.Metadata.Name;
+                var description = annotations.Description;
+                var format = labels.Format;
+                var displayName = labels.FriendlyName;
+                var url = record.Spec.ExternalName + record.Spec.Path;
+                var authority = labels.Authority;
+                var priority = annotations.Priority;
+                var oauth = annotations.OAuthId;
+                var token = annotations.TokenId;
+                var scopes = labels.Scopes;
 
-                // Build up a list of scoped identifiers and check to see if any of them are currently registered
-                var scopedIdentifiers = record.Scopes.FromCSV().Select(scope => identifier + "_" + scope).ToList();
-
-                // Find any existing records
-                logger.Debug("Checking for existing services");
-                var updateIdentifiers = conn.Query<string>(@"
-                    SELECT provider_id
-                    FROM MicroServiceProviders
-                    WHERE provider_id IN @Identifiers
-                    ",
-                    new { Identifiers = scopedIdentifiers })
-                    .ToList();
-
-                // Get the list of new services
-                var insertIdentifiers = scopedIdentifiers.Where(x => !updateIdentifiers.Contains(x)).ToList();
+                logger.Debug("Registering new service:");
+                logger.Debug("  Display     = {0}", displayName);
+                logger.Debug("  Description = {0}", description);
+                logger.Debug("  Url         = {0}", url);
+                logger.Debug("  Type        = {0}", type.Key);
+                logger.Debug("  Format      = {0}", format);
+                logger.Debug("  Authority   = {0}", authority);
+                logger.Debug("  Priority    = {0}", priority);
+                logger.Debug("  Scopes      = {0}", scopes);
+                logger.Debug("  OAuth       = {0}", oauth);
+                logger.Debug("  Token       = {0}", token);
 
                 // Insert the new values
                 logger.Debug("Inserting new services");
                 conn.Execute(@"
-                    INSERT INTO MicroServiceProviders (provider_id, display_name, uri, service_type, service_priority, active, scopes)
-                    VALUES (@Id, @Name, @Uri, @Type, @Priority, @Active, @Scopes)
+                    INSERT INTO MicroServiceProviders (
+                      name,
+                      oauth_provider_id,
+                      token_provider_id,
+                      display_name,
+                      uri,
+                      type,
+                      format,
+                      description,
+                      priority,
+                      authority,
+                      active,
+                      scopes
+                    )
+                    VALUES (@Name, @OAuth, @Token, @DisplayName, @Uri, @Type, @Format, @Description, @Priority, @Authority, @Active, @Scopes)
                     ",
-                    insertIdentifiers.Select(id => new
+                    new
                     {
-                        Id = id,
-                        Name = type.DisplayText,
-                        Uri = record.Uri,
+                        Name = name,
+                        OAuth = oauth,
+                        Token = token,
+                        DisplayName = displayName,
+                        Uri = url,
                         Type = type.Key,
-                        Priority = 1,
+                        Format = format,
+                        Description = description,
+                        Priority = priority,
+                        Authority = authority,
                         Active = 1,
-                        Scopes = record.Scopes
-                    })
-                );
-
-                // Update the old values
-                logger.Debug("Updating existing services");
-                conn.Execute(@"
-                    UPDATE MicroServiceProviders
-                    SET
-                        display_name     = @Name,
-                        uri              = @Uri,
-                        service_type     = @Type,
-                        service_priority = @Priority,
-                        active           = @Active,
-                        scopes           = @Scopes
-                    WHERE
-                        provider_id = @Id
-                    ",
-                    updateIdentifiers.Select(id => new
-                    {
-                        Id = id,
-                        Name = type.DisplayText,
-                        Uri = record.Uri,
-                        Type = type.Key,
-                        Priority = 1,
-                        Active = 1,
-                        Scopes = record.Scopes
-                    })
+                        Scopes = scopes
+                    }
                 );
 
                 // Return a response that enumerates that services were registers, which ones were updates and what failed
                 return new
                 {
-                    Added = insertIdentifiers,
-                    Updated = updateIdentifiers,
+                    Added = new List<string>(),
+                    Updated = new List<string>(),
                     Removed = new List<string>(),
                     Failed = new List<string>()
                 };
@@ -178,13 +179,16 @@ namespace ServiceDirectory
                 {
                     return conn.Query<MicroServiceProviderConfig>(@"
                     SELECT
-                            provider_id AS Name,
+                            name AS Name,
                             display_name AS DisplayName,
+                            description AS Description,
                             oauth_provider_id as OAuthId,
                             token_provider_id as TokenId,
                             uri AS Uri,
-                            service_type AS Type,
-                            service_priority AS Priority,
+                            type AS Type,
+                            priority AS Priority,
+                            authority AS Authority,
+                            format AS Format,
                             active AS Active,
                             scopes AS Scopes
                         FROM MicroServiceProviders
@@ -200,10 +204,13 @@ namespace ServiceDirectory
     {
         public string Name { get; set; }
         public string DisplayName { get; set; }
+        public string Description { get; set; }
         public string OAuthId { get; set; }
         public string TokenId { get; set; }
         public string Uri { get; set; }
         public string Type { get; set; }
+        public string Format { get; set; }
+        public string Authority { get; set; }
         public string Scopes { get; set; }
         public int Priority { get; set; }
     }    
