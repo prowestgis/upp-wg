@@ -3,6 +3,11 @@
     // Package-scoped variables
     var start_map, end_map, route_map, bridgeUtils;
 
+    // Generic error handler for deferreds
+    function generic_error(err) {
+        alert(err + '');
+    }
+
     // static utility functions
     function get_service(filter) {
         var def = $.Deferred();
@@ -10,10 +15,11 @@
 
         $.get(serviceLocator, filter)
             .then(
-                function (records) {
+                function (result) {
                     // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+                    var records = result.data;
                     if (records.length === 0) {
-                        def.reject('The service locator did not return any matching services');
+                        def.reject('The service locator did not return any matching services: ' + JSON.stringify(filter));
                     }
                     def.resolve(records[0]);
                 },
@@ -108,11 +114,11 @@
         // Ask UPP for the geometry service
         var geometryService = null;
         get_service({ type: 'geometry' })
-        .then(function (data) {
-            if (data && data.uri) {
-                geometryService = new GeometryService(data.uri);
-            }
-        });
+            .then(function (data) {
+                if (data && data.uri) {
+                    geometryService = new GeometryService(data.uri);
+                }
+            }, generic_error);
 
         // When the user submits the application, one of the first things to do
         // is use the designated geometry service to chop up the route among
@@ -143,9 +149,7 @@
             var url = sdUrl + "api/v1/services";
             $.get(url, {type: type}, function (data) {
                 if (!data || data.length === 0) {
-                    var message = 'No boundary service is configured for ' + type;
-                    alert(message);
-                    def.reject(message);
+                    def.reject('No boundary service is configured for ' + type);
                 }
 
                 // Intersect the route geometry with the service layer and get a collection of
@@ -204,23 +208,24 @@
 		
         bridgeUtils = new Bridges(route_map, $("#permit-form"));
 		
-        function submit_permit(authorityId){
+        function submit_permit(authority){
             var def = new Deferred();
-            $.get(serviceLocator, { type : "upp", scope: "permit.approval." + authorityId.replace(/\s+/g, '').toLowerCase()}, function (data) { 
+            $.get(serviceLocator, { type: "upp.permit.approval", authority: authority })
+            .then(function (data) { 
                 var form = $("#permit-form");
                 if(!data || data.length === 0){
                     // The service directory did not return a service for the permit authority
-                    form.append('<input type="hidden" name="Authority" value="'+ authorityId +': Service Not Found." />');
-                    def.resolve("Service Not Found");
+                    form.append('<input type="hidden" name="Authority" value="' + authority + ': Service Not Found." />');
+                    def.reject("Service Not Found");
                 } else {
                     // Submit the permit request to the permit authority.
-                    $.post(data[0].uri, serializeForm(form), function(permitData){
+                    $.post(data[0].uri, serializeForm(form)).then(function(permitData) {
 						
-                        form.append('<input type="hidden" name="Authority" value="'+ authorityId +': ' + permitData.status + ' - ' + permitData.timestamp + '." />');
+                        form.append('<input type="hidden" name="Authority" value="' + authority + ': ' + permitData.status + ' - ' + permitData.timestamp + '." />');
                         def.resolve("Service Found");
-                    });
+                    }, df.reject);
                 }
-            });
+            }, def.reject);
             return def;
         }
 
@@ -429,20 +434,20 @@
             });
 
             directions.setTravelMode('Trucking Time');
-        });
+        }, generic_error);
     });
 
     //#region Initialization Code
 
     // Ask the service locator to give us a UPP host that can provide company information.    
-    get_service({ type: "upp", scope: "information.company" })
+    get_service({ type: "upp.information.company" })
         .then(function (service) {
-            return $.get(service.uri);
+            return $.get(service.attributes.uri);
         })
         .then(function (companies) {
             var select = $("#company-selector");
 
-            $.each(companies, function (index, company) {
+            $.each(companies.data, function (index, company) {
                 var opt = $('<option>' + company.companyName + '</option>');
                 opt.data("company", company);
                 select.append(opt);
@@ -452,18 +457,17 @@
             select.change(function (evt) {
                 update_company_info(select.find(":selected").data("company"));
             });
-        });
-    
+        }, generic_error);    
 
     // Ask the service locator to give us a UPP host that can provide insurance information.
-    get_service({ type: "upp", scope: "information.insurance" })
+    get_service({ type: "upp.information.insurance" })
         .then(function (service) {
-            return $.get(service.uri);
+            return $.get(service.attributes.uri);
         })
         .then(function (companies) {
             var select = $("#insurer-selector");
 
-            $.each(companies, function (index, company) {
+            $.each(companies.data, function (index, company) {
                 var opt = $('<option>' + company.providerName + '</option>');
                 opt.data("company", company);
 
@@ -474,18 +478,18 @@
             select.change(function (evt) {
                 update_insurance_info(select.find(":selected").data("company"));
             });
-        });
+        }, generic_error);
 
 
     // Ask the service locator to give us a UPP host that can provide insurance information.
-    get_service({ type: "upp", scope: "information.vehicle" })
+    get_service({ type: "upp.information.vehicle" })
         .then(function (service) {
-            return $.get(service.uri);
+            return $.get(service.attributes.uri);
         })
         .then(function (vehicles) {
             var select = $("#vehicle-selector");
 
-            $.each(vehicles, function (index, vehicle) {
+            $.each(vehicles.data, function (index, vehicle) {
                 var opt = $('<option>' + vehicle.make + ' / ' + vehicle.model + ' (' + vehicle.usdotNumber + ')</option>');
                 opt.data("vehicle", vehicle);
 
@@ -501,26 +505,26 @@
                     update_vehicle_info(data);
 
                     // Ask the service locator to give us a UPP host that can provide truck information.
-                    get_service({ type: "upp", scope: "information.truck" })
-                    .then($.get(service.uri))
+                    get_service({ type: "upp.information.truck" })
+                    .then($.get(service.attributes.uri))
                     .then(function (trucks) {
                         var index = $("#vehicle-selector").children('option:selected').index() - 1;
-                        if (trucks && trucks[index]) {
-                            update_truck_info(trucks[index]);
+                        if (trucks.data && trucks.data[index]) {
+                            update_truck_info(trucks.data[index]);
                         }
                     });
                 }
             });
-        });
+        }, generic_error);
 
     // Ask the service locator to give us a UPP host that can provide insurance information.
-    get_service({ type: "upp", scope: "information.trailer" })
+    get_service({ type: "upp.information.trailer" })
     .then(function (service) {
-        return $.get(service.uri);
+        return $.get(service.attributes.uri);
     })
     .then(function (trailers) {
         var select = $("#trailer-selector");
-        $.each(trailers, function (index, trailer) {
+        $.each(trailers.data, function (index, trailer) {
             var opt = $('<option>' + trailer.description + '</option>');
             opt.data("trailer", trailer);
 
@@ -531,7 +535,7 @@
         select.change(function (evt) {
             update_trailer_info(select.find(":selected").data("trailer"));
         });
-    });
+    }, generic_error);
 
     //#endregion Initialization Code
 

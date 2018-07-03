@@ -12,5 +12,4 @@ create table InsuranceInformation
 	agency_address                     varchar(100) not null,
 	policy_number                      varchar(100) not null,
 	insured_amount                     real not null
-
 );

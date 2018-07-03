@@ -90,7 +90,7 @@ namespace TrailerInformation
             }
         }
 
-        public IEnumerable<dynamic> FindTrailersInfoForUser(IUserIdentity identity)
+        public IEnumerable<TrailerInformationRecord> FindTrailersInfoForUser(IUserIdentity identity)
         {
             // First, check if this user exists it the database.  If not, this is for prototyping, so
             // we randomly assign the user to have a few records per email address
@@ -103,12 +103,13 @@ namespace TrailerInformation
             // The email claim can be a string or an array of email addresses
             using (var conn = SimpleDbConnection())
             {
-                return conn.Query<dynamic>(@"
+                return conn.Query<TrailerInformationRecord>(@"
                     SELECT
+                        TrailerInformation.trailer_id as Id,
 	                    trailer_description as Description,
 	                    make as Make,
 	                    model as Model,
-	                    trailer_type as Type,
+	                    trailer_type as TrailerType,
                         serial_number as SerialNumber,
 	                    license_number as License,
 	                    trailer_state as State,
@@ -123,6 +124,23 @@ namespace TrailerInformation
                     new { Emails = identity.EmailAddresses() }
                     );
             }
+        }
+
+        public sealed class TrailerInformationRecord : IResourceObject
+        {
+            public string Description { get; set; }
+            public string Make { get; set; }
+            public string Model { get; set; }
+            public string TrailerType { get; set; }
+            public string SerialNumber { get; set; }
+            public string License { get; set; }
+            public string State { get; set; }
+            public decimal EmptyWeight { get; set; }
+            public decimal RegisteredWeight { get; set; }
+            public decimal RegulationWeight { get; set; }
+
+            public object Id { get; set; }
+            public string Type { get { return "trailer-information"; } }
         }
     }
 }

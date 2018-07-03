@@ -1,13 +1,48 @@
-﻿using System;
+﻿using Nancy;
+using Nancy.Security;
+using Nancy.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using UPP.Security;
 
 namespace UPP.Common
 {
+    public static class SecurityHooks
+    {
+        public static IUserIdentity LOCAL_USER = new NancyAuthUser(new AuthToken() { Sub = "local", Email = "nobody@example.com" });
+
+        public static void AllowFromLocalHost(this INancyModule module, IUserIdentity user = null)
+        {
+            module.AddBeforeHookOrExecute(SecurityHooks.CheckIsLocal(user ?? LOCAL_USER), "Allow from localhost");
+        }
+
+        private static Func<NancyContext, Response> CheckIsLocal(IUserIdentity user)
+        {
+            return (ctx) =>
+            {
+                if (ctx.Request.IsLocal() && !ctx.CurrentUser.IsAuthenticated())
+                {
+                    ctx.CurrentUser = user;
+                }
+
+                return null;
+            };
+        }
+
+        public static void EnableCORS(this INancyModule module)
+        {
+            module.After.AddItemToEndOfPipeline((ctx) =>
+                ctx.Response
+                    .WithHeader("Access-Control-Allow-Origin", "*")
+                    .WithHeader("Access-Control-Allow-Methods", "POST,GET")
+                    .WithHeader("Access-Control-Allow-Headers", "Accept, Origin, Content-type")
+            );
+        }
+    }
+
     public static class Helpers
     {
         public static IEnumerable<string> FromCSV(this string str)

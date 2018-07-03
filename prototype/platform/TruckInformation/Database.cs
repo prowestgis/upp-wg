@@ -90,7 +90,7 @@ namespace TruckInformation
             }
         }
 
-        public IEnumerable<dynamic> FindTrucksInfoForUser(IUserIdentity identity)
+        public IEnumerable<TruckInformationRecord> FindTrucksInfoForUser(IUserIdentity identity)
         {
             // First, check if this user exists it the database.  If not, this is for prototyping, so
             // we randomly assign the user to have a few records per email address
@@ -103,20 +103,21 @@ namespace TruckInformation
             // The email claim can be a string or an array of email addresses
             using (var conn = SimpleDbConnection())
             {
-                return conn.Query<dynamic>(@"
+                return conn.Query<TruckInformationRecord>(@"
                     SELECT
+                        TruckInformation.truck_id as Id,
 	                    gross_weight as GrossWeight,
 	                    empty_weight as EmptyWeight,
-	                    registered_weight as RegistedWeight,
+	                    registered_weight as RegisteredWeight,
                         regulation_weight as RegulationWeight,
-	                    height,
-	                    width,
+	                    height as Height,
+	                    width as Width,
 	                    truck_length as Length,
 	                    front_overhang as FrontOverhang,
 	                    rear_overhang as RearOverhang,
 	                    left_overhang as LeftOverhang,
 	                    right_overhang as RightOverhang,
-	                    diagram
+	                    diagram as Diagram
                     FROM TruckInformation
                     INNER JOIN Users
                     ON TruckInformation.truck_id = Users.truck_id
@@ -125,6 +126,28 @@ namespace TruckInformation
                     new { Emails = identity.EmailAddresses() }
                     );
             }
+        }
+
+        public sealed class TruckInformationRecord : IResourceObject
+        {
+            public string Diagram { get; set; }
+
+            public decimal FrontOverhang { get; set; }
+            public decimal RearOverhang { get; set; }
+            public decimal LeftOverhang { get; set; }
+            public decimal RightOverhang { get; set; }
+
+            public decimal Height { get; set; }
+            public decimal Width { get; set; }
+            public decimal Length { get; set; }
+
+            public decimal EmptyWeight { get; set; }
+            public decimal GrossWeight { get; set; }
+            public decimal RegisteredWeight { get; set; }
+            public decimal RegulationWeight { get; set; }
+
+            public object Id { get; set; }
+            public string Type { get { return "truck-information"; } }
         }
     }
 }

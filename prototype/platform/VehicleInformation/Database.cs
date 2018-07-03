@@ -90,7 +90,7 @@ namespace VehicleInformation
             }
         }
 
-        public IEnumerable<dynamic> FindVehiclesInfoForUser(IUserIdentity identity)
+        public IEnumerable<VehicleInformationRecord> FindVehiclesInfoForUser(IUserIdentity identity)
         {
             // First, check if this user exists it the database.  If not, this is for prototyping, so
             // we randomly assign the user to have a few records per email address
@@ -103,7 +103,7 @@ namespace VehicleInformation
             // The email claim can be a string or an array of email addresses
             using (var conn = SimpleDbConnection())
             {
-                return conn.Query<dynamic>(@"
+                return conn.Query<VehicleInformationRecord>(@"
                     SELECT
 	                    vehicle_year as Year,
 	                    make as Make,
@@ -114,7 +114,7 @@ namespace VehicleInformation
 	                    serial_number as SerialNumber,
 	                    usdot_number as USDOTNumber,
 	                    empty_weight as EmptyWeight,
-	                    registered_weight as RegistedWeight
+	                    registered_weight as RegisteredWeight
                     FROM VehicleInformation
                     INNER JOIN Users
                     ON VehicleInformation.vehicle_id = Users.vehicle_id
@@ -123,6 +123,24 @@ namespace VehicleInformation
                     new { Emails = identity.EmailAddresses() }
                     );
             }
+        }
+
+        public sealed class VehicleInformationRecord : IResourceObject
+        {
+            public string Year { get; set; }
+            public string Make { get; set; }
+            public string Model { get; set; }
+            public string VehicleType { get; set; }
+            public string License { get; set; }
+            public string State { get; set; }
+            public string SerialNumber { get; set; }
+            public string USDOTNumber { get; set; }
+
+            public decimal RegisteredWeight { get; set; }
+            public decimal RegulationWeight { get; set; }
+
+            public object Id { get; set; }
+            public string Type { get { return "vehicle-information"; } }
         }
     }
 }

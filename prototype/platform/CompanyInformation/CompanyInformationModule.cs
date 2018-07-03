@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UPP.Common;
 using UPP.Configuration;
 using UPP.Security;
 
@@ -22,11 +23,17 @@ namespace CompanyInformation
     {
         public CompanyInformationModule(Database database) : base("/api/v1/companies")
         {
+            // Allow from localhost unconditionally
+            this.AllowFromLocalHost();
+
             // Need a valid JWT to access
             this.RequiresAuthentication();
 
+            // Allow cross-origin requests
+            this.EnableCORS();
+
             // Registers service metadata from a trusted source
-            Get["/"] = _ => Response.AsJson(database.FindCompanyInfoForUser(Context.CurrentUser));
+            Get["/"] = _ => Response.AsJsonAPI(database.FindCompanyInfoForUser(Context.CurrentUser));
         }
     }
 

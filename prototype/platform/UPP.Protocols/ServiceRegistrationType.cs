@@ -12,7 +12,13 @@ namespace UPP.Protocols
         public static readonly ServiceRegistrationType GEOMETRY = new ServiceRegistrationType(Domain.GEOMETRY, "geometry", "Low-Level Geometry Operations");
         public static readonly ServiceRegistrationType COUNTY_BOUNDARIES = new ServiceRegistrationType(Domain.COUNTY_BOUNDARIES, "boundaries.county", "Official County Boundaries");
         public static readonly ServiceRegistrationType UPP = new ServiceRegistrationType(Domain.UPP, "upp", "UPP Trusted Service Endpoint");
+
         public static readonly ServiceRegistrationType UPP_INFORMATION_AXLE = new ServiceRegistrationType(Domain.UPP_INFORMATION_AXLE, "upp.information.axle", "UPP Axle Information");
+        public static readonly ServiceRegistrationType UPP_INFORMATION_COMPANY = new ServiceRegistrationType(Domain.UPP_INFORMATION_COMPANY, "upp.information.company", "UPP Company Information");
+        public static readonly ServiceRegistrationType UPP_INFORMATION_INSURANCE = new ServiceRegistrationType(Domain.UPP_INFORMATION_INSURANCE, "upp.information.insurance", "UPP Insurance Information");
+        public static readonly ServiceRegistrationType UPP_INFORMATION_TRAILER = new ServiceRegistrationType(Domain.UPP_INFORMATION_TRAILER, "upp.information.trailer", "UPP Trailer Information");
+        public static readonly ServiceRegistrationType UPP_INFORMATION_TRUCK = new ServiceRegistrationType(Domain.UPP_INFORMATION_TRUCK, "upp.information.truck", "UPP Truck Information");
+        public static readonly ServiceRegistrationType UPP_INFORMATION_VEHICLE = new ServiceRegistrationType(Domain.UPP_INFORMATION_VEHICLE, "upp.information.vehicle", "UPP Vehicle Information");
 
         public enum Domain
         {
@@ -20,7 +26,12 @@ namespace UPP.Protocols
             GEOMETRY,
             COUNTY_BOUNDARIES,
             UPP,
-            UPP_INFORMATION_AXLE
+            UPP_INFORMATION_AXLE,
+            UPP_INFORMATION_COMPANY,
+            UPP_INFORMATION_INSURANCE,
+            UPP_INFORMATION_TRAILER,
+            UPP_INFORMATION_TRUCK,
+            UPP_INFORMATION_VEHICLE
         };
 
         private static readonly List<ServiceRegistrationType> domain = new List<ServiceRegistrationType>
@@ -29,7 +40,12 @@ namespace UPP.Protocols
             GEOMETRY,
             COUNTY_BOUNDARIES,
             UPP,
-            UPP_INFORMATION_AXLE
+            UPP_INFORMATION_AXLE,
+            UPP_INFORMATION_COMPANY,
+            UPP_INFORMATION_INSURANCE,
+            UPP_INFORMATION_TRAILER,
+            UPP_INFORMATION_TRUCK,
+            UPP_INFORMATION_VEHICLE
         };
 
         public static IEnumerable<ServiceRegistrationType> AsEnumerable()

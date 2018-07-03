@@ -158,8 +158,7 @@ namespace CompanyInformation
             }
         }
 
-
-        public IEnumerable<dynamic> FindCompanyInfoForUser(IUserIdentity identity)
+        public IEnumerable<CompanyInformationRecord> FindCompanyInfoForUser(IUserIdentity identity)
         {
             // First, check if this user exists it the database.  If not, this is for prototyping, so
             // we randomly assign the user to have a few companies per email address
@@ -172,8 +171,9 @@ namespace CompanyInformation
             // The email claim can be a string or an array of email addresses
             using (var conn = SimpleDbConnection())
             {
-                return conn.Query<dynamic>(@"
+                return conn.Query<CompanyInformationRecord>(@"
                     SELECT
+                        CompanyInformation.company_id as Id,
                         company_name AS CompanyName,
                         email AS Email,
                         contact AS Contact,
@@ -190,6 +190,21 @@ namespace CompanyInformation
                     new { Emails = identity.EmailAddresses() }
                     );
             }
+        }
+
+        public sealed class CompanyInformationRecord : IResourceObject
+        {
+            public string CompanyName { get; set; }
+            public string Email { get; set; }
+            public string Contact { get; set; }
+            public string Phone { get; set; }
+            public string Fax { get; set; }
+            public string Cell { get; set; }
+            public string BillTo { get; set; }
+            public string BillingAddress { get; set; }
+
+            public object Id { get; set; }
+            public string Type { get { return "company-information"; } }
         }
     }
 }

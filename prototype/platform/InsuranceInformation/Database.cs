@@ -90,7 +90,7 @@ namespace InsuranceInformation
             }
         }
 
-        public IEnumerable<dynamic> FindInsuranceInfoForUser(IUserIdentity identity)
+        public IEnumerable<InsuranceInformationRecord> FindInsuranceInfoForUser(IUserIdentity identity)
         {
             // First, check if this user exists it the database.  If not, this is for prototyping, so
             // we randomly assign the user to have a few records per email address
@@ -103,8 +103,9 @@ namespace InsuranceInformation
             // The email claim can be a string or an array of email addresses
             using (var conn = SimpleDbConnection())
             {
-                return conn.Query<dynamic>(@"
+                return conn.Query<InsuranceInformationRecord>(@"
                     SELECT
+                        InsuranceInformation.insurance_id as Id,
                         provider_name AS ProviderName,
                         agency_address AS AgencyAddress,
                         policy_number AS PolicyNumber,
@@ -117,6 +118,17 @@ namespace InsuranceInformation
                     new { Emails = identity.EmailAddresses() }
                     );
             }
+        }
+
+        public sealed class InsuranceInformationRecord : IResourceObject
+        {
+            public string ProviderName { get; set; }
+            public string AgencyAddress { get; set; }
+            public string PolicyNumber { get; set; }
+            public decimal InsuredAmount { get; set; }
+
+            public object Id { get; set; }
+            public string Type { get { return "insurance-information"; } }
         }
     }
 }
