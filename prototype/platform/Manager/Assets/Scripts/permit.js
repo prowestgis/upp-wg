@@ -506,13 +506,15 @@
 
                     // Ask the service locator to give us a UPP host that can provide truck information.
                     get_service({ type: "upp.information.truck" })
-                    .then($.get(service.attributes.uri))
-                    .then(function (trucks) {
-                        var index = $("#vehicle-selector").children('option:selected').index() - 1;
-                        if (trucks.data && trucks.data[index]) {
-                            update_truck_info(trucks.data[index]);
-                        }
-                    });
+                        .then(function (service) {
+                            return $.get(service.attributes.uri);
+                        })
+                        .then(function (trucks) {
+                            var index = $("#vehicle-selector").children('option:selected').index() - 1;
+                            if (trucks.data && trucks.data[index]) {
+                                update_truck_info(trucks.data[index]);
+                            }
+                        });
                 }
             });
         }, generic_error);
