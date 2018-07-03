@@ -246,6 +246,7 @@
                                                 <th>Token</th>
                                                 <th></th>
                                                 <th>Type</th>
+                                                <th>Format</th>
                                                 <th>Priority</th>
                                             </tr>
                                         </thead>
@@ -277,17 +278,18 @@
     <script type="text/javascript">
         // Fetch the current list of registered microservices
         var sdUrl = "@Model.ServiceDirectoryUrl";
-        $.get(sdUrl + 'api/v1/hosts', function (services) {
+        $.get(sdUrl + 'api/v1/services', function (services) {
             var table = $('#microservice-table');
-            $.each(services, function (index, service) {
+            $.each(services.data, function (index, service) {
                 var row = $(
                     '<tr>' +
-                        '<td>' + service.displayName + '</td>' +
-                        '<td>' + (service.oAuthId || "None") + '</td>' +
-                        '<td>' + (service.tokenId || "None") + '</td>' +
-                        '<td>' + service.uri + '</td>' +
-                        '<td>' + service.type + '</td>' +
-                        '<td>' + service.priority + '</td>' +
+                        '<td>' + service.attributes.displayName + '</td>' +
+                        '<td>' + (service.attributes.oAuthId || "None") + '</td>' +
+                        '<td>' + (service.attributes.tokenId || "None") + '</td>' +
+                        '<td>' + service.attributes.uri + '</td>' +
+                        '<td>' + service.attributes.type + '</td>' +
+                        '<td>' + service.attributes.format + '</td>' +
+                        '<td>' + service.attributes.priority + '</td>' +
                     '</tr>'
                 );
 

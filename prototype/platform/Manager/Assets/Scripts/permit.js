@@ -6,7 +6,7 @@
     // static utility functions
     function get_service(filter) {
         var def = $.Deferred();
-        var serviceLocator = sdUrl + "api/v1/hosts";
+        var serviceLocator = sdUrl + "api/v1/services";
 
         $.get(serviceLocator, filter)
             .then(
@@ -30,7 +30,7 @@
 
         // Check to see if the service is secured
         if (record.oAuthId || record.tokenId) {
-            var url = sdUrl + "api/v1/hosts/" + record.name + "/access";
+            var url = sdUrl + "api/v1/services/" + record.name + "/access";
             $.get(url, function (service) {
                 if (!service.url) {
                     def.reject('No secure url is configured');
@@ -140,7 +140,7 @@
         function getAuthorities(type, fieldName, route) {
             var def = new Deferred();
             // Ask UPP for the geometry service
-            var url = sdUrl + "api/v1/hosts";
+            var url = sdUrl + "api/v1/services";
             $.get(url, {type: type}, function (data) {
                 if (!data || data.length === 0) {
                     var message = 'No boundary service is configured for ' + type;

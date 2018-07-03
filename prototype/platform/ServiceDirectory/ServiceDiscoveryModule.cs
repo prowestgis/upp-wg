@@ -69,7 +69,35 @@ namespace ServiceDirectory
                 .OrderBy(sort, direction == "asc")
                 ;
 
-            return Response.AsJson(filter);
+            // Convert the result into a JSON API object
+            var json = filter.Select(x => new _ServiceConfigJSAPI
+            {
+                Type = "microservice-config",
+                Id = String.Format("{0}+{1}", x.Authority, x.Type),
+                Attributes = new
+                {
+                    x.Authority,
+                    x.Description,
+                    x.DisplayName,
+                    x.Format,
+                    x.Name,
+                    x.OAuthId,
+                    x.Priority,
+                    x.Scopes,
+                    x.TokenId,
+                    x.Type,
+                    x.Uri,
+                }
+            });
+
+            return Response.AsJsonAPI(json.AsEnumerable());
+        }
+
+        private class _ServiceConfigJSAPI : IResourceObject
+        {
+            public object Id { get; set; }
+            public string Type { get; set; }
+            public object Attributes { get; set; }
         }
 
         private Response RegisterService(Database database)
