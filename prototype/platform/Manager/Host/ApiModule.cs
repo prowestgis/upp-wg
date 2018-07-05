@@ -16,7 +16,6 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.factories;
 using static Manager.Host.PermitView;
-using Newtonsoft.Json.Linq;
 using UPP.Configuration;
 using LibGit2Sharp;
 using UPP.Common;
