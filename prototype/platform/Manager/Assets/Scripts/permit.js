@@ -5,6 +5,7 @@
 
     // Generic error handler for deferreds
     function generic_error(err) {
+        console.log('generic_error', err);
         alert(err + '');
     }
 
@@ -35,8 +36,9 @@
         var def = $.Deferred();
 
         // Check to see if the service is secured
-        if (record.oAuthId || record.tokenId) {
-            var url = sdUrl + "api/v1/services/" + record.name + "/access";
+        var attributes = (record && record.attributes) || {};
+        if (attributes.oAuthId || attributes.tokenId) {
+            var url = sdUrl + "api/v1/services/" + attributes.name + "/access";
             $.get(url, function (service) {
                 if (!service.url) {
                     def.reject('No secure url is configured');
@@ -48,8 +50,8 @@
                     return;
                 }
 
-                record.token = service.token;
-                record.isSecured = service.isSecured;
+                attributes.token = service.token;
+                attributes.isSecured = service.isSecured;
 
                 def.resolve(record);
             });
@@ -393,7 +395,7 @@
         .then(function (service) {
             directions = new Directions({
                 map: route_map,
-                routeTaskUrl: service.url + "?token=" + service.token,
+                routeTaskUrl: service.attributes.uri + "?token=" + service.attributes.token,
                 showClearButton: true,
                 showTrafficOption: false,
                 showPrintPage: false
