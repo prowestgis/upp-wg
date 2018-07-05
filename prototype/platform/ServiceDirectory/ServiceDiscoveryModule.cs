@@ -31,8 +31,8 @@ namespace ServiceDirectory
             Post["/"] = _ => RegisterService(database);
 
             // Get service token API
-            Get["/{name}/token"] = _ => AccessHost(database, _.name);
-            Post["/{name}/token"] = _ => AccessHost(database, _.name);
+            Get["/{name}/access"] = _ => AccessHost(database, _.name);
+            Post["/{name}/access"] = _ => AccessHost(database, _.name);
         }
 
         private Response ListHosts(Database database)
