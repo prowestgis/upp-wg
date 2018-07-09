@@ -253,17 +253,26 @@ Content-Type: application/vnd.upp.service
     "kind": "Service",
     "apiVersion": "v1",
     "metadata": {
-        "name": "",
-        "namespace": "",
+        "name": "<SVC-style DNS name>",
         "uid": "<RFC 4122>",
-
-        "labels": { "key": "value" },
-        "annotations": { "key": "value" }
+        "labels": {
+            "friendlyName": "UPP Service Information",
+            "scopes": "foo.bar baz",
+            "authority": "<Authority>",
+            "type": "<UPP Service Type>",
+            "Format":"<UPP Service Format>"
+        },
+        "annotations": {
+            "description":"A long description about the service",
+            "priority": 1,
+            "oAuthId": null,
+            "tokenId":null
+        }
     },
     "spec": {
         "type": "ExternalName",
-        "externalName": "hostname",
-        "path": "/root"
+        "externalName": "https://my.host.com:port",
+        "path":"/path/to/api/root"
     }
 }
 ```
@@ -317,6 +326,19 @@ The `format` parameter identifies the exact underlying protocol that the data se
 * `json_api` (as defined in the [jSON API](http://jsonapi.org) specification)
 
 Unlike the Discovery API, the Data API does not provide any predefined support for secured services. A UPP client is responsible for supporting the ability to access secured versions of the data sources. The `meta` property may be used to defined client-specific information.
+
+The `type` parameter identifies the UPP service type of the data service.  Valid valued are
+
+* `route` for Esri-compatible routing services
+* `geometry` for Esri-compatible geometry services
+* `boundaries.county`for County boundaries use to identify a route's authorities
+* `upp` for generic UPP data services
+* `upp.information.axle` for UPP axle information
+* `upp.information.company` for UPP company information
+* `upp.information.insurance` for UPP insurance information
+* `upp.information.trailer` for UPP trailer information
+* `upp.information.truck` for UPP truck information
+* `upp.information.vehicle` for UPP vehicle information
 
 ##### Required scopes
 
