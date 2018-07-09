@@ -173,6 +173,7 @@ namespace UPP.Common
 
             // Get the response and see if we were able to register outselves
             var response = client.Execute(request);
+            logger.Debug(request.Parameters.Find(param => param.Type == ParameterType.RequestBody).Value.ToString());
             logger.Debug("Service Directory Response: {0}", response.Content);
 
             // Parse the response
