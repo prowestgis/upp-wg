@@ -40,12 +40,12 @@ namespace Manager.Store
             {
                 OAuthProviders.Add(new OAuthProvider("github", settings[AppKeys.GITHUB_OAUTH_KEY], settings[AppKeys.GITHUB_OAUTH_SECRET]));
             }
-            /*
+            
             if (keys.Contains(AppKeys.RTVISION_OAUTH_KEY) && keys.Contains(AppKeys.RTVISION_OAUTH_SECRET))
             {
                 OAuthProviders.Add(new OAuthProvider("rtvision", settings[AppKeys.RTVISION_OAUTH_KEY], settings[AppKeys.RTVISION_OAUTH_SECRET]));
             }
-
+            /*
             if (keys.Contains(AppKeys.MNDOT_OAUTH_KEY) && keys.Contains(AppKeys.MNDOT_OAUTH_SECRET))
             {
                 OAuthProviders.Add(new OAuthProvider("mndot", settings[AppKeys.MNDOT_OAUTH_KEY], settings[AppKeys.MNDOT_OAUTH_SECRET]));
@@ -170,11 +170,11 @@ namespace Manager.Store
 
                         authenticationProviderFactory.AddProvider(new GitHubProvider(parameters));
                         break;
-                    /*
+                    
                 case "rtvision":
                     authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
                     break;
-
+                        /*
                 case "mndot":
                     authenticationProviderFactory.AddProvider(new RTVisionProvider(parameters));
                     break;

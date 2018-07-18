@@ -21,19 +21,19 @@ namespace UPP.SimpleAuthentication.Providers
 
         protected RTVisionProvider(string name, ProviderParams providerParams) : base(name, providerParams)
         {
-            AuthenticateRedirectionUrl = new Uri("https://api.rtvision.com/login/oauth/authorize");
+            AuthenticateRedirectionUrl = new Uri("https://staging-upp.onegov.rtvision.com/core/oauth/auth_code.php");
         }
 
         #region BaseOAuth20Token<AccessTokenResult> Implementation
 
         public override IEnumerable<string> DefaultScopes
         {
-            get { return new[] { "user:email" }; }
+            get { return new[] { "basic","email","company","insurance","vehicle","truck","apply" }; }
         }
 
         public override string ScopeSeparator
         {
-            get { return ","; }
+            get { return "+"; }
         }
 
         protected override IRestResponse<AccessTokenResult> ExecuteRetrieveAccessToken(string authorizationCode,
@@ -50,14 +50,14 @@ namespace UPP.SimpleAuthentication.Providers
                 throw new ArgumentNullException("redirectUri");
             }
 
-            var restRequest = new RestRequest("/login/oauth/access_token", Method.POST);
+            var restRequest = new RestRequest("/core/oauth/auth_code.php", Method.POST);
             restRequest.AddParameter("client_id", PublicApiKey);
             restRequest.AddParameter("client_secret", SecretApiKey);
             restRequest.AddParameter("redirect_uri", redirectUri.AbsoluteUri);
             restRequest.AddParameter("code", authorizationCode);
             restRequest.AddParameter("grant_type", "authorization_code");
 
-            var restClient = RestClientFactory.CreateRestClient("https://api.rtvision.com");
+            var restClient = RestClientFactory.CreateRestClient("https://staging-upp.onegov.rtvision.com");
             TraceSource.TraceVerbose("Retrieving Access Token endpoint: {0}",
                                      restClient.BuildUri(restRequest).AbsoluteUri);
 
@@ -105,10 +105,10 @@ namespace UPP.SimpleAuthentication.Providers
 
             try
             {
-                var restRequest = new RestRequest("/user", Method.GET);
+                var restRequest = new RestRequest("/core/oauth/user", Method.GET);
                 restRequest.AddParameter(AccessTokenKey, accessToken.PublicToken);
 
-                var restClient = RestClientFactory.CreateRestClient("https://api.github.com");
+                var restClient = RestClientFactory.CreateRestClient("https://staging-upp.onegov.rtvision.com");
 
                 restClient.UserAgent = PublicApiKey;
 
