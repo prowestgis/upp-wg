@@ -33,7 +33,7 @@ namespace UPP.SimpleAuthentication.Providers
 
         public override string ScopeSeparator
         {
-            get { return "+"; }
+            get { return " "; }
         }
 
         protected override IRestResponse<AccessTokenResult> ExecuteRetrieveAccessToken(string authorizationCode,
