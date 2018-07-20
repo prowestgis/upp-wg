@@ -3,6 +3,17 @@
     // Package-scoped variables
     var start_map, end_map, route_map, bridgeUtils;
 
+	// Get the token from the cookie and add it to the headers.
+	var match = document.cookie.match(new RegExp('(^| )uppToken=([^;]+)'));
+
+	$.ajaxSetup({
+		headers: {'uppToken': match[2]},
+		xhrFields: {
+		   withCredentials: true
+		},
+		crossDomain: true
+	});
+
     // Generic error handler for deferreds
     function generic_error(err) {
         console.log('generic_error', err);
