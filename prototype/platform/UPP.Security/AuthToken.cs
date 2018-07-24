@@ -23,6 +23,7 @@ namespace UPP.Security
         public string Upp { get; set; }
 
         // External access tokens
+        [JsonProperty("tokens")]
         public string Tokens { get; set; }
 
         // Claims required by Hauler Info
