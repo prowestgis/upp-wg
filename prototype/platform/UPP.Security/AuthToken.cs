@@ -22,6 +22,9 @@ namespace UPP.Security
         [JsonProperty("upp")]
         public string Upp { get; set; }
 
+        // External access tokens
+        public string Tokens { get; set; }
+
         // Claims required by Hauler Info
         [JsonProperty("email")]
         public string Email { get; set; }

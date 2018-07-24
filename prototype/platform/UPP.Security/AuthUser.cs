@@ -50,6 +50,7 @@ namespace UPP.Security
             ExtendedClaims.Add("upp", token.Upp);
             ExtendedClaims.Add("email", token.Email);
             ExtendedClaims.Add("phone", token.Phone);
+            ExtendedClaims.Add("tokens", token.Tokens);
 
             UtcExpiration = token.Exp;
         }
