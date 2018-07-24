@@ -45,6 +45,15 @@ namespace UPP.Common
 
     public static class Helpers
     {
+        public static string ExtendClaim(this string claims, string claim)
+        {
+            var input = claims ?? String.Empty;
+            var array = input.Split(' ').Where(x => !String.IsNullOrWhiteSpace(x)).ToList();
+            array.Add(claim);
+
+            return String.Join(" ", array.Distinct());
+        }
+
         public static IEnumerable<string> FromCSV(this string str)
         {
             return str.Split(',').Select(x => x.Trim());
