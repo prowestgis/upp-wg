@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UPP.Configuration;
+using UPP.Common;
 using UPP.Security;
 
 namespace Manager.Security
@@ -40,6 +41,7 @@ namespace Manager.Security
             if (model.Exception != null)
             {
                 logger.Warn(model.Exception);
+
                 throw model.Exception;
             }
 
@@ -97,13 +99,15 @@ namespace Manager.Security
                     Exp = DateTime.UtcNow.AddHours(1),
                     Email = model.AuthenticatedClient.UserInformation.Email,
                     Upp = existingUser,
+                    Tokens = model.AuthenticatedClient.AccessToken.PublicToken,
                     Phone = "1-800-867-5309"
                 };
 
                 if (currentUser != null)
                 {
-                    tokenPayload.Idp = String.Format("{0} {1}", currentUser.ExtendedClaims["idp"], tokenPayload.Idp);
-                    tokenPayload.Email = String.Format("{0} {1}", currentUser.ExtendedClaims["email"], tokenPayload.Email);
+                    tokenPayload.Idp = tokenPayload.Idp.ExtendClaim(currentUser.ExtendedClaims["idp"] as string);
+                    tokenPayload.Email = tokenPayload.Email.ExtendClaim(currentUser.ExtendedClaims["email"] as string);
+                    tokenPayload.Tokens = tokenPayload.Tokens.ExtendClaim(currentUser.ExtendedClaims["tokens"] as string);
                 }
 
                 var token = Jose.JWT.Encode(tokenPayload, _authSettings.SecretKey, JwsAlgorithm.HS256, null, IdentityProvider.JwtSettings);
