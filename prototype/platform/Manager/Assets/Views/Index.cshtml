@@ -146,10 +146,13 @@
                                             </tr>
                                             <tr>
                                                 <td>All Claims</td>
-                                                <td>
+                                                <td class="is-breakable">
                                                     @foreach (var claim in Model.User.ExtendedClaims)
                                                     {
+                                                        if (!String.IsNullOrEmpty(claim.Key))
+                                                        {
                                                         <span>@(claim.Key): @(claim.Value)</span><br />
+                                                        }
                                                     }
                                                 </td>
                                             </tr>
