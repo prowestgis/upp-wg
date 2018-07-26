@@ -4,10 +4,9 @@
     var start_map, end_map, route_map, bridgeUtils;
 
 	// Get the token from the cookie and add it to the headers.
-	var match = document.cookie.match(new RegExp('(^| )uppToken=([^;]+)'));
+	var UPP_TOKEN = document.cookie.match(new RegExp('(^| )uppToken=([^;]+)'))[2];
 
 	$.ajaxSetup({
-		headers: {'uppToken': match[2]},
 		xhrFields: {
 		   withCredentials: true
 		},
@@ -41,6 +40,23 @@
             );
 
         return def.promise();
+    }
+
+    function query_service(record) {
+        var headers = {};
+        if (record.attributes.oAuthId === "rtvision" || record.attributes.tokenId === "rtvision") {
+            var token_body = JSON.parse(atob(UPP_TOKEN.split(".")[1]));
+            headers['Authorization'] = token_body.tokens;
+        }
+        else {
+            headers['Authorization'] = UPP_TOKEN;
+        }
+
+        return $.ajax({
+            url: record.attributes.uri,
+            type: 'GET',
+            headers: headers
+        });
     }
 
     function get_token(record) {
@@ -454,14 +470,12 @@
 
     // Ask the service locator to give us a UPP host that can provide company information.    
     get_service({ type: "upp.information.company" })
-        .then(function (service) {
-            return $.get(service.attributes.uri);
-        })
+        .then(query_service)
         .then(function (companies) {
             var select = $("#company-selector");
 
             $.each(companies.data, function (index, company) {
-                var opt = $('<option>' + company.companyName + '</option>');
+                var opt = $('<option>' + company.attributes.companyName + '</option>');
                 opt.data("company", company);
                 select.append(opt);
             });
@@ -474,14 +488,12 @@
 
     // Ask the service locator to give us a UPP host that can provide insurance information.
     get_service({ type: "upp.information.insurance" })
-        .then(function (service) {
-            return $.get(service.attributes.uri);
-        })
+        .then(query_service)
         .then(function (companies) {
             var select = $("#insurer-selector");
 
             $.each(companies.data, function (index, company) {
-                var opt = $('<option>' + company.providerName + '</option>');
+                var opt = $('<option>' + company.attributes.providerName + '</option>');
                 opt.data("company", company);
 
                 select.append(opt);
@@ -496,14 +508,13 @@
 
     // Ask the service locator to give us a UPP host that can provide insurance information.
     get_service({ type: "upp.information.vehicle" })
-        .then(function (service) {
-            return $.get(service.attributes.uri);
-        })
+        .then(query_service)
         .then(function (vehicles) {
             var select = $("#vehicle-selector");
 
             $.each(vehicles.data, function (index, vehicle) {
-                var opt = $('<option>' + vehicle.make + ' / ' + vehicle.model + ' (' + vehicle.usdotNumber + ')</option>');
+                var attrs = vehicle.attributes;
+                var opt = $('<option>' + attrs.make + ' / ' + attrs.model + ' (' + attrs.usdotNumber + ')</option>');
                 opt.data("vehicle", vehicle);
 
                 select.append(opt);
@@ -519,9 +530,7 @@
 
                     // Ask the service locator to give us a UPP host that can provide truck information.
                     get_service({ type: "upp.information.truck" })
-                        .then(function (service) {
-                            return $.get(service.attributes.uri);
-                        })
+                        .then(query_service)
                         .then(function (trucks) {
                             var index = $("#vehicle-selector").children('option:selected').index() - 1;
                             if (trucks.data && trucks.data[index]) {
@@ -534,30 +543,29 @@
 
     // Ask the service locator to give us a UPP host that can provide insurance information.
     get_service({ type: "upp.information.trailer" })
-    .then(function (service) {
-        return $.get(service.attributes.uri);
-    })
-    .then(function (trailers) {
-        var select = $("#trailer-selector");
-        $.each(trailers.data, function (index, trailer) {
-            var opt = $('<option>' + trailer.description + '</option>');
-            opt.data("trailer", trailer);
+        .then(query_service)
+        .then(function (trailers) {
+            var select = $("#trailer-selector");
+            $.each(trailers.data, function (index, trailer) {
+                var opt = $('<option>' + trailer.attributes.description + '</option>');
+                opt.data("trailer", trailer);
 
-            select.append(opt);
-        });
+                select.append(opt);
+            });
 
-        // Set an event handler to populate the company form on select change
-        select.change(function (evt) {
-            update_trailer_info(select.find(":selected").data("trailer"));
-        });
-    }, generic_error);
+            // Set an event handler to populate the company form on select change
+            select.change(function (evt) {
+                update_trailer_info(select.find(":selected").data("trailer"));
+            });
+        }, generic_error);
 
     //#endregion Initialization Code
 
     // #region Form Update Helpers
 
     function update_company_info(data) {
-        if (data) {
+        if (data && data.attributes) {
+            data = data.attributes;
             $('#companyInfo\\.name').val(data.companyName);
             $('#companyInfo\\.email').val(data.email);
             $('#companyInfo\\.contact').val(data.contact);
@@ -568,7 +576,8 @@
     }
 
     function update_insurance_info(data) {
-        if (data) {
+        if (data && data.attributes) {
+            data = data.attributes;
             $('#insuranceInfo\\.provider').val(data.providerName);
             $('#insuranceInfo\\.agencyAddress').val(data.agencyAddress);
             $('#insuranceInfo\\.policyNumber').val(data.policyNumber);
@@ -576,7 +585,8 @@
     }
 
     function update_vehicle_info(data) {
-        if (data) {
+        if (data && data.attributes) {
+            data = data.attributes;
             $('#vehicleInfo\\.make').val(data.make);
             $('#vehicleInfo\\.type').val(data.type);
             $('#vehicleInfo\\.license').val(data.license);
@@ -588,7 +598,8 @@
     }
 
     function update_truck_info(data) {
-        if (data) {
+        if (data && data.attributes) {
+            data = data.attributes;
             $('#truckInfo\\.grossWeight').val(data.grossWeight);
             $('#truckInfo\\.dimensionSummary').val(data.height + ' / ' + data.width + ' / ' + data.length);
             $('#truckInfo\\.dimensionDescription').val('Len: ' + (data.length + data.frontOverhang + data.rearOverhang) + ' Wid: ' + (data.width + data.rightOverhang + data.leftOverhang));
@@ -604,7 +615,8 @@
     }
 
     function update_trailer_info(data) {
-        if (data) {
+        if (data && data.attributes) {
+            data = data.attributes;
             $('#trailerInfo\\.description').val(data.description);
             $('#trailerInfo\\.make').val(data.make);
 
