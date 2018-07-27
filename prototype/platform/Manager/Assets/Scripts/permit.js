@@ -190,13 +190,13 @@
             // Ask UPP for the geometry service
             var url = sdUrl + "api/v1/services";
             $.get(url, {type: type}, function (data) {
-                if (!data || data.length === 0) {
+                if (!data || data.data.length === 0) {
                     def.reject('No boundary service is configured for ' + type);
                 }
 
                 // Intersect the route geometry with the service layer and get a collection of
                 // permit authorities
-                var queryTask = new QueryTask(data[0].uri);
+                var queryTask = new QueryTask(data.data[0].attributes.uri);
                 var query = new Query();
                 query.geometry = route;
                 query.outFields = ["*"];
