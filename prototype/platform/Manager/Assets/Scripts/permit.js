@@ -14,7 +14,10 @@
 	});
 
     // Generic error handler for deferreds
-    function generic_error(err) {
+	function generic_error(err) {
+	    if (typeof err !== 'string') {
+	        err = JSON.stringify(err);
+	    }
         console.log('generic_error', err);
         alert(err + '');
     }
@@ -43,13 +46,23 @@
     }
 
     function query_service(record) {
-        var headers = {};
+        // Default authorization header
+        var headers = { 'Authorization': UPP_TOKEN };
+
         if (record.attributes.oAuthId === "rtvision" || record.attributes.tokenId === "rtvision") {
+            // Extract the claims from the UPP_TOKEN
             var token_body = JSON.parse(atob(UPP_TOKEN.split(".")[1]));
-            headers['Authorization'] = token_body.tokens;
-        }
-        else {
-            headers['Authorization'] = UPP_TOKEN;
+
+            // Look for the RTVision: token in the tokens claim
+            var prefix = 'RTVision:';
+
+            var tokens = token_body.token.split(' ');
+            $.each(tokens, function (idx, _) {
+                if (_.startsWith(prefix)) {
+                    headers['Authorization'] = _.substring(prefix.length);
+                    return false;
+                }
+            });
         }
 
         return $.ajax({

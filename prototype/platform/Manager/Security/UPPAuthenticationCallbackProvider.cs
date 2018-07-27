@@ -88,6 +88,9 @@ namespace Manager.Security
                 var req_url = nancyModule.Context.Request.Url;
                 var iss = String.Format("{0}://{1}:{2}", req_url.Scheme, req_url.HostName, req_url.Port);
 
+                // Get a copy of the access token returned from the OAuth provider and namespace it by the IdP
+                var nsToken = String.Format("{0}:{1}", model.ProviderName, model.AuthenticatedClient.AccessToken.PublicToken);
+
                 // Now, what to do about the token.  If the user is not currently logged in, just create a new token.  Otherwise,
                 // extend the existing claims
 
@@ -99,7 +102,7 @@ namespace Manager.Security
                     Exp = DateTime.UtcNow.AddHours(1),
                     Email = model.AuthenticatedClient.UserInformation.Email,
                     Upp = existingUser,
-                    Tokens = model.AuthenticatedClient.AccessToken.PublicToken,
+                    Tokens = nsToken,
                     Phone = "1-800-867-5309"
                 };
 

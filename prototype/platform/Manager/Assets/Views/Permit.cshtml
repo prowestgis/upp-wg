@@ -130,6 +130,14 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
+    <script type="text/javascript">
+        // Allow query parameters to set globals
+        location.search.substr(1).split("&").forEach(function (item) {
+            var k = item.split("=")[0];
+            var v = decodeURIComponent(item.split("=")[1]);
+            window[k] = v;
+        });
+    </script>
     <script src="js/jquery.3.2.1.min.js"></script>
     <script src="js/bootstrap/bootstrap.min.js"></script>
     <script src="//js.arcgis.com/3.23/"></script>

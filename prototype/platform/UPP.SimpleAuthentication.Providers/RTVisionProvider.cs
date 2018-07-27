@@ -7,6 +7,9 @@ using SimpleAuthentication.Core.Exceptions;
 using SimpleAuthentication.Core.Providers;
 using SimpleAuthentication.Core.Tracing;
 using UPP.SimpleAuthentication.Providers.RTVision;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace UPP.SimpleAuthentication.Providers
 {
@@ -91,6 +94,18 @@ namespace UPP.SimpleAuthentication.Providers
 
         protected override UserInformation RetrieveUserInformation(AccessToken accessToken)
         {
+            return new UserInformation
+            {
+                Id = "rtvision",
+                Name = "R. T. Vision",
+                Email = "rt@vision.com",
+                UserName = "rtUser"
+            };
+        }
+
+        /*
+        protected override UserInformation RetrieveUserInformation(AccessToken accessToken)
+        {
             if (accessToken == null)
             {
                 throw new ArgumentNullException("accessToken");
@@ -151,6 +166,7 @@ namespace UPP.SimpleAuthentication.Providers
                 UserName = response.Data.Login
             };
         }
+        */
 
         #endregion
     }
