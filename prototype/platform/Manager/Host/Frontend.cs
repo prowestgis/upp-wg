@@ -16,6 +16,8 @@ using UPP.Security;
 using UPP.Configuration;
 using UPP.Protocols;
 using static Manager.Store.Services;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace Manager.Host
 {
@@ -42,12 +44,44 @@ namespace Manager.Host
 
     public sealed class PermitApplication : NancyModule
     {
-        public PermitApplication(Services services)
+        public PermitApplication(Services services, HostConfigurationSection config)
         {
             this.RequiresAuthentication();
             this.RequiresClaims(new[] { Claims.HAULER });
 
             Get["/permit.html"] = _ => View["Permit", new PermitView(services, Context)];
+            Get["/permits/{guid}"] = _ => View["SinglePermit", new SinglePermitView(services, config, Context.CurrentUser as AuthUser, _.guid)];
+        }
+    }
+
+    public sealed class SinglePermitView
+    {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        public string Email { get; }
+        public AuthUser User { get; }
+        public Dictionary<string, string> Attachments { get; }
+        public string AttachmentPost { get; }
+
+        public SinglePermitView(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
+        {
+            var baseUri = config.Keyword(Keys.NANCY__HOST_BASE_URI);
+
+            using (var context = new CurrentRepositoryContext(services, config, user, permitIdentifier))
+            {
+                var path = Path.Combine(context.Repository.Info.WorkingDirectory, "permit.json");
+                var json = JObject.Parse(File.ReadAllText(path));
+
+                // Extract the relevant information about the permit
+                Email = (string)json["data"]["attributes"]["form-data"]["haulerInfo.email"];
+                User = user;
+
+                // Get the attachments
+                var info = new DirectoryInfo(Path.Combine(context.Repository.Info.WorkingDirectory, "attachments"));
+                Attachments = info.GetFiles().ToDictionary(x => x.Name, x => String.Format("{0}api/permits/{1}/attachments/{2}", baseUri, permitIdentifier, x.Name));
+
+                AttachmentPost = String.Format("{0}api/permits/{1}/attachments", baseUri, permitIdentifier);
+            }
         }
     }
 
@@ -108,7 +142,7 @@ namespace Manager.Host
             {
                 Permits = services
                     .FindPermitBundles(User.ExtendedClaims["upp"] as string, config.Keyword(Keys.UPP__PERMIT_REPOSITORY_URL_TEMPLATE))
-                    .Select(x => { x.RepositoryName = String.Format("{0}api/permits/{1}", baseUrl, x.PermitId); return x; })
+                    .Select(x => { x.RepositoryName = String.Format("{0}permits/{1}", baseUrl, x.PermitId); return x; })
                     .ToList();
             }
         }

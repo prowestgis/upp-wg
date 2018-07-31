@@ -23,6 +23,71 @@ using UPP.Common;
 namespace Manager.Host
 {
     /// <summary>
+    /// Helper class that creates / pulls / syncs a permit repository
+    /// </summary>
+    public sealed class CurrentRepositoryContext : IDisposable
+    {
+        public readonly Repository Repository;
+
+        public CurrentRepositoryContext(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
+        {
+            // Configuration parameters
+            var workspace = config.Keyword(Keys.UPP__PERMIT_WORKSPACE);
+            var repoUrlTemplate = config.Keyword(Keys.UPP__PERMIT_REPOSITORY_URL_TEMPLATE);
+
+            // Find the record
+            var bundle = services.FetchPermitBundle(user.ExtendedClaims["upp"] as string, repoUrlTemplate, permitIdentifier);
+
+            // Generate the repository path
+            var repoPath = Path.Combine(workspace, bundle.RepositoryName);
+
+            // If the repository does not already exists, clone it
+            if (!Directory.Exists(repoPath))
+            {
+                Repository.Clone(bundle.RepositoryUrl, repoPath);
+            }
+
+            Repository = new Repository(repoPath);
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    Repository.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~CurrentRepositoryContext() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
+    }
+
+    /// <summary>
     /// Top-level module that implements all of the specification's API.  This could evenually be linked
     /// to an auto-generated backend.  The API is secure and requires authentication.
     /// </summary>
@@ -78,9 +143,9 @@ namespace Manager.Host
             Delete["/permits/{guid}/extra/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
 
             // Files can be uploaded and attached to the permit
-            Get["/permits/{guid}/attachments"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
-            Post["/permits/{guid}/attachments"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
-            Get["/permits/{guid}/attachments/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
+            Get["/permits/{guid}/attachments"] = _ => FetchPermitAttachments(services, config, Context.CurrentUser as AuthUser, _.guid);
+            Post["/permits/{guid}/attachments"] = _ => AddPermitAttachment(services, config, Context.CurrentUser as AuthUser, _.guid);
+            Get["/permits/{guid}/attachments/{name}"] = _ => FetchPermitAttachment(services, config, Context.CurrentUser as AuthUser, _.guid, _.name);
             Put["/permits/{guid}/attachments/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
             Delete["/permits/{guid}/attachments/{name}"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
         }
@@ -218,6 +283,78 @@ namespace Manager.Host
             {
                 StatusCode = HttpStatusCode.OK
             };
+        }
+
+        private Response AddPermitAttachment(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
+        {
+            using (var context = new CurrentRepositoryContext(services, config, user, permitIdentifier))
+            {
+                var path = Path.Combine(context.Repository.Info.WorkingDirectory, "attachments");
+                var file = Request.Files.FirstOrDefault();
+                
+                if (file != null)
+                {
+                    // Copy the file to the repository
+                    var fullName = Path.Combine(path, file.Name);
+                    using (var fileStream = File.OpenWrite(fullName))
+                    {
+                        file.Value.CopyTo(fileStream);
+                    }
+
+                    // Stage and commit the file
+                    Commands.Stage(context.Repository, fullName);
+
+                    var author = new Signature(user.UserName, user.Email, DateTime.Now);
+                    var committer = author;
+
+                    // Commit the files to the and push to the origin
+                    var commit = context.Repository.Commit("Added attachment to permit", author, committer);
+
+                    var options = new PushOptions();
+                    context.Repository.Network.Push(context.Repository.Branches["master"], options);
+                }
+
+                if (Request.Query.returnUrl != null)
+                {
+                    return new RedirectResponse(Request.Query.returnUrl);
+                }
+
+                return HttpStatusCode.OK;
+            }
+        }
+
+        private Response FetchPermitAttachments(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
+        {
+            using (var context = new CurrentRepositoryContext(services, config, user, permitIdentifier))
+            {
+                var path = Path.Combine(context.Repository.Info.WorkingDirectory, "attachments");
+                var info = new DirectoryInfo(path);
+                var files = info.GetFiles().Select(f => new
+                {
+                    Name = f.Name,
+                    Bytes = f.Length,
+                    LastModified = f.LastWriteTimeUtc
+                });
+
+                return Response.AsJson(files);
+            }
+        }
+
+        private Response FetchPermitAttachment(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier, string attachmentName)
+        {
+            using (var context = new CurrentRepositoryContext(services, config, user, permitIdentifier))
+            {
+                var path = Path.Combine(context.Repository.Info.WorkingDirectory, "attachments");
+                var info = new DirectoryInfo(path);
+                var file = info.GetFiles().FirstOrDefault(f => f.Name == attachmentName);
+
+                if (file == null)
+                {
+                    return new Response { StatusCode = HttpStatusCode.NotFound };
+                }
+
+                return new StreamResponse(() => file.OpenRead(), MimeTypes.GetMimeType(file.Name));
+            }
         }
 
         private Response FetchPermit(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)

@@ -33,7 +33,7 @@
                     // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
                     var records = result.data;
                     if (records.length === 0) {
-                        def.reject('The service locator did not return any matching services: ' + JSON.stringify(filter));
+                        def.reject('The locator did not return any matching services: ' + JSON.stringify(filter));
                     }
                     def.resolve(records[0]);
                 },
@@ -110,6 +110,7 @@
         }]
     }, [
         "esri/map",
+        "esri/config",
         "scripts/override/dijit/Directions",
         "esri/dijit/Search",
         "esri/tasks/locator",
@@ -118,6 +119,7 @@
         "esri/tasks/RouteTask",
         "esri/tasks/RouteParameters",
         "esri/tasks/FeatureSet",
+        "esri/tasks/GeometryService",
         "esri/geometry/webMercatorUtils",
         "esri/symbols/SimpleMarkerSymbol",
         "esri/symbols/SimpleLineSymbol",
@@ -131,7 +133,7 @@
         "dojo/on",
 		"scripts/bridges",
         "dojo/domReady!"
-    ], function (Map, Directions, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, Deferred, DeferredList, domConstruct, dojoQuery, on, Bridges) {
+    ], function (Map, esriConfig, Directions, Search, Locator, Query, QueryTask, RouteTask, RouteParameters, FeatureSet, GeometryService, webMercatorUtils, SimpleMarkerSymbol, SimpleLineSymbol, Graphic, GraphicsLayer, array, Deferred, DeferredList, domConstruct, dojoQuery, on, Bridges) {
 
         var symbol = new SimpleMarkerSymbol({
             "color": [255, 255, 255, 64],
@@ -149,6 +151,9 @@
             }
         });
 
+        // CORS-servers
+        esriConfig.defaults.io.corsEnabledServers.push('tasks.arcgisonline.com');
+
         var locator = new Locator("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer");
 
         var routeResult = null;
@@ -157,8 +162,8 @@
         var geometryService = null;
         get_service({ type: 'geometry' })
             .then(function (data) {
-                if (data && data.uri) {
-                    geometryService = new GeometryService(data.uri);
+                if (data && data.attributes) {
+                    geometryService = new GeometryService(data.attributes.uri);
                 }
             }, generic_error);
 
@@ -171,45 +176,74 @@
                 alert("No route selected.");
                 return;
             }
-            var countyDef = getAuthorities("county.boundaries", "NAME", route);
 
-            // Set the value of "Destination is within the applying County"
-            // based on how many county authorities are returned.
-            countyDef.then(function (result) {
+            get_authorities(route).then(function (result) {
+                // Set the value of "Destination is within the applying County"
+                // based on how many county authorities are returned.
                 $("input[name='movementInfo.destinationWithinApplyingCounty'").prop('checked', result.length === 1);
-            });
-            var dl = new DeferredList([countyDef, getAuthorities("city.boundaries", "Name", route)]);
-            dl.then(function (result) {
-                $("#permit-authorities").val(result[0][1].concat(result[1][1]).toString());
-            });
 
+                // Create a comma-separated list                
+                var authorityList = array.map(result, function (_) { return _.name; });
+                authorityList.sort();
+                $("#permit-authorities").val(authorityList.join(", "));
+            });
         };
 
-        function getAuthorities(type, fieldName, route) {
+        function get_authorities(route) {
+
             var def = new Deferred();
-            // Ask UPP for the geometry service
-            var url = sdUrl + "api/v1/services";
-            $.get(url, {type: type}, function (data) {
-                if (!data || data.data.length === 0) {
-                    def.reject('No boundary service is configured for ' + type);
-                }
 
-                // Intersect the route geometry with the service layer and get a collection of
-                // permit authorities
-                var queryTask = new QueryTask(data.data[0].attributes.uri);
-                var query = new Query();
-                query.geometry = route;
-                query.outFields = ["*"];
-                query.returnGeometry = true;
-                query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
+            var dl = new DeferredList([
+                get_county_authorities(route),
+                get_city_authorities(route)
+            ]);
 
-                queryTask.execute(query, function (result) {
+            dl.then(function (result) {
+                var all = result[0][1].concat(result[1][1]);
+                def.resolve(all);
+            }, def.reject);
 
-                    def.resolve(array.map(result.features, function (county) {
-                        return county.attributes[fieldName];
-                    }));
-                }, function (err) { console.log(err); def.reject(err); });
-            });
+            return def.promise;
+        }
+
+        function get_county_authorities(route) {
+            return _get_authorities(route, 'NAME', 'county.boundaries');
+        }
+
+        function get_city_authorities(route) {
+            return _get_authorities(route, 'Name', 'city.boundaries');
+        }
+
+        function _get_authorities(route, fieldName, serviceType) {
+
+            var def = new Deferred();
+
+            // Get the county boundaries
+            get_service({ type: serviceType })
+                .then(function (service) {
+
+                    // Intersect the route geometry with the service layer and get a collection of
+                    // permit authorities
+                    var queryTask = new QueryTask(service.attributes.uri);
+                    var query = new Query();
+                    query.geometry = route;
+                    query.outFields = ["*"];
+                    query.returnGeometry = true;
+                    query.spatialRelationship = Query.SPATIAL_REL_INTERSECTS;
+
+                    queryTask.execute(query,
+                        function (result) {
+                            def.resolve(array.map(result.features, function (feature) {
+                                return {
+                                    name: feature.attributes[fieldName],
+                                    geometry: feature.geometry
+                                };
+                            }));
+                        }, function (err) {
+                            console.log(err); def.reject(err);
+                        }
+                    );
+                });
 
             return def.promise;
         };
@@ -287,46 +321,124 @@
             return def.promise();
         }
 
+        function _patch_permit(permit, section, payload) {
+
+            // Serialize the data payload
+            var form = JSON.stringify(payload);
+
+            // POST the JSON data to the permit endpoint
+            var url = permit.data.links.self + "/patch?section=" + section;            
+            return $.post(url, form);
+        }
+
         function add_form_data(record) {
             console.log("add_form_data", arguments);
             $('#submitModalMessage').text('Adding form data...');
 
             var def = $.Deferred();
-            setTimeout(function () {
 
-                try
-                {
-                    // Grab the form data as JSON
-                    var form = JSON.stringify(serializeForm($("#permit-form")));
+            try
+            {
+                var data = serializeForm($("#permit-form"));
+                _patch_permit(record, 'form-data', data).then(function () {
+                    def.resolve(record, data);
+                    $('#submitModalProgress').css('width', '50%');
+                }, def.reject);
+            }
+            catch (e)
+            {
+                def.reject(e);
+            }
 
-                    // POST the JSON data to the permit endpoint
-                    var url = record.data.links.self + "/patch?section=form-data";
-                    console.log("Posting to: " + url);
-
-                    $.post(url, form).then(function () {
-                        def.resolve(record, form);
-                        $('#submitModalProgress').css('width', '50%');
-                    }, def.reject);
-                }
-                catch (e)
-                {
-                    def.reject(e);
-                }
-            }, 1000);
             return def.promise();
         }
 
-        function add_route_data() {
-            console.log("add_route_data", arguments);
-            $('#submitModalMessage').text('Identifying permit authorities...');
-
-            $('#submitModalMessage').text('Adding route data...');
+        function add_route_data(record) {
 
             var def = $.Deferred();
-            setTimeout(function () {
-                $('#submitModalProgress').css('width', '80%');
-                def.resolve({ route: {} });
-            }, 1000);
+
+            $('#submitModalMessage').text('Adding route data...');
+            console.log("add_route_data", arguments);
+
+            // Check that a route has been creates
+            var directionsData = directions.directions;
+            if (!directionsData) {
+                def.reject('No route has been created');
+                return def.promise();
+            }
+
+            try {
+                // Get the current direction geometry, the stops and barriers
+                var routeGeometry = directionsData.mergedGeometry;
+                var routeStops = directionsData.stops;
+                var routeBarriers = bridgeUtils.barriers;
+
+                // Update the permit application with the route information
+                var data = {
+                    geometry: routeGeometry,
+                    stops: routeStops,
+                    barriers: routeBarriers
+                };
+
+                _patch_permit(record, 'route', data).then(function () {
+                    def.resolve(record, data);
+                    $('#submitModalProgress').css('width', '66%');
+                }, def.reject);
+            }
+            catch (e) {
+                def.reject(e);
+            }
+
+            return def.promise();
+        }
+
+        function add_authority_data(record) {
+
+            var def = $.Deferred();
+
+            $('#submitModalMessage').text('Identifying permit authorities...');
+            console.log("add_authority_data", arguments);
+
+            // Check that a route has been creates
+            var directionsData = directions.directions;
+            if (!directionsData) {
+                def.reject('No route has been created');
+                return def.promise();
+            }
+
+            // Get the current direction geometry
+            var routeGeometry = directionsData.mergedGeometry;
+
+            // Find all of the authorities that intersect this route
+            get_authorities(routeGeometry).then(function (authorities) {
+
+                console.log(authorities);
+
+                // Update the permit with the list of authorities (names-as-keys only)
+                var authority_set = {};
+                array.forEach(authorities, function(authority) {
+                    authority_set[authority.name] = {};
+                });
+
+                // Get the geometry for each authoity and add those geometries to the authority's 
+                // specific recrod.
+                var authorityGeometries = array.map(authorities, function (authority) {
+                    return authority.geometry;
+                });
+
+                // Perform an intersection and post to ?authority=<value>
+                geometryService.intersect(authorityGeometries, routeGeometry).then(function (geometries) {
+                    for (var i = 0; i < geometries.length; i++) {
+                        authority_set[authorities[i].name].route = geometries[i];
+                    }
+
+                    _patch_permit(record, 'authorities', authority_set).then(function () {
+                        def.resolve(record)
+                    }, def.reject);
+                }, def.reject);
+            }, def.reject);
+
+            // Identify the authorities along the route
             return def.promise();
         }
 
@@ -370,6 +482,7 @@
             create_permit()
                 .then(add_form_data)
                 .then(add_route_data)
+                .then(add_authority_data)
                 .then(add_bridge_data)
                 .then(permit_success, permit_failure)
             ;
@@ -457,6 +570,7 @@
                         });
 
                     });
+
                     // Fill in the total miles traveled and the route description
                     var firstRoute = rr.result.routeResults[0];
                     if (firstRoute) {

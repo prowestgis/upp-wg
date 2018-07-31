@@ -1,0 +1,132 @@
+﻿@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<Manager.Host.SinglePermitView>
+@using Manager.Store
+@using Manager.Helpers
+@{
+    Layout = null;
+}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/images/favicon.ico">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+    <title>UPP Prototype</title>
+
+    <!-- Styling content -->
+    <link href="../css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Animation library for notifications   -->
+    <link href="../css/bootstrap/animate.min.css" rel="stylesheet" />
+
+    <!--  Light Bootstrap Table core CSS    -->
+    <link href="../css/bootstrap/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet" />
+
+    <!--  CSS for Demo Purpose, don't include it in your project     -->
+    <link href="../css/app.css" rel="stylesheet" />
+
+    <!--  Fonts and icons     -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="//js.arcgis.com/3.23/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="//js.arcgis.com/3.23/esri/css/esri.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="sidebar" data-color="blue">
+            <div class="sidebar-wrapper">
+                <ul class="nav">
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="pe-7s-graph"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="permit.html">
+                            <i class="pe-7s-car"></i>
+                            <p>Permit</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-panel">
+            <nav class="navbar navbar-default navbar-fixed">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation-example-2">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">Permit</a>
+                    </div>
+                    <div class="collapse navbar-collapse">
+                        <ul class="nav navbar-nav navbar-right">
+                            @if (Model.User != null && Model.User.IsAuthenticated)
+                            {
+                                <li>
+                                    <a href="/authentication/logout">Log out</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            @Model.Email
+                        </div>
+                        <div class="col-xs-12">
+                            <h3>Attachments</h3>
+                            <table class="table">
+                                @foreach (var attachment in Model.Attachments)
+                                {
+                                <tr><td><a href="@attachment.Value">@attachment.Key</a></td></tr>
+                                }
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <form method="post" action="@Model.AttachmentPost" enctype="multipart/form-data">
+                            <label class="btn btn-default btn-file">
+                                Add Attachment... <input id="attachment" name="file" type="file" style="visibility:hidden;width:0;height:0" onchange="form.submit();" />
+                            </label>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer">
+                <div class="container-fluid">
+                    <p class="copyright pull-right">
+                        &copy;
+                        <script>document.write(new Date().getFullYear())</script>
+                    </p>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script src="../js/jquery.3.2.1.min.js"></script>
+    <script src="../js/bootstrap/bootstrap.min.js"></script>
+    <script src="//js.arcgis.com/3.23/"></script>
+    <script type="text/javascript">
+        $(function () {
+            var href = window.location.href;
+            var action = $('form').attr('action') + '?returnUrl=' + href;
+            $('form').attr('action', action);
+        })
+    </script>
+</body>
+</html>
