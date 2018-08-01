@@ -133,8 +133,8 @@ namespace PermitIssuer
             using (var conn = SimpleDbConnection())
             {
                 conn.Execute(@"
-                    UPDATE Applications SET application_data = @Data, application_status = @Status WHERE Application_id = @Id
-                    ", new { Data = blob, Status = status, Id =  id});
+                    UPDATE Applications SET application_status = @Status WHERE Application_id = @Id
+                    ", new {  Status = status, Id =  id});
 
             }
 
@@ -181,5 +181,6 @@ namespace PermitIssuer
         public string Data { get; set; }
 
         public PermitApplicationRecord Application { get { return Newtonsoft.Json.JsonConvert.DeserializeObject<PermitApplicationRecord>(Data); }  }
+        public PermitDataRecord PermitData { get; set; }
     }
 }

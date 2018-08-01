@@ -45,14 +45,10 @@
     </div>
 
     @Html.GroupItem(Model.RouteDescription, new GroupItemProperties("RouteDescription") { label = "Route Description" })
-    @Html.GroupItem(Model.RouteCountyNumbers, new GroupItemProperties("RouteCountyNumbers"){ label = "County Roads" })
-    @Html.GroupItem(Model.MilesOfCountyRoad, new GroupItemProperties("MilesOfCountyRoad") { label = "Miles on County Roads", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min = 0, step = 0.1 }, suffix = GroupItemProperties.Suffixes.MILES })
     @Html.GroupItem(Model.RouteLength, new GroupItemProperties("RouteLength") { label = "Total Route Length", inputType = GroupItemProperties.InputType.NUMBER, range = new GroupItemProperties.Range() { min=0, step = 0.1 }, suffix = GroupItemProperties.Suffixes.MILES })
 
     @Html.GroupItem(Model.StateHighwayPermitNumber, new GroupItemProperties("StateHighwayPermitNumber") { label = "State Highway Permit Number" })
     @Html.GroupItem(Model.StateHighwayPermitIssued, new GroupItemProperties("StateHighwayPermitIssued") { label = "State Highway Permit Issued Date", inputType= GroupItemProperties.InputType.DATE })
     @Html.GroupItem(Model.NeedPilotCar, new GroupItemProperties("NeedPilotCar") { label = "Need Pilot Car?", inputType = GroupItemProperties.InputType.CHECKBOX })
-    @Html.GroupItem(Model.DestinationWithinCityLimits, new GroupItemProperties("DestinationWithinCityLimits") { label = "Destination is within City Limits?", readOnly = true, inputType = GroupItemProperties.InputType.CHECKBOX })
-    @Html.GroupItem(Model.DestinationWithinApplyingCounty, new GroupItemProperties("DestinationWithinApplyingCounty") { label = "Destination is within the applying County?", readOnly = true, inputType = GroupItemProperties.InputType.CHECKBOX })
 
 </fieldset>

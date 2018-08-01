@@ -73,8 +73,8 @@
                                     <tr>
                                         <th>Id</th>
                                         <th>Status</th>
-                                        <th>Applicant</th>
-                                        <th>Hauling Date</th>
+                                        <th></th>
+                                        
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -84,9 +84,9 @@
                                         <tr>
                                             <td>@container.Id</td>
                                             <td>@container.Status</td>
-                                            <td>@container.Permit.Hauler.Name</td>
-                                            <td>@container.Permit.Movement.StartDate</td>
-                                            <td><a href="@(String.Format("{0}/edit", container.Id))"><span class="pe-7s-link"></span></a></td>
+                                            <td>@container.Permit.Links.Origin</td>
+                                            
+                                            <td><a href="@(String.Format("../api/v1/issue/{0}/", container.Id))"><span class="pe-7s-link"></span></a></td>
                                         </tr>
                                     }
                                 </tbody>

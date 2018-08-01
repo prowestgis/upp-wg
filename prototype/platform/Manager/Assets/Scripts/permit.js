@@ -44,7 +44,27 @@
 
         return def.promise();
     }
+    function get_services(filter) {
+        var def = $.Deferred();
+        var serviceLocator = sdUrl + "api/v1/services";
 
+        $.get(serviceLocator, filter)
+            .then(
+                function (result) {
+                    // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
+                    var records = result.data;
+                    if (records.length === 0) {
+                        def.reject('The locator did not return any matching services: ' + JSON.stringify(filter));
+                    }
+                    def.resolve(records);
+                },
+                function (err) {
+                    def.reject(err);
+                }
+            );
+
+        return def.promise();
+    }
     function query_service(record) {
         // Default authorization header
         var headers = { 'Authorization': UPP_TOKEN };
@@ -235,7 +255,7 @@
                         function (result) {
                             def.resolve(array.map(result.features, function (feature) {
                                 return {
-                                    name: feature.attributes[fieldName],
+                                    name: (feature.attributes[fieldName]+ (serviceType === 'city.boundaries' ? '_ci_mn' : '_co_mn')).toLowerCase(),
                                     geometry: feature.geometry
                                 };
                             }));
@@ -284,25 +304,17 @@
 		
         bridgeUtils = new Bridges(route_map, $("#permit-form"));
 		
-        function submit_permit(authority){
-            var def = new Deferred();
-            $.get(serviceLocator, { type: "upp.permit.approval", authority: authority })
-            .then(function (data) { 
-                var form = $("#permit-form");
-                if(!data || data.length === 0){
-                    // The service directory did not return a service for the permit authority
-                    form.append('<input type="hidden" name="Authority" value="' + authority + ': Service Not Found." />');
-                    def.reject("Service Not Found");
-                } else {
-                    // Submit the permit request to the permit authority.
-                    $.post(data[0].uri, serializeForm(form)).then(function(permitData) {
-						
-                        form.append('<input type="hidden" name="Authority" value="' + authority + ': ' + permitData.status + ' - ' + permitData.timestamp + '." />');
-                        def.resolve("Service Found");
-                    }, df.reject);
+        function submit_permit(authority, record){
+            get_services({ authority: authority })
+            .then(function (services) { 
+                if(services ){
+                    // Submit the permit request to the permit authorities.
+                    array.forEach(services, function (data) {
+                        $.post(data.attributes.uri + "api/v1/issue", record.data)
+                    });
                 }
-            }, def.reject);
-            return def;
+            });
+            
         }
 
         function create_permit() {
@@ -362,6 +374,7 @@
 
             // Check that a route has been creates
             var directionsData = directions.directions;
+			
             if (!directionsData) {
                 def.reject('No route has been created');
                 return def.promise();
@@ -370,7 +383,7 @@
             try {
                 // Get the current direction geometry, the stops and barriers
                 var routeGeometry = directionsData.mergedGeometry;
-                var routeStops = directionsData.stops;
+                var routeStops = directions.stops;
                 var routeBarriers = bridgeUtils.barriers;
 
                 // Update the permit application with the route information
@@ -442,21 +455,23 @@
             return def.promise();
         }
 
-        function add_bridge_data() {
+        function add_bridge_data(record) {
             console.log("add_bridge_data", arguments);
             $('#submitModalMessage').text('Adding bridge data...');
 
             var def = $.Deferred();
             setTimeout(function () {
                 $('#submitModalProgress').css('width', '100%');
-                def.resolve({ bridge: {}});
+                def.resolve(record);
             }, 1000);
             return def.promise();
         }
 
-        function permit_success() {
+        function permit_success(record) {
+			console.log("permit_success", record);
             // We are done, set the progress to 100%
             $('#submitModalMessage').text('Application Complete');
+			submit_permit("upp.permit", record);
         }		
 
         function permit_failure(err) {

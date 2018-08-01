@@ -56,17 +56,17 @@ define([
 			
             var def = new Deferred();
             // Ask UPP for the bridge service
-            var url = sdUrl + "api/v1/hosts";
+            var url = sdUrl + "api/v1/services";
             $.get(url, {type: "bridges"}, function (data) {
                 if (!data || data.length === 0) {
                     var message = 'No service is configured for bridges.';
                     alert(message);
                     def.reject(message);
                 }
-                    var record = data[0];
+                    var record = data.data[0].attributes;
 
                     // Now ask for credentials
-                    var url = sdUrl + "api/v1/hosts/" + record.name + "/access";
+                    var url = sdUrl + "api/v1/services/" + record.name + "/access";
                     $.get(url, function (service) {
                         if (!service.url) {
                             alert('No bridge service access is configured');

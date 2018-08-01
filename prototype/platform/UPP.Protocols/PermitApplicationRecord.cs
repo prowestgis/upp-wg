@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 
 namespace UPP.Protocols
 {
-    public interface IPermitApplicationRecord
+    public interface IPermitDataRecord
     {
-        HaulerInfo Hauler { get; }
+        string Route { get; }
+        string Status { get; }
+
+        HaulerInfo Hauler { get; set; }
         CompanyInfo Company { get; }
-        InsuranceInfo Insurance { get;  }
+        InsuranceInfo Insurance { get; }
         VehicleInfo Vehicle { get; }
         TruckInfo Truck { get; }
         AxleInfo Axle { get; }
@@ -18,10 +21,28 @@ namespace UPP.Protocols
         LoadInfo Load { get; }
         MovementInfo Movement { get; }
     }
+    public interface IPermitApplicationRecord
+    {
+        string Type { get; }
+        string Id { get; }
 
+        LinkInfo Links { get; set; }
+
+    }
     public sealed class PermitApplicationRecord : IPermitApplicationRecord
     {
         public PermitApplicationRecord()
+        {
+            Links = new LinkInfo();
+        }
+        public LinkInfo Links {get;set;}
+        public string Type { get; set; }
+        public string Id { get; set; }
+
+    }
+    public sealed class PermitDataRecord : IPermitDataRecord
+    {
+        public PermitDataRecord()
         {
             Hauler = new HaulerInfo();
             Company = new CompanyInfo();
@@ -33,7 +54,7 @@ namespace UPP.Protocols
             Load = new LoadInfo();
             Movement = new MovementInfo();
         }
-
+        public string Status { get; set; }
         public HaulerInfo Hauler { get; set; }
         public CompanyInfo Company { get; set; }
         public InsuranceInfo Insurance { get; set; }
@@ -46,7 +67,11 @@ namespace UPP.Protocols
 
         public string Route { get; set; }
     }
-
+    public sealed class LinkInfo
+    {
+        public string Self { get; set; }
+        public string Origin { get; set; }
+    }
     // All of the fields from the UPP working group
     public sealed class HaulerInfo
     {

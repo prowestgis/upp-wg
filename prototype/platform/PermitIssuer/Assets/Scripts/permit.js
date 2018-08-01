@@ -4,7 +4,7 @@
     require({
         packages: [{
             "name": "scripts",
-            "location": location.pathname.replace(/\/[^/]+$/, '') + "/../../js"
+            "location": location.pathname.replace(/\/[^/]+$/, '') + "/../../../../../js"
         }]
     }, [
         "esri/map",
@@ -55,7 +55,7 @@
 
         // Ask UPP for the geometry service
         var geometryService = null;
-        $.get(sdUrl + "api/v1/hosts?type=geometry", function (data) {
+        $.get(sdUrl + "api/v1/services?type=geometry", function (data) {
             if (data && data.uri) {
                 geometryService = new GeometryService(data.uri);
             }
@@ -86,17 +86,17 @@
         function getAuthorities(type, fieldName, route) {
             var def = new Deferred();
             // Ask UPP for the geometry service
-            var url = sdUrl + "api/v1/hosts";
+            var url = sdUrl + "api/v1/services";
             $.get(url, {type: type}, function (data) {
                 if (!data || data.length === 0) {
                     var message = 'No boundary service is configured for ' + type;
                     alert(message);
                     def.reject(message);
                 }
-
+console.log(data);
                 // Intersect the route geometry with the service layer and get a collection of
                 // permit authorities
-                var queryTask = new QueryTask(data[0].uri);
+                var queryTask = new QueryTask(data.data[0].attributes.uri);
                 var query = new Query();
                 query.geometry = route;
                 query.outFields = ["*"];
@@ -163,7 +163,21 @@
 			return def;
 		}
 		$("#request-permit").click(function (evt) {
-			dojoQuery("input[name=Authority]").forEach(domConstruct.destroy);
+				var directionsData = directions.directions;
+			    var routeGeometry = directionsData.mergedGeometry;
+                var routeStops = directions.stops;
+                var routeBarriers = bridgeUtils.barriers;
+
+                // Update the permit application with the route information
+                var data = {
+                    geometry: routeGeometry,
+                    stops: routeStops,
+                    barriers: routeBarriers
+                };
+				document.getElementById("saved-route").value = JSON.stringify(data);
+				
+				
+/*			dojoQuery("input[name=Authority]").forEach(domConstruct.destroy);
 			var auths = $("#permit-authorities").val().split(',');
 			var form = $("#permit-form");
 			
@@ -172,9 +186,47 @@
 			}));
 			dl.then(function(result){
 				form.submit();
-			});
+			}); */
 		}); 
+        function add_route_data(record) {
 
+            var def = $.Deferred();
+
+            $('#submitModalMessage').text('Adding route data...');
+            console.log("add_route_data", arguments);
+
+            // Check that a route has been creates
+            var directionsData = directions.directions;
+			console.log(directions);
+            if (!directionsData) {
+                def.reject('No route has been created');
+                return def.promise();
+            }
+
+            try {
+                // Get the current direction geometry, the stops and barriers
+                var routeGeometry = directionsData.mergedGeometry;
+                var routeStops = directions.stops;
+                var routeBarriers = bridgeUtils.barriers;
+console.log(directionsData);
+                // Update the permit application with the route information
+                var data = {
+                    geometry: routeGeometry,
+                    stops: routeStops,
+                    barriers: routeBarriers
+                };
+
+                _patch_permit(record, 'route', data).then(function () {
+                    def.resolve(record, data);
+                    $('#submitModalProgress').css('width', '66%');
+                }, def.reject);
+            }
+            catch (e) {
+                def.reject(e);
+            }
+
+            return def.promise();
+        }
 		$("#toggle-barriers").click(function (evt) {
 		    bridgeUtils.toggleBarriers();
 		});
@@ -205,7 +257,7 @@
 
         // Ask UPP what service we should use for routing.  The UPP services API is responsible for acquiring any
         // OAuth tokens that are needed for the service
-        var serviceLocator = sdUrl + "api/v1/hosts";
+        var serviceLocator = sdUrl + "api/v1/services";
 		var directions;
         $.get(serviceLocator, { type: "route" }, function (records) {
             // Results are returned in priority order, so just take the first one.  Throw an error if no services are available
@@ -213,11 +265,11 @@
                 alert('The service locator did not return any services for routing');
                 return;
             }
-
-            var record = records[0];
+console.log(records);
+            var record = records.data[0];
 
             // Now ask for credentials
-            var url = sdUrl + "api/v1/hosts/" + record.name + "/access";
+            var url = sdUrl + "api/v1/services/" + record.attributes.name + "/access";
             $.get(url, function (service) {
                 if (!service.url) {
                     alert('No route service access is configured');
@@ -288,7 +340,7 @@
     });
 
     // Ask the service locator to give us a UPP host that can provide company information.
-    var serviceLocator = sdUrl + "api/v1/hosts"; 
+    var serviceLocator = sdUrl + "api/v1/services"; 
     var select = $("#company-selector");
 
 })(

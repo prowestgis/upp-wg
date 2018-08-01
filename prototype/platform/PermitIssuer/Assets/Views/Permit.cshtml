@@ -15,21 +15,21 @@
     <title>UPP Prototype</title>
 
     <!-- Styling content -->
-    <link href="../../css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../../../css/bootstrap/bootstrap.min.css" rel="stylesheet" />
 
     <!-- Animation library for notifications   -->
-    <link href="../../css/bootstrap/animate.min.css" rel="stylesheet" />
+    <link href="../../../../css/bootstrap/animate.min.css" rel="stylesheet" />
 
     <!--  Light Bootstrap Table core CSS    -->
-    <link href="../../css/bootstrap/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet" />
+    <link href="../../../../css/bootstrap/light-bootstrap-dashboard.css?v=1.4.0" rel="stylesheet" />
 
     <!--  CSS for Demo Purpose, don't include it in your project     -->
-    <link href="../css/app.css" rel="stylesheet" />
+    <link href="../../../../css/app.css" rel="stylesheet" />
 
     <!--  Fonts and icons     -->
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='//fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
-    <link href="../../css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
+    <link href="../../../../css/bootstrap/pe-icon-7-stroke.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="//js.arcgis.com/3.23/dijit/themes/claro/claro.css">
     <link rel="stylesheet" href="//js.arcgis.com/3.23/esri/css/esri.css">
@@ -40,13 +40,13 @@
             <div class="sidebar-wrapper">
                 <ul class="nav">
                     <li>
-                        <a href="../../">
+                        <a href="../../../../">
                             <i class="pe-7s-graph"></i>
                             <p>Configuration</p>
                         </a>
                     </li>
                     <li class="">
-                        <a href="../">
+                        <a href="../../../../permits/">
                             <i class="pe-7s-car"></i>
                             <p>Permits</p>
                         </a>
@@ -74,15 +74,15 @@
             <div class="content">
                 <div class="container-fluid">
                     <form id="permit-form" class="form-horizontal" method="post">
-                        @Html.Partial("Permit/Hauler", Model.Application.Hauler)
-                        @Html.Partial("Permit/Company", Model.Application.Company)
-                        @Html.Partial("Permit/Insurance", Model.Application.Insurance)
-                        @Html.Partial("Permit/Vehicle", Model.Application.Vehicle)
-                        @Html.Partial("Permit/Truck", Model.Application.Truck)
-                        @Html.Partial("Permit/Trailer", Model.Application.Trailer)
-                        @Html.Partial("Permit/Load", Model.Application.Load)
-                        @Html.Partial("Permit/Movement", Model.Application.Movement)
-                        <input type="hidden" name="route" id="saved-route" class="form-control" value="@Model.Application.Route" />
+                        @Html.Partial("Permit/Hauler", Model.PermitData.Hauler)
+                        @Html.Partial("Permit/Company", Model.PermitData.Company)
+                        @Html.Partial("Permit/Insurance", Model.PermitData.Insurance)
+                        @Html.Partial("Permit/Vehicle", Model.PermitData.Vehicle)
+                        @Html.Partial("Permit/Truck", Model.PermitData.Truck)
+                        @Html.Partial("Permit/Trailer", Model.PermitData.Trailer)
+                        @Html.Partial("Permit/Load", Model.PermitData.Load)
+                        @Html.Partial("Permit/Movement", Model.PermitData.Movement)
+                        <input type="hidden" name="route" id="saved-route" class="form-control" value="@Model.PermitData.Route" />
                         <div class="form-group row">
                             <div class="col-sm-offset-2 col-sm-8">
                                 <select class="form-control" name="status">
@@ -92,7 +92,8 @@
                                 </select>
                             </div>
                         </div>
-                        <button id="request-permit" type="button">Update Permit</button>
+						
+                        <button id="request-permit" type="submit">Update Permit</button>
                     </form>
                 </div>
             </div>
@@ -107,9 +108,9 @@
             </footer>
         </div>
     </div>
-    <script src="../../js/jquery.3.2.1.min.js"></script>
-    <script src="../../js/bootstrap/bootstrap.min.js"></script>
+    <script src="../../../../js/jquery.3.2.1.min.js"></script>
+    <script src="../../../../js/bootstrap/bootstrap.min.js"></script>
     <script src="//js.arcgis.com/3.23/"></script>
-    <script src="../../js/permit.js"></script>
+    <script src="../../../../js/permit.js"></script>
 </body>
 </html>
