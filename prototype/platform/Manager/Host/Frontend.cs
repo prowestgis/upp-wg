@@ -62,6 +62,7 @@ namespace Manager.Host
         public AuthUser User { get; }
         public Dictionary<string, string> Attachments { get; }
         public string AttachmentPost { get; }
+        public string SoftCopyUrl { get; }
 
         public SinglePermitView(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
         {
@@ -81,6 +82,7 @@ namespace Manager.Host
                 Attachments = info.GetFiles().ToDictionary(x => x.Name, x => String.Format("{0}api/permits/{1}/attachments/{2}", baseUri, permitIdentifier, x.Name));
 
                 AttachmentPost = String.Format("{0}api/permits/{1}/attachments", baseUri, permitIdentifier);
+                SoftCopyUrl = String.Format("{0}api/permits/{1}/package", baseUri, permitIdentifier);
             }
         }
     }

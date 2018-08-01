@@ -111,7 +111,7 @@ namespace Manager.Host
             Post["/permits/{guid}/patch"] = _ => UpdatePermit(services, config, Context.CurrentUser as AuthUser, _.guid);
 
             // Create the current digital permit package
-            Post["/permits/{guid}/package"] = _ => GeneratePermit(services, config, Context.CurrentUser as AuthUser);
+            Post["/permits/{guid}/package"] = _ => GeneratePermit(services, config, Context.CurrentUser as AuthUser, _.guid);
 
             // Show the route data for a permit. Route data can only be updated -- it's not a collection
             Get["/permits/{guid}/route"] = _ => new Response { StatusCode = HttpStatusCode.NotImplemented };
@@ -459,71 +459,97 @@ namespace Manager.Host
             return Response.AsJson(model);
         }
 
-        private Response GeneratePermit(Services services, HostConfigurationSection config, AuthUser user)
+        private Response GeneratePermit(Services services, HostConfigurationSection config, AuthUser user, string permitIdentifier)
         {
-            var frm = Request.Form;
-            // Raw response
-            var response = new Response();
-            var record = this.Bind<GeneratePermitModel>();
-            // Create a simple PDF
-            var document = new Document(PageSize.A4, 25, 25, 30, 30);
-            byte[] pdf;
-
-            using (var memory = new MemoryStream())
+            using (var context = new CurrentRepositoryContext(services, config, user, permitIdentifier))
             {
-                using (var writer = PdfWriter.GetInstance(document, memory))
+                // This is where all of the permit information is cloned
+                var workingDir = context.Repository.Info.WorkingDirectory;
+
+                // Get a list of attachments
+                var attachments = (new DirectoryInfo(Path.Combine(workingDir, "attachments"))).GetFiles();
+
+                // Load the permit.json file into a strongly-typed object
+                var permitJson = JObject.Parse(File.ReadAllText(Path.Combine(workingDir, "permit.json")));
+
+                var record = new GeneratePermitModel(permitJson);
+
+                // Create a simple PDF
+                var document = new Document(PageSize.A4, 25, 25, 30, 30);
+                byte[] pdf;
+
+                using (var memory = new MemoryStream())
                 {
-                    document.Open();
-
-                    document.AddAuthor("Unified Permitting Project");
-                    document.AddCreator("UPP Reference Platform");
-                    document.AddKeywords("UPP Permit MnDOT");
-                    document.AddSubject("Permit issued for Over-Size, Over-Weight (OSOW) loads");
-                    document.AddTitle("OSOW Permit");
-
-                    // Put a QR code in the corner for for law enforcement to quickly pull up a permit. Need perma-link
-                    // infrastructure
-                    var qrCode = new BarcodeQRCode("https://upp.prowestgis.com/law-enforcement/check?123456ABC", 1, 1, null);
-                    var qrCodeImage = qrCode.GetImage();
-                    qrCodeImage.SetAbsolutePosition(document.PageSize.Width - 36f - 72f, document.PageSize.Height - 36f - 72f);
-                    qrCodeImage.ScalePercent(200);
-                    document.Add(qrCodeImage);
-                    
-                    document.Add(record.HaulerInfo());
-                    document.Add(record.CompanyInfo());
-                    document.Add(record.InsuranceInfo());
-                    document.Add(record.VehicleInfo());
-                    document.Add(record.TruckInfo());
-                    document.Add(record.AxleInfo());
-                    document.Add(record.TrailerInfo());
-                    document.Add(record.LoadInfo());
-                    document.Add(record.MovementInfo());
-                    Paragraph permitRequests = new Paragraph("Permits Requested:");
-                    List permitRequestList = new List();
-                    permitRequestList.IndentationLeft = 10;
-                    foreach (var permitResponse in record.Authority)
+                    using (var writer = PdfWriter.GetInstance(document, memory))
                     {
-                        permitRequestList.Add(GeneratePermitModel.FormattedListItem(permitResponse));
+                        document.Open();
+
+                        document.AddAuthor("Unified Permitting Project");
+                        document.AddCreator("UPP Reference Platform");
+                        document.AddKeywords("UPP Permit MnDOT");
+                        document.AddSubject("Permit issued for Over-Size, Over-Weight (OSOW) loads");
+                        document.AddTitle("OSOW Permit");
+
+                        // Put a QR code in the corner for for law enforcement to quickly pull up a permit. Need perma-link
+                        // infrastructure
+                        var qrCode = new BarcodeQRCode("https://upp.prowestgis.com/law-enforcement/check?123456ABC", 1, 1, null);
+                        var qrCodeImage = qrCode.GetImage();
+                        qrCodeImage.SetAbsolutePosition(document.PageSize.Width - 36f - 72f, document.PageSize.Height - 36f - 72f);
+                        qrCodeImage.ScalePercent(200);
+                        document.Add(qrCodeImage);
+
+                        document.Add(record.HaulerInfo());
+                        document.Add(record.CompanyInfo());
+                        document.Add(record.InsuranceInfo());
+                        document.Add(record.VehicleInfo());
+                        document.Add(record.TruckInfo());
+                        document.Add(record.AxleInfo());
+                        document.Add(record.TrailerInfo());
+                        document.Add(record.LoadInfo());
+                        document.Add(record.MovementInfo());
+                        Paragraph permitRequests = new Paragraph("Permits Requested:");
+                        List permitRequestList = new List();
+                        permitRequestList.IndentationLeft = 10;
+
+                        var authorities = record.Authority ?? new string[0];
+                        foreach (var permitResponse in authorities)
+                        {
+                            permitRequestList.Add(GeneratePermitModel.FormattedListItem(permitResponse));
+                        }
+
+                        permitRequests.Add(permitRequestList);
+                        document.Add(permitRequests);
+
+                        // Add the attchments
+                        foreach (var attachment in attachments)
+                        {
+                            var image = Image.GetInstance(attachment.OpenRead());
+                            image.Alignment = Image.ALIGN_CENTER;
+                            image.ScaleToFit(document.PageSize.Width * 0.75f, document.PageSize.Height * 0.75f);
+                            document.Add(image);
+                        }
+
+                        document.Close();
+
+                        pdf = memory.ToArray();
                     }
-                    permitRequests.Add(permitRequestList);
-                    document.Add(permitRequests);
-                    document.Close();
-
-                    pdf = memory.ToArray();
                 }
-            }
 
-            var filename = "permit.pdf";
-            response.ContentType = MimeTypes.GetMimeType(filename);
-            response.Contents = s =>
-            {
-                using (var memory = new MemoryStream(pdf))
+                // Build up the response
+                var response = new Response();
+
+                var filename = "permit.pdf";
+                response.ContentType = MimeTypes.GetMimeType(filename);
+                response.Contents = s =>
                 {
-                    memory.CopyTo(s);
-                }
-            };
+                    using (var memory = new MemoryStream(pdf))
+                    {
+                        memory.CopyTo(s);
+                    }
+                };
 
-            return response;
+                return response;
+            }
         }
     }
 
@@ -572,6 +598,110 @@ namespace Manager.Host
 
     public sealed class GeneratePermitModel
     {
+        public GeneratePermitModel()
+        {
+        }
+
+        public GeneratePermitModel(JObject json)
+        {
+            var form = json["data"]["attributes"]["form-data"];
+
+            haulerinfoName = (string)form["haulerInfo.name"];
+            haulerinfoDate = (DateTime)form["haulerInfo.date"];
+            haulerinfoemail = (string)form["haulerInfo.email"];
+            haulerinfophone = (string)form["haulerInfo.phone"];
+            haulerinfofax = (string)form["haulerInfo.fax"];
+            companyinfoName = (string)form["companyInfo.name"];
+            companyinfoAddress = (string)form["companyInfo.address"];
+            companyinfoEmail = (string)form["companyInfo.email"];
+            companyinfoContact = (string)form["companyInfo.contact"];
+            companyinfoPhone = (string)form["companyInfo.phone"];
+            companyinfoFax = (string)form["companyInfo.fax"];
+            companyinfoCell = (string)form["companyInfo.cell"];
+            companyinfoBillTo = (string)form["companyInfo.billTo"];
+            companyinfoBillingAddress = (string)form["companyInfo.billingAddress"];
+            insuranceinfoProvider = (string)form["insuranceInfo.provider"];
+            insuranceinfoAgencyAddress = (string)form["insuranceInfo.agencyAddress"];
+            insuranceinfoPolicyNumber = (string)form["insuranceInfo.policyNumber"];
+            insuranceinfoInsuredAmount = (string)form["insuranceInfo.insuredAmount"];
+            vehicleinfoYear = (string)form["vehicleInfo.year"];
+            vehicleinfoMake = (string)form["vehicleInfo.make"];
+            vehicleinfoModel = (string)form["vehicleInfo.model"];
+            vehicleinfoType = (string)form["vehicleInfo.type"];
+            vehicleinfoLicense = (string)form["vehicleInfo.license"];
+            vehicleinfoState = (string)form["vehicleInfo.state"];
+            vehicleinfoSerialNumber = (string)form["vehicleInfo.serialNumber"];
+            vehicleinfoUSDOTNumber = (string)form["vehicleInfo.USDOTNumber"];
+            vehicleinfoEmptyWeight = Double.Parse((string)form["vehicleInfo.emptyWeight"] ?? "0");
+            vehicleinfoRegisteredWeight = Double.Parse((string)form["vehicleInfo.registeredWeight"] ?? "0");
+            /*
+            truckinfoGrossWeight = form["truckInfo."];
+            truckinfoEmptyWeight = form["truckInfo."];
+            truckinfoRegisteredWeight = form["truckInfo."];
+            truckinfoRegulationWeight = form["truckInfo."];
+            truckinfoDimensionSummary = form["truckInfo."];
+            truckinfoDimensionDescription = form["truckInfo."];
+            truckinfoHeight = form["truckInfo."];
+            truckinfoWidth = form["truckInfo."];
+            truckinfoLength = form["truckInfo."];
+            truckinfoFrontOverhang = form["truckInfo."];
+            truckinfoRearOverhang = form["truckInfo."];
+            truckinfoLeftOverhang = form["truckInfo."];
+            truckinfoRightOverhang = form["truckInfo."];
+            truckinfoDiagram = form["truckInfo."];
+            axleinfoDescription = form[""];
+            axleinfoWeightPerAxle = form[""];
+            axleinfoDescriptionSummary = form[""];
+            axleinfoAxleCount = form[""];
+            axleinfoGroupCount = form[""];
+            axleinfoApproxAxleLength = form[""];
+            axleinfoAxleLength = form[""];
+            axleinfoMaxAxleWidth = form[""];
+            axleinfoMaxAxleWeight = form[""];
+            axleinfoTotalAxleWeight = form[""];
+            axleinfoAxleGroupSummary = form[""];
+            axleinfoAxelsPerGroup = form[""];
+            axleinfoAxleGroupTireType = form[""];
+            axleinfoAxleGroupWidth = form[""];
+            axleinfoAxleOperatingWeights = form[""];
+            axleinfoAxleGroupWeight = form[""];
+            axleinfoAxleGroupMaxWidth = form[""];
+            axleinfoAxleGroupTotalWeight = form[""];
+            axleinfoAxleGroupDistance = form[""];
+            trailerinfoDescription = form[""];
+            trailerinfoMake = form[""];
+            trailerinfoModel = form[""];
+            trailerinfoType = form[""];
+            trailerinfoSerialNumber = form[""];
+            trailerinfoLicenseNumber = form[""];
+            trailerinfoState = form[""];
+            trailerinfoEmptyWeight = form[""];
+            trailerinfoRegisteredWeight = form[""];
+            trailerinfoRegulationWeight = form[""];
+            loadinfoOwner = form[""];
+            loadinfoOverSize = form[""];
+            loadinfoOverWeight = form[""];
+            loadinfoDescription = form[""];
+            loadinfoSizeOrModel = form[""];
+            loadinfoWeight = form[""];
+
+            movementinfoStartDate = form[""];
+            movementinfoEndDate = form[""];
+            movementinfoHaulingHours = form[""];
+            movementinfoOrigin = form[""];
+            movementinfoDestination = form[""];
+            movementinfoRouteDescription = form[""];
+            movementinfoRouteCountyNumbers = form[""];
+            movementinfoMileOfCountyRoad = form[""];
+            movementinfoRouteLength = form[""];
+            movementinfoStateHighwayPermitNumber = form[""];
+            movementinfoStateHiughwayPermitIssued = form[""];
+            movementinfoNeedPilotCar = form[""];
+            movementinfoDestinationWithinCityLimits = form[""];
+            movementinfoDestinationWithinApplyingCounty = form[""];
+            */
+        }
+
         public string haulerinfoName { get; set; }
         public DateTime haulerinfoDate {get; set;}
         public string haulerinfoemail { get; set; }
@@ -684,6 +814,7 @@ namespace Manager.Host
             hauler.Add(list);
             return hauler;
         }
+
         public Paragraph CompanyInfo()
         {
             Paragraph company = new Paragraph("Company Information");
@@ -704,6 +835,7 @@ namespace Manager.Host
             company.Add(list);
             return company;
         }
+
         public Paragraph InsuranceInfo()
         {
             Paragraph insurance = new Paragraph("Insurance Information");
@@ -719,6 +851,7 @@ namespace Manager.Host
             insurance.Add(list);
             return insurance;
         }
+
         public Paragraph VehicleInfo()
         {
             Paragraph vehicle = new Paragraph("Vehicle Information");
