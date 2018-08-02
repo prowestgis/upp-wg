@@ -633,22 +633,22 @@ namespace Manager.Host
             vehicleinfoSerialNumber = (string)form["vehicleInfo.serialNumber"];
             vehicleinfoUSDOTNumber = (string)form["vehicleInfo.USDOTNumber"];
             vehicleinfoEmptyWeight = Double.Parse((string)form["vehicleInfo.emptyWeight"] ?? "0");
-            vehicleinfoRegisteredWeight = Double.Parse((string)form["vehicleInfo.registeredWeight"] ?? "0");
+            vehicleinfoRegisteredWeight = Double.Parse((string)form["vehicleInfo.registeredWeight"] ?? "0");            
+            truckinfoGrossWeight = Double.Parse((string)form["truckInfo.grossWight"] ?? "0");
+            truckinfoEmptyWeight = Double.Parse((string)form["truckInfo.emptyWeight"] ?? "0");
+            truckinfoRegisteredWeight = Double.Parse((string)form["truckInfo.registeredWeight"] ?? "0");
+            truckinfoRegulationWeight = Double.Parse((string)form["truckInfo.rgulationWeight"] ?? "0");
+            truckinfoDimensionSummary = (string)form["truckInfo.dimensionSummary"];
+            truckinfoDimensionDescription = (string)form["truckInfo.dimentionDescription"];
+            truckinfoHeight = Double.Parse((string)form["truckInfo.height"] ?? "0");
+            truckinfoWidth = Double.Parse((string)form["truckInfo.width"] ?? "0");
+            truckinfoLength = Double.Parse((string)form["truckInfo.length"] ?? "0");
+            truckinfoFrontOverhang = Double.Parse((string)form["truckInfo.frontOverhang"] ?? "0");
+            truckinfoRearOverhang = Double.Parse((string)form["truckInfo.rearOverhang"] ?? "0");
+            truckinfoLeftOverhang = Double.Parse((string)form["truckInfo.leftOverhang"] ?? "0");
+            truckinfoRightOverhang = Double.Parse((string)form["truckInfo.rightOverhang"] ?? "0");
+            truckinfoDiagram = (string)form["truckInfo.diagram"];
             /*
-            truckinfoGrossWeight = form["truckInfo."];
-            truckinfoEmptyWeight = form["truckInfo."];
-            truckinfoRegisteredWeight = form["truckInfo."];
-            truckinfoRegulationWeight = form["truckInfo."];
-            truckinfoDimensionSummary = form["truckInfo."];
-            truckinfoDimensionDescription = form["truckInfo."];
-            truckinfoHeight = form["truckInfo."];
-            truckinfoWidth = form["truckInfo."];
-            truckinfoLength = form["truckInfo."];
-            truckinfoFrontOverhang = form["truckInfo."];
-            truckinfoRearOverhang = form["truckInfo."];
-            truckinfoLeftOverhang = form["truckInfo."];
-            truckinfoRightOverhang = form["truckInfo."];
-            truckinfoDiagram = form["truckInfo."];
             axleinfoDescription = form[""];
             axleinfoWeightPerAxle = form[""];
             axleinfoDescriptionSummary = form[""];
@@ -668,38 +668,48 @@ namespace Manager.Host
             axleinfoAxleGroupMaxWidth = form[""];
             axleinfoAxleGroupTotalWeight = form[""];
             axleinfoAxleGroupDistance = form[""];
-            trailerinfoDescription = form[""];
-            trailerinfoMake = form[""];
-            trailerinfoModel = form[""];
-            trailerinfoType = form[""];
-            trailerinfoSerialNumber = form[""];
-            trailerinfoLicenseNumber = form[""];
-            trailerinfoState = form[""];
-            trailerinfoEmptyWeight = form[""];
-            trailerinfoRegisteredWeight = form[""];
-            trailerinfoRegulationWeight = form[""];
-            loadinfoOwner = form[""];
-            loadinfoOverSize = form[""];
-            loadinfoOverWeight = form[""];
-            loadinfoDescription = form[""];
-            loadinfoSizeOrModel = form[""];
-            loadinfoWeight = form[""];
-
-            movementinfoStartDate = form[""];
-            movementinfoEndDate = form[""];
-            movementinfoHaulingHours = form[""];
-            movementinfoOrigin = form[""];
-            movementinfoDestination = form[""];
-            movementinfoRouteDescription = form[""];
-            movementinfoRouteCountyNumbers = form[""];
-            movementinfoMileOfCountyRoad = form[""];
-            movementinfoRouteLength = form[""];
-            movementinfoStateHighwayPermitNumber = form[""];
-            movementinfoStateHiughwayPermitIssued = form[""];
-            movementinfoNeedPilotCar = form[""];
-            movementinfoDestinationWithinCityLimits = form[""];
-            movementinfoDestinationWithinApplyingCounty = form[""];
             */
+            trailerinfoDescription = (string)form["trailerInfo.description"];
+            trailerinfoMake = (string)form["trailerInfo.make"];
+            trailerinfoModel = (string)form["trailerInfo.model"];
+            trailerinfoType = (string)form["trailerInfo.type"];
+            trailerinfoSerialNumber = (string)form["trailerInfo.serialNumber"];
+            trailerinfoLicenseNumber = (string)form["trailerInfo.licenseNumber"];
+            trailerinfoState = (string)form["trailerInfo.state"];
+            trailerinfoEmptyWeight = (string)form["trailerInfo.emptyWeight"];
+            trailerinfoRegisteredWeight = (string)form["trailerInfo.registeredWeight"];
+            trailerinfoRegulationWeight = (string)form["trailerInfo.regulationWeight"];
+            loadinfoOwner = (string)form["loadInfo.owner"];
+            loadinfoOverSize = (string)form["loadInfo.overSize"];
+            loadinfoOverWeight = (string)form["loadInfo.overWeight"];
+            loadinfoDescription = (string)form["loadInfo.description"];
+            loadinfoSizeOrModel = (string)form["loadInfo.sizeOrModel"];
+            loadinfoWeight = (string)form["loadInfo.weight"];
+
+            movementinfoStartDate = TryParse((string)form["movementInfo.startDate"], DateTime.Now);
+            movementinfoEndDate = TryParse((string)form["movementInfo.endDate"], DateTime.Now);
+            movementinfoHaulingHours = (string)form["movementInfo.haulingHours"];
+            movementinfoOrigin = (string)form["movementInfo.origin"];
+            movementinfoDestination = (string)form["movementInfo.destination"];
+            movementinfoRouteDescription = (string)form["movementInfo.routeDescription"];
+            movementinfoRouteCountyNumbers = (string)form["movementInfo.routeCountyNumbers"];
+            movementinfoMilesOfCountyRoad = Double.Parse((string)form["movementInfo.milesOfCountyRoad"] ?? "0");
+            movementinfoRouteLength = Double.Parse((string)form["movementInfo.routeLength"] ?? "0");
+            movementinfoStateHighwayPermitNumber = (string)form["movementInfo.stateHighwayPermitNumber"];
+            movementinfoStateHighwayPermitIssued = TryParse((string)form["movementInfo.stateHighwayPermitIssued"], DateTime.Now);
+            movementinfoNeedPilotCar = (bool?)form["movementInfo.needPilotCar"];
+            movementinfoDestinationWithinCityLimits = (bool?)form["movementInfo.destinationWithinCityLimits"];
+            movementinfoDestinationWithinApplyingCounty = (bool?)form["movementInfo.destinationWithinApplyingCounty"];
+        }
+
+        private DateTime TryParse(string value, DateTime other)
+        {
+            DateTime result;
+            if (!DateTime.TryParse(value, out result))
+            {
+                return other;
+            }
+            return result;
         }
 
         public string haulerinfoName { get; set; }
@@ -787,10 +797,10 @@ namespace Manager.Host
         public string movementinfoDestination { get; set; }
         public string movementinfoRouteDescription { get; set; }
         public string movementinfoRouteCountyNumbers { get; set; }
-        public double movementinfoMileOfCountyRoad { get; set; }
+        public double movementinfoMilesOfCountyRoad { get; set; }
         public double movementinfoRouteLength { get; set; }
         public string movementinfoStateHighwayPermitNumber { get; set; }
-        public DateTime? movementinfoStateHiughwayPermitIssued { get; set; }
+        public DateTime? movementinfoStateHighwayPermitIssued { get; set; }
         public bool? movementinfoNeedPilotCar { get; set; }
         public bool? movementinfoDestinationWithinCityLimits { get; set; }
         public bool? movementinfoDestinationWithinApplyingCounty { get; set; }
@@ -998,10 +1008,10 @@ namespace Manager.Host
             list.Add(FormattedListItem("Route Destination", movementinfoDestination));
             list.Add(FormattedListItem("Route Description", movementinfoRouteDescription));
             list.Add(FormattedListItem("County Roads", movementinfoRouteCountyNumbers));
-            list.Add(FormattedListItem("Miles on County Roads", movementinfoMileOfCountyRoad.ToString()));
+            list.Add(FormattedListItem("Miles on County Roads", movementinfoMilesOfCountyRoad.ToString()));
             list.Add(FormattedListItem("Total Route Length", movementinfoRouteLength.ToString()));
             list.Add(FormattedListItem("State Highway Permit Number", movementinfoStateHighwayPermitNumber));
-            list.Add(FormattedListItem("State Highway Permit Issued Date", movementinfoStateHiughwayPermitIssued.HasValue ? movementinfoStateHiughwayPermitIssued.Value.ToShortDateString() : string.Empty));
+            list.Add(FormattedListItem("State Highway Permit Issued Date", movementinfoStateHighwayPermitIssued.HasValue ? movementinfoStateHighwayPermitIssued.Value.ToShortDateString() : string.Empty));
             list.Add(FormattedListItem("Need Pilot Car?", movementinfoNeedPilotCar.HasValue.ToString()));
             list.Add(FormattedListItem("Destination is within City Limits?", movementinfoDestinationWithinCityLimits.HasValue.ToString()));
             list.Add(FormattedListItem("Destination is within the applying County?", movementinfoDestinationWithinApplyingCounty.HasValue.ToString()));
