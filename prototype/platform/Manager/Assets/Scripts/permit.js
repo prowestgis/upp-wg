@@ -76,7 +76,7 @@
             // Look for the RTVision: token in the tokens claim
             var prefix = 'RTVision:';
 
-            var tokens = token_body.token.split(' ');
+            var tokens = token_body.tokens.split(' ');
             $.each(tokens, function (idx, _) {
                 if (_.startsWith(prefix)) {
                     headers['Authorization'] = _.substring(prefix.length);
