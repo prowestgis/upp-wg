@@ -26,7 +26,25 @@ namespace InsuranceInformation
             this.EnableCORS();
 
             // Registers service metadata from a trusted source
-            Get["/"] = _ => Response.AsJsonAPI(database.FindInsuranceInfoForUser(Context.CurrentUser));
+            Get["/"] = _ => GetInsurers(database);
+        }
+
+        private Response GetInsurers(Database database)
+        {
+            var model = database.FindInsuranceInfoForUser(Context.CurrentUser).Select(x => new AttributeResourceObject
+            {
+                Id = x.Id,
+                Type = x.Type,
+                Attributes = new
+                {
+                    x.AgencyAddress,
+                    x.InsuredAmount,
+                    x.PolicyNumber,
+                    x.ProviderName
+                }
+            });
+
+            return Response.AsJsonAPI(model);
         }
     }
 }
