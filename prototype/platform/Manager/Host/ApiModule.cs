@@ -507,6 +507,7 @@ namespace Manager.Host
                         document.Add(record.TrailerInfo());
                         document.Add(record.LoadInfo());
                         document.Add(record.MovementInfo());
+
                         Paragraph permitRequests = new Paragraph("Permits Requested:");
                         List permitRequestList = new List();
                         permitRequestList.IndentationLeft = 10;
@@ -517,10 +518,16 @@ namespace Manager.Host
                             permitRequestList.Add(GeneratePermitModel.FormattedListItem(permitResponse));
                         }
 
+                        if (!authorities.Any())
+                        {
+                            permitRequestList.Add(GeneratePermitModel.FormattedListItem("No Authorities"));
+                        }
+
                         permitRequests.Add(permitRequestList);
                         document.Add(permitRequests);
 
                         // Add the attchments
+                        document.Add(new Paragraph("Attachments:"));
                         foreach (var attachment in attachments)
                         {
                             var image = Image.GetInstance(attachment.OpenRead());
@@ -700,6 +707,25 @@ namespace Manager.Host
             movementinfoNeedPilotCar = (bool?)form["movementInfo.needPilotCar"];
             movementinfoDestinationWithinCityLimits = (bool?)form["movementInfo.destinationWithinCityLimits"];
             movementinfoDestinationWithinApplyingCounty = (bool?)form["movementInfo.destinationWithinApplyingCounty"];
+
+            // Take the bridge tokens, as-is
+            Bridges = form["Bridges"].Select(x => (string)x).ToArray();
+
+            // Extract the authorities
+            var authorities = json["data"]["attributes"]["authorities"] ?? new JArray();
+            Authority = authorities.Select(x => StringifyAuthority(x)).ToArray();
+        }
+
+        private string StringifyAuthority(JToken authority)
+        {
+            var name = ((JProperty)authority).Name;
+            var children = authority.First().Children<JProperty>().ToList();
+
+            // Look for a "status" and "reviewed" children
+            var status = children.Where(x => x.Name == "status").Select(x => x.Value).FirstOrDefault() ?? "<none>";
+            var reviewed = children.Where(x => x.Name == "reviewed").Select(x => x.Value).FirstOrDefault() ?? "<never>";
+
+            return String.Format("{0}: Current status: {1}. Last Reviewed: {2}", name, status, reviewed);
         }
 
         private DateTime TryParse(string value, DateTime other)
@@ -806,7 +832,6 @@ namespace Manager.Host
         public bool? movementinfoDestinationWithinApplyingCounty { get; set; }
 
         public string[] Authority { get; set; }
-
         public string[] Bridges { get; set; }
 
         public Paragraph HaulerInfo()
@@ -1050,6 +1075,7 @@ namespace Manager.Host
             ListItem rtn = new ListItem(12, text, FontFactory.GetFont(FontFactory.HELVETICA, 8));
             return rtn;
         }
+
         public static ListItem FormattedListItem(string text)
         {
             ListItem rtn = new ListItem(12, text, FontFactory.GetFont(FontFactory.HELVETICA, 8));
