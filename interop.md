@@ -165,7 +165,7 @@ This describes the resource servers that comprise the UPP platform. If a system 
 The Discovery API allows systems to:
 
 1. Register and describe themselves,
-2. Look up other services based on function
+2. Look up other services based on type, scope and authority
 
 #### List services
 
@@ -189,41 +189,107 @@ None
 | `sort` | `string` | Can be one of `name`, `display_name` or `type`. Default: `name`
 | `direction` | `string` | Can be one of `asc` or `desc`. Default: `desc`
 
+The valid UPP Service Types are
+
+* `route` for Esri-compatible routing services
+* `geometry` for Esri-compatible geometry services
+* `county.boundaries`for County boundaries use to identify a route's authorities
+* `city.boundaries`for City boundaries use to identify a route's authorities
+* `upp` for generic UPP data services
+* `upp.information.axle` for UPP axle information
+* `upp.information.company` for UPP company information
+* `upp.information.insurance` for UPP insurance information
+* `upp.information.trailer` for UPP trailer information
+* `upp.information.truck` for UPP truck information
+* `upp.information.vehicle` for UPP vehicle information
+
 ##### Response
 
+The endpoint MUST return a collection of UPP Microservice Configuration Records in JSON API format. Each service is uniquely identified by its authority name concatenaded with the service type.
+
+This allows any authority to provide, at most, one instance of each service but permits the same service to be provided by multiple authorities.  There are three common situations where multiple authorities will provide an implementation of the same service
+
+1. Each authority needs to implment its own business processes against a service, e.g. permit application
+1. Each authority may provide a partial source of knowledge, e.g. vehicle information
+1. To provide redundency or consensus for dynamic data, e.g. replicated data sources or majority-rules query resolution.
+
 ```json
-[
+Content-Type: application/vnd.api+json
+
+{
+  "data": [
     {
-    "name": "esri.routing",
-    "authority": "upp",
-    "display_name": "Esri Premium Routing Service",
-    "oauth_id": "agol",
-    "url": "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
-    "type": "route",
-    "scopes": "utility:route",
-    "priority": 1
-  },
-  {
-    "name": "esri.geometry",
-    "authority": "upp",
-    "display_name": "Esri Geometry Service",
-    "oauth_id": "",
-    "url": "https://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer",
-    "type": "geometry",
-    "scopes": "utility:geometry",
-    "priority": 1
-  },
-  {
-    "name": "_upp_permit.approval.Clearwater",
-    "authority": "clearwater_cou_mn",
-    "display_name": "UPP Trusted Service Endpoint",
-    "oauth_id": null,
-    "url": "/clearwater-permits/api/v1/issue",
-    "type": "upp",
-    "scopes": "permit.approval.Clearwater",
-    "priority": 1
-  }
-]
+      "id": "esri_com+route",
+      "type": "microservice-config",
+      "attributes": {
+        "authority": "esri_com",
+        "description": null,
+        "displayName": "Esri Premium Routing Service",
+        "format": "esri_network_service",
+        "name": "esri.routing",
+        "oAuthId": "agol",
+        "priority": 1,
+        "scopes": "route.information",
+        "tokenId": "",
+        "type": "route",
+        "uri": "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World"
+      }
+    },
+    {
+      "id": "esri_com+geometry",
+      "type": "microservice-config",
+      "attributes": {
+        "authority": "esri_com",
+        "description": null,
+        "displayName": "Esri Geometry Service",
+        "format": "esri_geometry_service",
+        "name": "esri.geometry",
+        "oAuthId": "",
+        "priority": 1,
+        "scopes": "geometry.services",
+        "tokenId": "",
+        "type": "geometry",
+        "uri": "https://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer"
+      }
+    },
+    {
+      "id": "esri_com+county.boundaries",
+      "type": "microservice-config",
+      "attributes": {
+        "authority": "esri_com",
+        "description": null,
+        "displayName": "Esri County Boundaries",
+        "format": "esri_feature_service",
+        "name": "esri.county.boundaries",
+        "oAuthId": "",
+        "priority": 1,
+        "scopes": "county.boundaries",
+        "tokenId": "",
+        "type": "county.boundaries",
+        "uri": "https://services.arcgis.com/BG6nSlhZSAWtExvp/arcgis/rest/services/counties_MN/FeatureServer/0"
+      }
+    },    
+    {
+      "id": "upp_mja_mn+upp.information.vehicle",
+      "type": "microservice-config",
+      "attributes": {
+        "authority": "upp_mja_mn",
+        "description": "A Vehicle Information provider that returns data in JSON API format.  This API supports UPP JWT authorization.",
+        "displayName": "UPP Vehicle Information",
+        "format": "json_api",
+        "name": "_vehicle._upp",
+        "oAuthId": "vendor",
+        "priority": 1,
+        "scopes": "information.vehicle",
+        "tokenId": "vendor",
+        "type": "upp.information.vehicle",
+        "uri": "https://staging-upp.example.com/upp/data.php?page=vehicle"
+      }
+    }
+  ],
+  "meta": {},
+  "jsonapi": {}
+}
 ```
 
 #### Register service
@@ -244,11 +310,28 @@ services:write
 
 ##### Parameters
 
-Registration MUST be passed in as a JSON-encoded service access record
+Registration MUST be passed in as a JSON-encoded service registration record. Most of the parameters of the `service registration` record have a direct correspondence to the values returned by the registered services endpoint.
+
+| Name | Type | Description |
+| - | - | -
+| `metadata.type` | `string` | The machine-friendly name of the service endppint.  A SVC-style name following the conventions of [Service DNS Records](https://en.wikipedia.org/wiki/SRV_record) and hanve the general form of `_service._proto`.  For example, `_insurance._upp`.
+| `metadata.uid` | `string` | A valid unique identifier for the service. May be autogenerated.
+| `labels.friendlyName` | `string` | A short, human-readable name for the service that will be used to label the service.  There is no limit, but it is recommended that the friendly name be kept to 32 characters or less.
+| `labels.scopes` | `string` | A space-separated list of UPP service scopes implemented by this endpoint.
+| `labels.authority` | `string` | The UPP Authority that is responsible for providing this service instance.
+| `labels.type` | `string` | The UPP service type that is implemented by this service.
+| `label.format` | `string` | The format of the data provided by this service endpoint.  Valid values are `esri_map_service`, `esri_feature_service` and `json_api`
+|`annotations.description` | `string` | A longer description of the service.  This should include information about usage and suitability of the data service, if possible.
+| `annotations.priority` | `number` | A value that sets the relative priority of the service.<br><br>If multiple services of the same type are registered, any UPP system MUST attempt to use higher priority data source before ones of lower priority.  Additionally, if two data sources with different priorities return data for the same entity, a UPP system MUST accept the data from the source of higher priority and discard the lower priority information.<br><br>It is service-defined whether lower-priority data responses can be merged on a per-record or per-attribute basis.
+| `annotations.oAuthId` | `string` | References a specific set of cached OAuth credentials that should be unsed to aquire an access token from the service on behalf of the UPP client.  The method of acquiring the token is implementation-defined.
+| `annotations.tokenId` | `string` | References a specific set of cached  credentials that should be unsed to aquire a generic access token from the service on behalf of the UPP client.  The method of acquiring the token is implementation-defined.
+
+
+##### Request
 
 ```json
 POST /api/v1/agent/register
-Content-Type: application/vnd.upp.service
+Content-Type: application/vnd.upp.service-registration
 {
     "kind": "Service",
     "apiVersion": "v1",
@@ -260,7 +343,7 @@ Content-Type: application/vnd.upp.service
             "scopes": "foo.bar baz",
             "authority": "<Authority>",
             "type": "<UPP Service Type>",
-            "Format":"<UPP Service Format>"
+            "format":"<UPP Service Format>"
         },
         "annotations": {
             "description":"A long description about the service",
@@ -274,6 +357,29 @@ Content-Type: application/vnd.upp.service
         "externalName": "https://my.host.com:port",
         "path":"/path/to/api/root"
     }
+}
+```
+
+##### Response
+
+Regardless of whether the registration succees or not, a 200 OK response will be sent to the client with a list of the current set of service changes made in response to the request.
+
+If a service failed to register for any known reason, it will be listed in the `failed` array.
+
+```json
+{
+    "added": [],
+    "updated": [],
+    "removed": [],
+    "failed": []
+}
+```
+
+Unhandled errors will return is a JSON response of
+
+```json
+{
+    "success": false
 }
 ```
 
@@ -305,80 +411,6 @@ None
   "token": "sY9VnvLH8MX9clpyMMecwC8uHT6Oa2FFurNG06ozoXPIiZ1M8OYlV5oZ02FIZAmDZNNYxstewQLjzjFg8qHzTHSUHkIgbTGUJjVNV2Uv8Sf322VZzCTdIa6jGh-wkJ2yuECjaNP8p-Q3lZxiwT5Csg..",
   "is_secured": true
 }
-```
-
-### Data API
-
-The Data API provides a generic source of supporting data relevant to the UPP workflows.  This is an intentionally generic interface which is typically used to provide a gateway into existing data sources.
-
-#### List data sources
-
-List the data sources that the user has permission to access
-
-```http
-GET /data/sources
-```
-
-The `format` parameter identifies the exact underlying protocol that the data service uses. Valid values are:
-
-* `esri_map_service`
-* `esri_feature_service`
-* `json_api` (as defined in the [jSON API](http://jsonapi.org) specification)
-
-Unlike the Discovery API, the Data API does not provide any predefined support for secured services. A UPP client is responsible for supporting the ability to access secured versions of the data sources. The `meta` property may be used to defined client-specific information.
-
-The `type` parameter identifies the UPP service type of the data service.  Valid valued are
-
-* `route` for Esri-compatible routing services
-* `geometry` for Esri-compatible geometry services
-* `boundaries.county`for County boundaries use to identify a route's authorities
-* `upp` for generic UPP data services
-* `upp.information.axle` for UPP axle information
-* `upp.information.company` for UPP company information
-* `upp.information.insurance` for UPP insurance information
-* `upp.information.trailer` for UPP trailer information
-* `upp.information.truck` for UPP truck information
-* `upp.information.vehicle` for UPP vehicle information
-
-##### Required scopes
-
-None
-
-##### Parameters
-
-| Name | Type | Description |
-| - | - | -
-| `type` | `string` | Can be `all` or any user-defined type. Default: `all`
-| `sort` | `string` | Can be one of `name`, `display_name` or `type`. Default: `name`
-| `direction` | `string` | Can be one of `asc` or `desc`. Default: `desc`
-
-##### Response
-
-```json
-[
-    {
-        "name": "My-Data-Source",
-        "display_name": "My data Source",
-        "description": "This contains information about vehicle ownership",
-        "url": "https://upp.org/data/sources/My-Data-Source",
-        "format": "esri_feature_service",
-        "type": "vehicle-registration",
-        "meta": {
-        }
-    },
-    {
-        "name": "Trailer-Inventory",
-        "display_name": "OTR Trucking Trailer Inventory",
-        "description": "This contains information about all of the trailers registers to OTR Trucking",
-        "url": "https://otr.com/inventory/data/sources/Trailer-Inventory",
-        "format": "json_api",
-        "type": "trailer-info",
-        "meta": {
-            "auth": "SAML",
-            "idp": "https://login.example.com/saml/"
-        }
-    }
-]
 ```
 
 ### Permit API
