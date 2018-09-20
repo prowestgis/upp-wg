@@ -61,8 +61,6 @@ Given the limited number of authories, the UPP system defines an exhaustive list
 
 #### Representation
 
-**_NOTE TO WORKING GOURP:_ Consider the merits of using X.509 [Standard Attribute Types](https://tools.ietf.org/html/rfc4211#appendix-A.2) (C, L, ST, O, OU, CN) to Identify authorities. May be able to leverage against already-issued SSL certificates to verify.**
-
 An authority is identified by a string representation with the format
 
    `<name>_<org>_<state>`
