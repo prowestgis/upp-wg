@@ -1,16 +1,27 @@
 ﻿namespace UPP.Security
 {
     /// <summary>
-    /// Define all of the claims used by UPP. A claim is a statement about a user. The specific claims
-    /// returned may be dependent on the scopes the client requests, i.e. unless the client asks for the 
-    /// 'address' scope, no mailing address will be provided.
+    /// Define all of the claims used by UPP. A claim is a statement about a user. 
     /// </summary>
     public static class Claims
     {
-        // This identity is a hauler (person that drives a truck)
-        public const string HAULER = "hauler";
+        public const string ROLES = "roles";
+        public const string TOKENS = "tokens";
+        public const string UPP = "upp";
+        public const string EMAIL = "email";
+        public const string PHONE = "phone";
+        public const string SCOPES = "scopes";
 
-        // Identifies users that are UPP administrators
-        public const string UPP_ADMIN = "upp.admin";
-    }
+        /// <summary>
+        /// Valid values for the 'roles' claim
+        /// </summary>
+        public static class Roles
+        {
+            public const string HAULER = "hauler";
+            public const string DISPATCHER = "dispatcher";
+            public const string ENFORCEMENT = "enforcement";
+            public const string ISSUER = "issuer";
+            public const string UPP_ADMIN = "upp_admin";            
+        }
+    }   
 }

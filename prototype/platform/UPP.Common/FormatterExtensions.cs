@@ -17,6 +17,13 @@ namespace UPP.Common
         string Type { get; }
     }
 
+    public sealed class AttributeResourceObject : IResourceObject
+    {
+        public object Id { get; set; }
+        public string Type { get; set; }
+        public object Attributes { get; set; }
+    }
+
     public static class FormatterExtensions
     {
         private static ISerializer jsonSerializer;

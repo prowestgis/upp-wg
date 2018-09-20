@@ -10,30 +10,12 @@
     /// </summary>
     public static class Scopes
     {
-        // These scopes are defined by the Standard Committee Results spreadsheet
-        public const string INFORMATION = "information";
-        public const string INFORMATION_HAULER    = INFORMATION + ".hauler";
-        public const string INFORMATION_COMPANY   = INFORMATION + ".company";
-        public const string INFORMATION_INSURANCE = INFORMATION + ".insurance";
-        public const string INFORMATION_VEHICLE   = INFORMATION + ".vehicle";
-        public const string INFORMATION_TRUCK     = INFORMATION + ".truck";
-        public const string INFORMATION_AXLE      = INFORMATION + ".axle";
-        public const string INFORMATION_TRAILER   = INFORMATION + ".trailer";
-        public const string INFORMATION_LOAD      = INFORMATION + ".load";
-        public const string INFORMATION_MOVEMENT  = INFORMATION + ".movement";
+        // UPP scopes 
+        public const string PERMIT_REQUEST = "permit:request";
+        public const string PERMIT_REVIEW = "permit:review";
+        public const string PERMIT_RENFORCEMENT = "permit:enforcement";
 
-        public const string PERMIT = "permit";
-        public const string PERMIT_GENERAL  = PERMIT + ".general";
-        public const string PERMIT_APPROVAL = PERMIT + ".approval";
-        public const string PERMIT_PAYMENT  = PERMIT + ".payment";
-        public const string PERMIT_MISC     = PERMIT + ".misc";
-
-
-        // Full acces to all reporting functions
-        public const string REPORTING = "reporting";
-
-        // Limitd access to reports that only return aggregates (summaries) of
-        // underlying data
-        public const string REPORTING_AGGREGATE = REPORTING + ".aggregate";
+        public const string SERVICES_WRITE = "services:write";
+        public const string SERVICES_READ = "services:read";        
     }
 }

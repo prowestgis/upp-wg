@@ -116,11 +116,9 @@ A defined above, a claim is a piece of information that is attatched to an Ident
 | `upp` | An opaque data token that MUST be preserved across all UPP requests
 | `email` | One or more email addresses as defined in [RFC 5322](https://tools.ietf.org/html/rfc5322).  Multiple email addresses are separated by spaces.
 | `phone` | One or more telephone URIs. Multiple telephone numbers are separated by spaces. Telephone numbers MUST follow the formatting rules defined in [RFC 3966](https://tools.ietf.org/html/rfc3966).<br>A mobile phone number that has been approved for messaging from UPP MUST include a `mobile` parameter with an optional parameter value that defines the type of content that may be sent to this device. Valid values are `sms` and `mms` with `sms` being the default value.<br>UPP also defined two additional parameters that define the interaction model to be used with a telephone number. `fax` indetifies a phone number as a FAX machine numbr  and may be used as a target. `ivr` designates a phone number that should be used for interations via an Interactive Voice Response system.
-| `hauler` | User is a hauler and generally entitled to interact with the systems in pursuit of obtaining a OSOW permit.
-| `dispatcher` | User is a dispatcher
-| `law.enforcement` | User is a member of law enforcement
-| `dps` | Department of Public Safety Claim.  Value MAY be a list of specific roles the users holds within DPS, e.g. 'hwp'
-| `scopes` | A list of scopes attached to this identity.
+| `roles` | The roles this user has with regard to UPP workflows.  The list of defined roles are listed below.  Each Identity Provider MAY provide additional roles as well and any UPP system MUST propagate these roles in delegated requests.
+| `scopes` | A list of scopes requested and approved by this identity.
+| `tokens` | A list of all tokens provided by the Identity Providers.  This functionality can be used by UPP authorities to verify if a user was authenticated by a specific Identity Provider and provide additional capabilities, e.g. allow employees of that organization to perform additional functions suited to their internal position.
 
 Any UPP system is allowed to define its own claims, however claims can only be set by an Identity Provider.
 
@@ -154,7 +152,20 @@ A scope define the specific access that a user needs. Each API MAY require speci
 | `permit:review` | Grants read access to permit requests and permit reviews.
 | `permit:enforcement` | Grants unrestricted read access to approved permits.
 | `services:write` | Grants the ability to add/remove/update service registrations.
-| `upp.admin` | Grants federated administrative authority to _any_ UPP system.<br><br>This is not an unchecked authority, however. Each UPP system is able to define for itself what resources fall under the authority of the `upp.admin` claim and can reserve sensitive, internal administrative access to other scopes which may be set only by Identity Providers trusted by that specific UPP system
+| `services:read` | Grants the ability to query service registrations.
+
+### Roles
+
+The roles claim provides a place to accumulate all of the functional roles held by an identity.  Typically these identify the department or organizational role that is held by the person.
+
+| Role | Description |
+| - | - |
+| `hauler` | User is a hauler and generally entitled to interact with the systems in pursuit of obtaining a OSOW permit.
+| `dispatcher` | User is a dispatcher and may be interating with the system on behalf of a third-party
+| `enforcement` | User is involved inthe enforcement of permits in some capacity
+| `issuer` | User is involved in issuing permits
+| _`authority`_ | Any of the defined authorities may be included within the role claim to indicate that the user is officially affilliated with that authority for the purposes of UPP.
+| `upp_admin` | Grants federated administrative authority to _any_ UPP system.<br><br>This is not an unchecked authority, however. Each UPP system is able to define for itself what resources fall under the authority of the `upp_admin` claim and can reserve sensitive, internal administrative access to other scopes which may be set only by Identity Providers trusted by that specific UPP system
 
 ## APIs
 
@@ -175,9 +186,15 @@ List the registered services.
 GET /services
 ```
 
-##### Required scopes
+##### Within Scopes
 
-None
+```text
+services:read
+```
+
+##### Required Claims
+
+* None
 
 ##### Parameters
 
@@ -193,8 +210,8 @@ The valid UPP Service Types are
 
 * `route` for Esri-compatible routing services
 * `geometry` for Esri-compatible geometry services
-* `county.boundaries`for County boundaries use to identify a route's authorities
-* `city.boundaries`for City boundaries use to identify a route's authorities
+* `boundaries.county` for County boundaries use to identify a route's authorities
+* `boundaries.city` for City boundaries use to identify a route's authorities
 * `upp` for generic UPP data services
 * `upp.information.axle` for UPP axle information
 * `upp.information.company` for UPP company information
@@ -302,11 +319,15 @@ _The service directory implementation is influenced by Kubernetes but restricted
 POST /services
 ```
 
-##### Required scopes
+##### Within Scopes
 
 ```text
 services:write
 ```
+
+##### Required Claims
+
+* None
 
 ##### Parameters
 
@@ -387,14 +408,18 @@ Unhandled errors will return is a JSON response of
 
 For secured services, this will acquire a short-lived token on behalf of the authenticated user. A list of scopes must be passed as a claim on the current user. Each registered service takes a set of scopes that it recognizes as valid and will only issue a token to users with the appropriate claims.
 
-If a user has a `upp.admin` claim, they are allowed to acquire a token via a GET request.
+If a user has a `upp_admin` role claim, they are allowed to acquire a token via a GET request.
 
 ```http
 GET /services/:name/token (Admin Only)
 POST /service/:name/token
 ```
 
-##### Required scopes
+##### Within Scopes
+
+None
+
+##### Required Claims
 
 None
 
@@ -415,51 +440,86 @@ None
 
 ### Permit API
 
-#### `permit.issuer.<authority>`
+The permit API defines an interface for requesting, issuing and inspecting OSOW permits across a federated collection of conforming systems.
 
-This scope defines the API that a permit authority must implement in order to provide permits through its jurisdiction to UPP clients.
+#### Concepts
 
-## Interoperability Profiles
+The federated sharing of permits across organizational boundaries is build on top of the populat git distributed repository ptotocol. All permits are instantiated as local repositories on the originating system, and URLs to the source repository are passed as part of the permit record types.
 
-Each UPP-compliant application need only implement the profiles that it needs to support.  Each profile represents a distinct service unit that acts as a building block of the peer-based, distributed UPP system.
+Remote systems are required to pull, commit and push changes to the repository as local actions are taken.  The originating repository is defined as the System of Record for a given permit.  This is an important design aspect of the UPP system -- there is no _single_ System of Record, rather each system if the authroity over the record that it was responsible for creating.
 
-## Service Directory
+The permit repository MUST conform the the following structure
 
-```JSON
-GET /api/v1/hosts?type=<service_type>&scope=<api_scope>
-Content-Type: application/vnd.upp.service-description
+```text
+/
+|- permit.json
+|- attachments 
+```
+
+Any system may place additional files in the repository as long as they are placed within a dotted-folder with the name of the authority that created it.  For example, this is a valid UPP repoitory structure
+
+```text
+/
+|- .duluth_cty_mn
+|   |- file.txt
+|   +- image.png
+|
+|- permit.json
++- attachments 
+```
+
+However, adding additional, non-dotted files to the top level of the respository is INVALID.
+
+#### Permit Document Structure
+
+The `permit.json` document has the following structure
+
+```json
 {
-    "name": <service_name>,
-    "displayName": <label intended for display>,
-    "oAuthId": "",
-    "tokenId": "",
-    "uri": "",
-    "type": "",
-    "scopes": "",
-    "priority": 1
+  "meta": {
+    "upp": {
+      "version": "1.0.0"
+    }
+  },
+  "links": {
+    "origin": "http://localhost:8000/git/ffcf7842-4857-44ab-a08f-f51bef31da85"
+  },
+  "data": {
+    "type": "permit-application",
+    "id": "ffcf7842-4857-44ab-a08f-f51bef31da85",
+    "meta": {},
+    "attributes": {
+      "form-data": {},
+      "route": {},
+      "authorities": {}
+    },
+    "relationships":{
+      "bridges":[],
+      "weather":{}
+    }
+  }
 }
 ```
 
-```JSON
-GET /api/v1/hosts/{name}/access
-Content-Type: application/vnd.upp.service-access-record
-{
-    "name": <service_name>,
-    "url": "https://service_url/with/base/path",
-    "token": access_token,
-    "is_secured": boolean
-}
-```
-
-## Permit Issuer
-
-A permit issues has the authority to approve or deny OSOW permits.
+| Name | Description |
+| - | -
+| `meta.upp.version` | MUST be the string "1.0.0"
+| `links.origin` | An accessible URL that other UPP systems may use to clone the permit repository.  Each system SHOULD apply appropriate `claims` checks to any repository request to ensure that the remote system is using an identity with the appropriate permissions.
+| `data.type` | MUST be the string "permit-application"
+| `data.id`   | A unique string that identifies this permit among all UPP permits.  It is RECOMMENDED that an appropriate UUID be used.
+| `data.meta` | Metadata about the permit application.
+| `data.attributes.form-data` | A collection of properties the represent the core permit information as determined by the UPP Standards Committee.  This data may be modified over time as a permit is revised.  The UPP system relies on the git history for auditing and inspectibility purposes.
+| `data.attributes.route` | The defined route that will be taken by the application. This data MUST be in the format returned by an Esri-complatible Routing Service and include all _stops_ and _barriers_.
+| `data.attributes.authorities` | This property provides a place for each authority to store local information with the permit.  The authority properties are filled in at the time of permit creation by identifying all of the jurisdictions that a proposed route passes through.  An authority MUST NOT add new properties to this object.<br><br>If their authority's name does not exists, it is an error condition.  An authority MAY create a dotted folder within the repository as a fall-back to communicate information that must be resolved later.<br><br>The reason for this requirement is to enforce a structure within the JSON file such that merge conflicts are structurally impossible and the UPP system can rely on merge operations succeeding in all, non-error cases.
+| `relationships` | This object contains a list of read-only propreties that hold contextual information about the permit.  Each relationship items is defined is its own specification addendum and all relationships are OPTIONAL.
 
 ### Required Scopes
 
-A Permit Issuer MUST implment the following scopes
+A system implementing the Permit API MUST recognize the following scopes
 
-* `permit.issuer.<authority>` where `<authority>` is the unique UPP-defined authority string.
+* `permit:request`
+* `permit:review`
+* `permit:enforcement`
 
 ### Resource Endpoints
 
@@ -467,17 +527,47 @@ A Permit Issuer MUST implment the following scopes
 
 Returns a [Permit Issuer Metadata](#Permit-Issuer-Metadata) record to the client.  This endpoint MAY be secured but is not REQUIRED to be.
 
+##### Within Scopes
+
+* None
+
+##### Required Claims
+
+* None
+
 #### GET `{base}/permits`
 
-Return a list of [Permit Records](#Permit-Record) filtered by the identified user. This endpoint MUST be secured and MUST filter permits be recognizing the following user claims
+Return a list of [Permit Records](#Permit-Record) filtered by the identified user. This endpoint MUST be secured and MUST filter permits by recognizing the following role claims
 
-* The `hauler` claim SHOULD allow the user to retrieve all of permits that have been issues to this user.  The user SHALL be identified by the contents of an `email` claim, an IdP token or a combination of the two. The implementing system DOES NOT need to return all permits in a single transaction, but MAY provide pagination via a `_links` JSON subrecord that follows the [HAL](http://stateless.co/hal_specification.html) specification.
+* The `hauler` claim SHOULD allow the user to retrieve all of permits that have been issues to this user.  The user SHALL be identified by the contents of an `email` claim, an IdP token from the `tokens` claim, or a combination of the two. The implementing system DOES NOT need to return all permits in a single transaction, but MAY provide pagination via a `_links` JSON subrecord that follows the [HAL](http://stateless.co/hal_specification.html) specification.
 
-* The `dps` claim MAY grant the user the ability to view ALL permits issued by the permit authority.
+* The `permit:enforcement` scope grant MAY grant the user the ability to view ALL permits issued by the permit authority.
+
+##### Within Scopes
+
+* `permit:request`
+* `permit:review`
+* `permit:enforcement`
+
+##### Required Claims
+
+* A `hauler` or `dispatcher` MUST be limited to finding ONLY permits that they have submitted.
+
+##### Response
+
+TODO
 
 #### POST `{base}/permits`
 
-The primary endpoint that UPP clients should use to request a permit from the authority.  This endpoint MUST be secured and validate that the request comes from a trusted UPP system. The user making the request MUST have the `hauler` claim.
+The primary endpoint that UPP clients should use to request a permit from the authority.  This endpoint MUST be secured and validate that the request comes from a trusted UPP system. The user making the request MUST have the `hauler` or `dispatcher` role claim.
+
+##### Within Scopes
+
+* `permit:request`
+
+##### Required Claims
+
+* None
 
 ##### Response
 
@@ -498,7 +588,17 @@ The response will be returned as a JSON API resource identifier document of type
 
 #### GET `{base}/permits/{guid}`
 
-Retrive a specific permit application from a UPP authority. Only permits that originated from a given host need to be accessibly via this endpoint.
+Retrive a specific permit application from a UPP authority. Only permits that originated from a given host need to be accessible via this endpoint.
+
+##### Within Scopes
+
+* `permit:request`
+* `permit:review`
+* `permit:enforcement`
+
+##### Required Claims
+
+* A `hauler` or `dispatcher` MUST be limited to finding ONLY permits that they have submitted. A 404 response MUST be returned otherwise.
 
 ##### Response
 
@@ -533,11 +633,16 @@ The response is a full `permit-application` JSON API record.
 
 #### POST `{base}/permits/{guid}/patch`
 
-The `patch` endpoint allows sections of the permit application record to be updated by UPP clients.  Clients MUST use this endpoint to modify the permit document and no modify the document directly.
+The `patch` endpoint allows sections of the permit application record to be updated by UPP clients.  Clients MUST use this endpoint to modify the permit document and not modify the document directly.
 
-##### Required scopes
+##### Within Scopes
 
-None
+* `permit:request`
+* `permit:review`
+
+##### Required Claims
+
+* A `hauler` or `dispatcher` MUST be limited to updating ONLY permits that they have submitted.  Further, they MUST only be allowed to change the `form-data` and `route` sections of the [Permit Request](#Permit-Request). A 404 response MUST be returned otherwise.
 
 ##### Parameters
 
@@ -554,13 +659,13 @@ The endpoint will return an empty `200 OK` on success and a `400 Bad Request` if
 
 #### POST `{base}/permits/{guid}/package`
 
-#### GET `{base}/permits/{guid}/route`
+##### Within Scopes
 
-#### PUT `{base}/permits/{guid}/route`
+##### Required Claims
 
-#### GET `{base}/permits/{guid}/authorities`
+##### Parameters
 
-#### POST `{base}/permits/{guid}/authorities`
+##### Response
 
 The endpoint MUST accept a [Permit Request](#Permit-Request) document and MAY return any of the following response codes to the client.
 
@@ -576,33 +681,35 @@ Returns a [Permit Request Response](#Permit-Request-Response) record to the clie
 
 The `receipt` field is an opaque string generated by the permitting system.  The field SHOULD be less than 200 characters in length and is recommended that a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) or similar data type be used. The permit issuer MUST be able to retrive a permit record if it is provided with a valid receipt in the future.
 
-#### GET `{base}/permits/{guid}/authorities/{name}`
-
-#### PUT `{base}/permits/{guid}/authorities/{name}`
-
-#### DELETE `{base}/permits/{guid}/authorities/{name}`
-
-#### GET `{base}/permits/{guid}/authorities/{name}/route`
-
-#### GET `{base}/permits/{guid}/extra`
-
-#### POST `{base}/permits/{guid}/extra`
-
-#### GET `{base}/permits/{guid}/extra/{name}`
-
-#### PUT `{base}/permits/{guid}/extra/{name}`
-
-#### DELETE `{base}/permits/{guid}/extra/{name}`
-
 #### GET `{base}/permits/{guid}/attachments`
+
+##### Within Scopes
+
+##### Required Claims
+
+##### Parameters
+
+##### Response
 
 #### POST `{base}/permits/{guid}/attachments`
 
+##### Within Scopes
+
+##### Required Claims
+
+##### Parameters
+
+##### Response
+
 #### GET `{base}/permits/{guid}/attachments/{name}`
 
-#### PUT `{base}/permits/{guid}/attachments/{name}`
+##### Within Scopes
 
-#### DELETE `{base}/permits/{guid}/attachments/{name}`
+##### Required Claims
+
+##### Parameters
+
+##### Response
 
 #### GET `{base}/reviews/{receipt}`
 

@@ -11,6 +11,7 @@ namespace UPP.Protocols
         public static readonly ServiceRegistrationType ROUTE = new ServiceRegistrationType(Domain.ROUTE, "route", "Routing Services");
         public static readonly ServiceRegistrationType GEOMETRY = new ServiceRegistrationType(Domain.GEOMETRY, "geometry", "Low-Level Geometry Operations");
         public static readonly ServiceRegistrationType COUNTY_BOUNDARIES = new ServiceRegistrationType(Domain.COUNTY_BOUNDARIES, "boundaries.county", "Official County Boundaries");
+        public static readonly ServiceRegistrationType CITY_BOUNDARIES = new ServiceRegistrationType(Domain.CITY_BOUNDARIES, "boundaries.city", "Official City Boundaries");
         public static readonly ServiceRegistrationType UPP = new ServiceRegistrationType(Domain.UPP, "upp", "UPP Trusted Service Endpoint");
 
         public static readonly ServiceRegistrationType UPP_INFORMATION_AXLE = new ServiceRegistrationType(Domain.UPP_INFORMATION_AXLE, "upp.information.axle", "UPP Axle Information");
@@ -25,6 +26,7 @@ namespace UPP.Protocols
             ROUTE,
             GEOMETRY,
             COUNTY_BOUNDARIES,
+            CITY_BOUNDARIES,
             UPP,
             UPP_INFORMATION_AXLE,
             UPP_INFORMATION_COMPANY,
@@ -39,6 +41,7 @@ namespace UPP.Protocols
             ROUTE,
             GEOMETRY,
             COUNTY_BOUNDARIES,
+            CITY_BOUNDARIES,
             UPP,
             UPP_INFORMATION_AXLE,
             UPP_INFORMATION_COMPANY,

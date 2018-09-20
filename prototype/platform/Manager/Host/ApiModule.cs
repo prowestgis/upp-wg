@@ -463,6 +463,10 @@ namespace Manager.Host
         {
             using (var context = new CurrentRepositoryContext(services, config, user, permitIdentifier))
             {
+                // Pull down any pending changes
+                var author = new Signature(user.UserName, user.Email, DateTime.Now);
+                var mergeResult = Commands.Pull(context.Repository, author, new PullOptions());
+
                 // This is where all of the permit information is cloned
                 var workingDir = context.Repository.Info.WorkingDirectory;
 
