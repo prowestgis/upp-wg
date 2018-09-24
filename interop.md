@@ -105,7 +105,7 @@ The following is a non-exhaustive list of valid UPP Authority identifiers.
 
 ### Claims
 
-A defined above, a claim is a piece of information that is attatched to an Identity. UPP uses a [Json Web Token](https://tools.ietf.org/html/rfc7519#section-4) (JWT) for its representation of the current claims for a given identity. In addition to the claims defined in [RFC 7519](https://tools.ietf.org/html/rfc7519), UPP defines the following claims
+As defined above, a claim is a piece of information that is attatched to an Identity. UPP uses a [Json Web Token](https://tools.ietf.org/html/rfc7519#section-4) (JWT) for its representation of the current claims for a given identity. In addition to the claims defined in [RFC 7519](https://tools.ietf.org/html/rfc7519), UPP defines the following claims
 
 #### Defined Claims
 
@@ -116,7 +116,7 @@ A defined above, a claim is a piece of information that is attatched to an Ident
 | `phone` | One or more telephone URIs. Multiple telephone numbers are separated by spaces. Telephone numbers MUST follow the formatting rules defined in [RFC 3966](https://tools.ietf.org/html/rfc3966).<br>A mobile phone number that has been approved for messaging from UPP MUST include a `mobile` parameter with an optional parameter value that defines the type of content that may be sent to this device. Valid values are `sms` and `mms` with `sms` being the default value.<br>UPP also defined two additional parameters that define the interaction model to be used with a telephone number. `fax` indetifies a phone number as a FAX machine numbr  and may be used as a target. `ivr` designates a phone number that should be used for interations via an Interactive Voice Response system.
 | `roles` | The roles this user has with regard to UPP workflows.  The list of defined roles are listed below.  Each Identity Provider MAY provide additional roles as well and any UPP system MUST propagate these roles in delegated requests.
 | `scopes` | A list of scopes requested and approved by this identity.
-| `tokens` | A list of all tokens provided by the Identity Providers.  This functionality can be used by UPP authorities to verify if a user was authenticated by a specific Identity Provider and provide additional capabilities, e.g. allow employees of that organization to perform additional functions suited to their internal position.
+| `tokens` | A list of all tokens provided by the Identity Providers.  This claim can be used by UPP authorities to verify if a user was authenticated by a specific Identity Provider and provide an extended set of capabilities, e.g. allow employees of that organization to perform additional functions suited to their internal position.
 
 Any UPP system is allowed to define its own claims, however claims can only be set by an Identity Provider.
 
@@ -126,23 +126,27 @@ A series of email claims
 
 | Claim | Description
 | - | - |
-| `user@example.com` | A simple email address
-| `user@example.com user@county.gov` | Two email addresses associated with an identity
-| `user+tag@example.com` | An email address for `user@example.com` that includes a tag, which is ignored (but preserved) by email servers during transport.
+|`user@example.com` | A simple email address
+|`user@example.com user@county.gov` | Two email addresses associated with an identity
+|`user+tag@example.com` | An email address for `user@example.com` that includes a tag, which is ignored (but preserved) by email servers during transport.
 
 A series of telephone claims
 
 | Claim | Description
 | - | - |
-| `tel:+18888675309` | A global telephone number for an identity
-| `tel:867-5309` | A local telephone number for a user that includes optional (but allowed) visual separators
-| `tel:8675309 tel:8005551212` | A pair of phone numbers, one in local format and one in global format, that are associated with the identity
-| `tel:+18888675309;mobile` | A global phone number with a mobile parameter.  UPP will use this number to send SMS messages only
-| `tel:+18888675309;mobile=mms;ivr tel:+1-800-555-1212;fax` | A global phone number with a mobile parameter that marks it as accepting MMS messages.  This phone number may also be used to call the user and walk them through an IVR workflow. A second number is provided for FAX documents and contains visual separators
+|`tel:+18888675309` | A global telephone number for an identity
+|`tel:867-5309` | A local telephone number for a user that includes optional (but allowed) visual separators
+|`tel:8675309 tel:8005551212` | A pair of phone numbers, one in local format and one in global format, that are associated with the identity
+|`tel:+18888675309;mobile` | A global phone number with a mobile parameter.  UPP will use this number to send SMS messages only
+|`tel:+18888675309;mobile=mms;ivr tel:+1-800-555-1212;fax` | A global phone number with a mobile parameter that marks it as accepting MMS messages.  This phone number may also be used to call the user and walk them through an IVR workflow. A second number is provided for FAX documents and contains visual separators
 
 ### Scopes
 
-A scope define the specific access that a user needs. Each API MAY require specific scopes to access functional endpoints.
+A scope provides a mechnism for limiting access to specific UPP resources.  Every identity will have certain lpatform scopes that it is allowed to access, but it is possible for each identify to request tokens with a limited scope for security reasons.
+
+For example, a user that is allowed to edit Permit requests may choose to request a token with only `permit:review` in order to query the permit data and generate reports.  This way, they are assured that a misconfigured reports will not inadvertently cause a Permit to be altered.
+
+Each API MAY require specific scopes to access its functional endpoints, but is not REQUIRED to do so.
 
 | Scope | Description |
 | - | - |
@@ -208,8 +212,8 @@ The valid UPP Service Types are
 
 * `route` for Esri-compatible routing services
 * `geometry` for Esri-compatible geometry services
-* `boundaries.county` for County boundaries use to identify a route's authorities
-* `boundaries.city` for City boundaries use to identify a route's authorities
+* `boundaries.county` for County boundaries used to identify a route's authorities
+* `boundaries.city` for City boundaries used to identify a route's authorities
 * `upp` for generic UPP data services
 * `upp.information.axle` for UPP axle information
 * `upp.information.company` for UPP company information
@@ -735,9 +739,31 @@ Returns a collection of all provisions that the UPP authority may apply.
 
 Apply the provisiont to the permit record.
 
-## UPP Records
+## UPP Records Types
 
 The UPP records define the types that can be received and sent among UPP-compliant systems.  Each record is assigned it's own MIME type and the payload follow [jsonapi](http://jsonapi.org) conventions.
+
+### Microservice Configuration
+
+```text
+{
+  "id": "esri_com+geometry",
+  "type": "microservice-config",
+  "attributes": {
+    "authority": "esri_com",
+    "description": null,
+    "displayName": "Esri Geometry Service",
+    "format": "esri_geometry_service",
+    "name": "esri.geometry",
+    "oAuthId": "",
+    "priority": 1,
+    "scopes": "geometry.services",
+    "tokenId": "",
+    "type": "geometry",
+    "uri": "https://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer"
+  }
+}
+```
 
 ### Permit Issuer Metadata (application/vnd.upp.permit-issuer.metadata)
 
