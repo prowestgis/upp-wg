@@ -1,0 +1,5 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "pattern": "^([a-zA-Z0-9]+)([ ][a-zA-Z0-9]+)*$"
+}

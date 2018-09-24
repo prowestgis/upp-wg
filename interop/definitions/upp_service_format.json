@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A list of valid data service formats",
+    "type": "string",
+    "enum": [
+        "esri_map_service",
+        "esri_feature_service",
+        "esri_geometry_service",
+        "esri_network_service",
+        "json_api"
+    ]
+}

@@ -208,7 +208,7 @@ services:read
 | `sort` | `string` | Can be one of `name`, `display_name` or `type`. Default: `name`
 | `direction` | `string` | Can be one of `asc` or `desc`. Default: `desc`
 
-The valid UPP Service Types are
+The valid UPP Service Type are
 
 * `route` for Esri-compatible routing services
 * `geometry` for Esri-compatible geometry services
@@ -221,6 +221,14 @@ The valid UPP Service Types are
 * `upp.information.trailer` for UPP trailer information
 * `upp.information.truck` for UPP truck information
 * `upp.information.vehicle` for UPP vehicle information
+
+The valid UPP Service Data Formats are
+
+* `esri_map_service` for Esri-compatible Map Layers Services
+* `esri_feature_service` for Esri-compatible Feature Services
+* `esri_geometry_service` for Esri-compatible Geometry Services
+* `esri_network_service` for Esri-compatible Network Routing Services
+* `json_api` for generic data in JSON API format
 
 ##### Response
 
@@ -343,7 +351,7 @@ Registration MUST be passed in as a JSON-encoded service registration record. Mo
 | `labels.scopes` | `string` | A space-separated list of UPP service scopes implemented by this endpoint.
 | `labels.authority` | `string` | The UPP Authority that is responsible for providing this service instance.
 | `labels.type` | `string` | The UPP service type that is implemented by this service.
-| `label.format` | `string` | The format of the data provided by this service endpoint.  Valid values are `esri_map_service`, `esri_feature_service` and `json_api`
+| `label.format` | `string` | The format of the data provided by this service endpoint.  Valid values are `esri_map_service`, `esri_feature_service`, `esri_geometry_service`, `esri_network_service` and `json_api`
 |`annotations.description` | `string` | A longer description of the service.  This should include information about usage and suitability of the data service, if possible.
 | `annotations.priority` | `number` | A value that sets the relative priority of the service.<br><br>If multiple services of the same type are registered, any UPP system MUST attempt to use higher priority data source before ones of lower priority.  Additionally, if two data sources with different priorities return data for the same entity, a UPP system MUST accept the data from the source of higher priority and discard the lower priority information.<br><br>It is service-defined whether lower-priority data responses can be merged on a per-record or per-attribute basis.
 | `annotations.oAuthId` | `string` | References a specific set of cached OAuth credentials that should be unsed to aquire an access token from the service on behalf of the UPP client.  The method of acquiring the token is implementation-defined.
@@ -743,24 +751,24 @@ Apply the provisiont to the permit record.
 
 The UPP records define the types that can be received and sent among UPP-compliant systems.  Each record is assigned it's own MIME type and the payload follow [jsonapi](http://jsonapi.org) conventions.
 
-### Microservice Configuration
+### Microservice Configuration ((application/vnd.upp.microservice-config)
 
 ```text
 {
-  "id": "esri_com+geometry",
+  "id": string,
   "type": "microservice-config",
   "attributes": {
-    "authority": "esri_com",
-    "description": null,
-    "displayName": "Esri Geometry Service",
-    "format": "esri_geometry_service",
-    "name": "esri.geometry",
-    "oAuthId": "",
-    "priority": 1,
-    "scopes": "geometry.services",
-    "tokenId": "",
-    "type": "geometry",
-    "uri": "https://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer"
+    "authority": <UPP Authority>,
+    "description": string,
+    "displayName": string,
+    "format": <UPP Service Data Format>,
+    "name": <SVC-style name>,
+    "oAuthId": string,
+    "priority": int32,
+    "scopes": string,
+    "tokenId": string,
+    "type": <UPP Service Type>,
+    "uri": URI
   }
 }
 ```

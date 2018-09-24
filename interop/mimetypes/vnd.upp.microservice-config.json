@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A service configuration object that is passed into the Discovery API",
+    "type": "object",
+    "required": [ "id", "type", "metadata" ],
+    "properties": { 
+        "id": { "type": "string" },
+        "type": {
+            "type": "string",
+            "const": "microservice-config"
+        },
+        "metadata": {
+            "type": "object",
+            "required": [
+                "authority",
+                "description",
+                "displayName",
+                "format",
+                "name",
+                "priority",
+                "scopes",
+                "type",
+                "uri"
+            ],
+            "properties": {
+                "authority": { "$ref": "../definitions/upp_authority.json" },
+                "description": { "$ref": "../definitions/nonEmptyString.json" },
+                "displayName": { "$ref": "../definitions/nonEmptyString.json" },
+                "format": { "$ref": "../definitions/upp_service_format.json" },
+                "name": { "$ref": "../definitions/dnsSvcShortString.json" },
+                "oAuthId": { "type": [ "string", "null" ]},
+                "priority": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "scopes": { "$ref": "../definitions/spaceSeparatedStringList.json" },
+                "tokenId": { "type": [ "string", "null" ]},
+                "type": { "$ref": "../definitions/upp_service_type.json" },
+                "uri": { "$ref": "../definitions/secureWebResource.json" }
+            }
+        }        
+    }
+}

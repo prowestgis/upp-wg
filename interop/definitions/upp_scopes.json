@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A list of valid scopes that can be requested from UPP Authentication Endpoints",
+    "type": "string",
+    "enum": [
+        "permit:request",
+        "permit:review",
+        "permit:enforcement",
+        "services:write",
+        "services:read"
+    ]
+}

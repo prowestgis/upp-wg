@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A list of valid data service types",
+    "type": "string",
+    "enum": [
+        "route",
+        "geometry",
+        "boundaries.county",
+        "boundaries.city",
+        "upp",
+        "upp.information.axle",
+        "upp.information.company",
+        "upp.information.insurance",
+        "upp.information.trailer",
+        "upp.information.truck",
+        "upp.information.vehicle"
+    ]
+}

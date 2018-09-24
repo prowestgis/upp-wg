@@ -1,0 +1,7 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A unique identifier for registered UPP Authorities",
+    "type": "string",
+    "pattern": "^([a-z0-9/]+)_([a-z0-9]{3})_([a-z]{2})$"
+}
