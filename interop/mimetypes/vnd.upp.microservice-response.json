@@ -1,0 +1,33 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A collection of changes made to the service registrations in response to a POST",
+    "type": "object",
+    "required": [ "added", "updated", "removed", "failed" ],
+    "properties": { 
+        "added": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "updated": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "removed": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "failed": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }        
+    }
+}

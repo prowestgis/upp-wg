@@ -362,7 +362,7 @@ Registration MUST be passed in as a [UPP Microservice Registration Records](inte
 
 ```json
 POST /api/v1/agent/register
-Content-Type: application/vnd.upp.service-registration
+Content-Type: application/vnd.upp.microservice-registration
 {
     "kind": "Service",
     "apiVersion": "v1",
@@ -393,16 +393,18 @@ Content-Type: application/vnd.upp.service-registration
 
 ##### Response
 
-Regardless of whether the registration succees or not, a 200 OK response will be sent to the client with a list of the current set of service changes made in response to the request.
+Regardless of whether the registration succees or not, a 200 OK response will be sent to the client as a [UPP Microservice Response]((interop/mimetypes/vnd.upp.microservice-response.json) with a list of the current set of service changes made in response to the request.
 
 If a service failed to register for any known reason, it will be listed in the `failed` array.
 
 ```json
+Content-Type: application/vnd.upp.microservice-response
+
 {
-    "added": [],
+    "added": [ "upp_mja_mn+upp.information.vehicle"],
     "updated": [],
     "removed": [],
-    "failed": []
+    "failed": [ "esri_com+county.boundaries"]
 }
 ```
 

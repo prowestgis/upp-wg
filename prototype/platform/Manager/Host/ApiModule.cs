@@ -571,7 +571,7 @@ namespace Manager.Host
     {
         public HaulerApiInfo(Services services) : base("/api/hauler")
         {
-            this.RequiresAuthentication();
+            this.RequiresAuthentication();            
             this.RequiresClaims(new[] { Claims.HAULER });
 
             Get["/"] = _ => Response.AsJson(new HaulerInfoView(Context, services));
