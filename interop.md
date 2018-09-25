@@ -6,8 +6,7 @@ The Unified Permitting Project (UPP) Interoprability Specificaion is intended to
 
 Today, in order to apply for an oversize/overweight permit, members of the hauling industry need toapply for these types of permits for large loads through each individual roadway authority they will be traveling through. MnDOT, counties and cities all administer permits for their own roadways. This requires several different permit applications and processes from each roadway authority for an individual hauler.
 
-Local government agencies and MnDOT each use different software or paper/FAX systems to issue
-permits. The process of setting requirements to issue a permit is a common element between the various systems whether digital or paper. Each agency has set information requirements for issuing permits, some include vehicle registration details, weight, axle details, dimensions (width, height, length, overhang), trailer details, route description, other permits, and hauling dates.
+Local government agencies and MnDOT each use different software or paper/FAX systems to issue permits. The process of setting requirements to issue a permit is a common element between the various systems whether digital or paper. Each agency has set information requirements for issuing permits, some include vehicle registration details, weight, axle details, dimensions (width, height, length, overhang), trailer details, route description, other permits, and hauling dates.
 
 The purpose of this specification is to define a feasible implementation of a unified permitting process for oversize/overweight vehicle permit applications across all roadway authorities.
 
@@ -295,7 +294,7 @@ Content-Type: application/vnd.api+json
         "type": "county.boundaries",
         "uri": "https://services.arcgis.com/BG6nSlhZSAWtExvp/arcgis/rest/services/counties_MN/FeatureServer/0"
       }
-    },    
+    },
     {
       "id": "upp_mja_mn+upp.information.vehicle",
       "type": "microservice-config",
@@ -322,8 +321,6 @@ Content-Type: application/vnd.api+json
 #### Register service
 
 Add a new service to the services directory.
-
-_The service directory implementation is influenced by Kubernetes but restricted. In Kubernetes terminology, the UPP services are closer to a Pod_
 
 ```http
 POST /services
@@ -356,7 +353,6 @@ Registration MUST be passed in as a [UPP Microservice Registration Records](inte
 | `annotations.priority` | `number` | A value that sets the relative priority of the service.<br><br>If multiple services of the same type are registered, any UPP system MUST attempt to use higher priority data source before ones of lower priority.  Additionally, if two data sources with different priorities return data for the same entity, a UPP system MUST accept the data from the source of higher priority and discard the lower priority information.<br><br>It is service-defined whether lower-priority data responses can be merged on a per-record or per-attribute basis.
 | `annotations.oAuthId` | `string` | References a specific set of cached OAuth credentials that should be unsed to aquire an access token from the service on behalf of the UPP client.  The method of acquiring the token is implementation-defined.
 | `annotations.tokenId` | `string` | References a specific set of cached  credentials that should be unsed to aquire a generic access token from the service on behalf of the UPP client.  The method of acquiring the token is implementation-defined.
-
 
 ##### Request
 
@@ -401,10 +397,10 @@ If a service failed to register for any known reason, it will be listed in the `
 Content-Type: application/vnd.upp.microservice-response
 
 {
-    "added": [ "upp_mja_mn+upp.information.vehicle"],
+    "added": [ "upp_mja_mn+upp.information.vehicle" ],
     "updated": [],
     "removed": [],
-    "failed": [ "esri_com+county.boundaries"]
+    "failed": [ "esri_com+county.boundaries" ]
 }
 ```
 
@@ -469,7 +465,7 @@ The permit repository MUST conform the the following structure
 ```text
 /
 |- permit.json
-|- attachments 
+|- attachments
 ```
 
 Any system may place additional files in the repository as long as they are placed within a dotted-folder with the name of the authority that created it.  For example, this is a valid UPP repoitory structure
@@ -481,7 +477,7 @@ Any system may place additional files in the repository as long as they are plac
 |   +- image.png
 |
 |- permit.json
-+- attachments 
++- attachments
 ```
 
 However, adding additional, non-dotted files to the top level of the respository is INVALID.
@@ -767,7 +763,7 @@ Return a single [Permit Record](#Permit-Record) identified by the `receipt`. Thi
 
 Allows a user to submit updates to an existing permit that has already been issued.
 
-## Provisions
+### Provisions
 
 #### GET `{base}/provisions/catalog`
 
