@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A service registration object that is passed into the Discovery API",
+    "type": "object",
+    "required": [ "kind", "apiVersion", "metadata", "spec" ],
+    "properties": { 
+        "kind": {
+            "type": "string",
+            "const": "Service"
+        },
+        "apiVersion": {
+            "type": "string",
+            "const": "v1"
+        },
+        "metadata": {
+            "type": "object",
+            "required": [
+                "name",
+                "uid",
+                "labels",
+                "annotation"
+            ],
+            "properties": {
+                "name": { "$ref": "../definitions/dnsSvcShortString.json" },
+                "uid": { "$ref": "../definitions/rfc_4122_uuid.json" },
+                "labels": {
+                    "type": "object",
+                    "required": [
+                        "friendlyName",
+                        "scopes",
+                        "authority",
+                        "type",
+                        "format"
+                    ],
+                    "properties": {
+                        "friendlyName": { "$ref": "../definitions/nonEmptyString.json" },
+                        "scopes": { "$ref": "../definitions/spaceSeparatedStringList.json" },
+                        "authority": { "$ref": "../definitions/upp_authority.json" },
+                        "type": { "$ref": "../definitions/upp_service_type.json" },
+                        "format": { "$ref": "../definitions/upp_service_format.json" }                        
+                    }
+                },
+                "annotations": {
+                    "type": "object",
+                    "required": [
+                        "description",
+                        "priority"
+                    ],
+                    "properties": {
+                        "description": { "$ref": "../definitions/nonEmptyString.json" },
+                        "priority": { "type": "integer", "minimum": 1 },
+                        "oAuthId": { "type": [ "string", "null" ]},
+                        "tokenId": { "type": [ "string", "null" ]}                
+                    }
+                }
+            }        
+        },
+        "spec": {
+            "type": "object",
+            "required": [
+                "type",
+                "externalName",
+                "path"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "const": "ExternalName"        
+                },
+                "externalName": { "$ref": "../definitions/secureWebResource.json" },
+                "path": { "type": "string" }
+            }
+        }        
+    }
+}

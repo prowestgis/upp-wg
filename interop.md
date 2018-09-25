@@ -341,7 +341,7 @@ services:write
 
 ##### Parameters
 
-Registration MUST be passed in as a JSON-encoded service registration record. Most of the parameters of the `service registration` record have a direct correspondence to the values returned by the registered services endpoint.
+Registration MUST be passed in as a [UPP Microservice Registration Records](interop/mimetypes/vnd.upp.microservice-registration.json). Most of the parameters of the `service registration` record have a direct correspondence to the values returned by the registered services endpoint.
 
 | Name | Type | Description |
 | - | - | -
