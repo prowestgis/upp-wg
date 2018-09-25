@@ -232,7 +232,7 @@ The valid UPP Service Data Formats are
 
 ##### Response
 
-The endpoint MUST return a collection of [UPP Microservice Configuration Records](mimetypes/vnd.upp.microservice-config.json) in JSON API format. Each service is uniquely identified by its authority name concatenaded with the service type.
+The endpoint MUST return a collection of [UPP Microservice Configuration Records](interop/mimetypes/vnd.upp.microservice-config.json) in JSON API format. Each service is uniquely identified by its authority name concatenaded with the service type.
 
 This allows any authority to provide, at most, one instance of each service but permits the same service to be provided by multiple authorities.  There are three common situations where multiple authorities will provide an implementation of the same service
 
