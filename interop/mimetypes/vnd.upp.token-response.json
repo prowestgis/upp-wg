@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A collection of token information with a UPP system logs in on a user's behalf",
+    "type": "object",
+    "required": [ "name", "url", "token", "is_secured" ],
+    "properties": { 
+        "name": { "$ref": "../definitions/nonEmptyString.json" },
+        "url": { "$ref": "../definitions/secureWebResource.json" },
+        "token": { "$ref": "../definitions/nonEmptyString.json" },
+        "is_secured": { "type": "boolean" }
+    }
+}

@@ -427,6 +427,8 @@ GET /services/:name/token (Admin Only)
 POST /service/:name/token
 ```
 
+The response is returned as a [UPP Token Response](interop/mimetypes/vnd.upp.token-response.json).
+
 ##### Within Scopes
 
 None
@@ -442,6 +444,8 @@ None
 ##### Response
 
 ```json
+Content-Type: application/vnd.upp.token-response
+
 {
   "name": "esri.routing",
   "url": "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
@@ -484,7 +488,7 @@ However, adding additional, non-dotted files to the top level of the respository
 
 #### Permit Document Structure
 
-The `permit.json` document has the following structure
+The `permit.json` document has the following structure with MIME Type [application/vnd.upp.permit](interop/mimetypes/vnd.upp.permit.json)
 
 ```json
 {
@@ -549,7 +553,7 @@ Returns a [Permit Issuer Metadata](#Permit-Issuer-Metadata) record to the client
 
 #### GET `{base}/permits`
 
-Return a list of [Permit Records](#Permit-Record) filtered by the identified user. This endpoint MUST be secured and MUST filter permits by recognizing the following role claims
+Return a list of [Permit Records](interop/mimetypes/vnd.upp.permit.json) filtered by the identified user. This endpoint MUST be secured and MUST filter permits by recognizing the following role claims
 
 * The `hauler` claim SHOULD allow the user to retrieve all of permits that have been issues to this user.  The user SHALL be identified by the contents of an `email` claim, an IdP token from the `tokens` claim, or a combination of the two. The implementing system DOES NOT need to return all permits in a single transaction, but MAY provide pagination via a `_links` JSON subrecord that follows the [HAL](http://stateless.co/hal_specification.html) specification.
 
@@ -583,7 +587,7 @@ The primary endpoint that UPP clients should use to request a permit from the au
 
 ##### Response
 
-The response will be returned as a JSON API resource identifier document of type `permit-application` with an assigned GUID. A `links` section is defined that contains the URL of the new permit application and a git origin URL that other UPP systems can use to create a local checkout of the permit application files.
+The response will be returned as a JSON API resource identifier document of type [Permit Application](interop/mimetypes/vnd.upp.permit.json) with an assigned GUID. A `links` section is defined that contains the URL of the new permit application and a git origin URL that other UPP systems can use to create a local checkout of the permit application files.
 
 ```json
 {
@@ -614,7 +618,7 @@ Retrive a specific permit application from a UPP authority. Only permits that or
 
 ##### Response
 
-The response is a full `permit-application` JSON API record.
+The response is a full[Permit Application](interop/mimetypes/vnd.upp.permit.json) JSON API record.
 
 ```json
 {
@@ -747,74 +751,4 @@ Returns a collection of all provisions that the UPP authority may apply.
 
 #### POST `{base}/provisions/apply`
 
-Apply the provisiont to the permit record.
-
-## UPP Records Types
-
-The UPP records define the types that can be received and sent among UPP-compliant systems.  Each record is assigned it's own MIME type and the payload follow [jsonapi](http://jsonapi.org) conventions.
-
-### JSON Schema
-
-
-
-```text
-{
-  "title": "UPP Microservice Configration"
-  "properties": {
-    "id": { 
-    }
-  }
-
-  "id": string,
-  "type": "microservice-config",
-  "attributes": {
-    "authority": <UPP Authority>,
-    "description": string,
-    "displayName": string,
-    "format": <UPP Service Data Format>,
-    "name": <SVC-style name>,
-    "oAuthId": string,
-    "priority": int32,
-    "scopes": string,
-    "tokenId": string,
-    "type": <UPP Service Type>,
-    "uri": URI
-  }
-}
-```
-
-### Permit Issuer Metadata (application/vnd.upp.permit-issuer.metadata)
-
-```text
-{
-    "type": "upp.metadata",
-    "id": <authority-name>,
-    "attributes": {
-    }
-}
-```
-
-### Permit Request (application/vnd.upp.permit-request)
-
-### Permit Request Response (application/vnd.upp.permit-issuer.response)
-
-Any [link object](http://jsonapi.org/format/#document-links) that contains an `include-in-packet` meta property that is `true` references content that should be included in the final digital permit packet.
-
-```text
-{
-    "type": "upp.permit-response",
-    "id": <UUID>,
-    "attributes": {
-        "authority": string,
-        "timestamp": int64,
-        "status": "approved" | "denied" | "no_authority" | "under_review",
-    },
-    "links": {
-        "provisions": {
-            "href": "https://hostname/resources/provisions.pdf",
-            "meta": {
-                "include-in-packet": true | false
-            }
-        }
-    }
-}
+Apply the provisions to the permit record.

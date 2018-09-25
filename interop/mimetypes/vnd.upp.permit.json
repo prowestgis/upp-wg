@@ -1,0 +1,79 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$comment": "",
+    "description": "A UPP Permit record",
+    "type": "object",
+    "required": [ "meta", "links", "data" ],
+    "properties": {
+        "meta": {
+            "type": "object",
+            "required": [
+                "upp"
+            ],
+            "properties": {
+                "upp": {
+                    "type":"object",
+                    "required": [
+                        "version"
+                    ],
+                    "properties": {
+                        "version": {
+                            "type": "string",
+                            "const": "1.0.0"
+                        }
+                    }
+                }
+            }
+        },
+        "links": {
+            "type": "object",
+            "required": [
+                "origin"
+            ],
+            "properties": {
+                "origin": { "$ref": "../definitions/secureWebResource.json" },
+                "self": { "$ref": "../definitions/secureWebResource.json" }
+            }
+        },
+        "data": {
+            "type": "object",
+            "required": [
+                "type",
+                "id",
+                "meta",
+                "attributes"
+            ],
+            "properties": {
+                "type": { 
+                    "type": "string",
+                    "const": "permit-application"
+                },
+                "id": { "$ref": "../definitions/rfc_4122_uuid.json" },
+                "meta": { "type": "object" },
+                "attributes": {
+                    "type": "object",
+                    "required": [
+                        "form-data",
+                        "route",
+                        "authorities"
+                    ],
+                    "form-data": { "type": "object "},
+                    "route": { "type": "object "},
+                    "authorities": { "type": "object "}
+                },
+                "relationships": {
+                    "type": "object",
+                    "properties": {
+                        "bridges": {
+                            "type": "array",
+                            "items": { "type": "object" }
+                        },
+                        "weather": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
